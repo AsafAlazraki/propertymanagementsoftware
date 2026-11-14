@@ -133,18 +133,24 @@ export function PropertyScreen({ id, tab }: { id: string; tab: PropertyTab }) {
               <Shower className="size-4 text-ink-3" aria-hidden />
               <span className="num">{property.baths}</span> bath
             </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Car className="size-4 text-ink-3" aria-hidden />
-              <span className="num">{property.parking}</span> park
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Ruler className="size-4 text-ink-3" aria-hidden />
-              <span className="num">{property.floorArea}</span> m²
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <CalendarBlank className="size-4 text-ink-3" aria-hidden />
-              Built <span className="num">{property.yearBuilt}</span>
-            </span>
+            {property.parking > 0 && (
+              <span className="inline-flex items-center gap-1.5">
+                <Car className="size-4 text-ink-3" aria-hidden />
+                <span className="num">{property.parking}</span> park
+              </span>
+            )}
+            {property.floorArea > 0 && (
+              <span className="inline-flex items-center gap-1.5">
+                <Ruler className="size-4 text-ink-3" aria-hidden />
+                <span className="num">{property.floorArea}</span> m²
+              </span>
+            )}
+            {property.yearBuilt > 0 && (
+              <span className="inline-flex items-center gap-1.5">
+                <CalendarBlank className="size-4 text-ink-3" aria-hidden />
+                Built <span className="num">{property.yearBuilt}</span>
+              </span>
+            )}
           </p>
         </div>
       </header>
