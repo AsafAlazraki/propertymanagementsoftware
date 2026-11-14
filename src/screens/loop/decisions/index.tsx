@@ -20,6 +20,7 @@ export function destinationOf(a: ActionItem): { to: string; params?: Record<stri
     case 'variation':
       return { to: '/loop/tenancies', search: { view: 'changes' } }
     case 'dispute':
+    case 'repair':
       return { to: '/loop/repairs', search: { job: a.refId } }
     case 'bank':
       return { to: '/loop/money' }

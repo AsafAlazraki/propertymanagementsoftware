@@ -50,6 +50,17 @@ export function useOnline(): boolean {
   )
 }
 
+/**
+ * The last non-empty value. A sheet whose subject is cleared when it closes
+ * would go blank for the length of its exit; this keeps the content until the
+ * next subject arrives.
+ */
+export function useLast<T>(value: T | null | undefined): T | null | undefined {
+  const [last, setLast] = useState(value)
+  if (value != null && value !== last) setLast(value)
+  return value ?? last
+}
+
 /** A value that follows `value` after it has been stable for `ms`. */
 export function useDebounced<T>(value: T, ms = 200): T {
   const [v, setV] = useState(value)

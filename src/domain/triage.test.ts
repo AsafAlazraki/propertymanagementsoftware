@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { dispatchMode, HAZARDS, hazardsFor, ISSUE_GROUPS, ISSUES, issueOf, triage } from './triage'
+import { buildSeed } from './seed'
+import { dispatchMode, HAZARDS, hazardsFor, ISSUE_GROUPS, ISSUES, issueOf, providerFor, triage } from './triage'
 
 const NOVEMBER = '2026-11-14'
 const JULY = '2026-07-14'
@@ -52,6 +53,9 @@ describe('anything that sounds dangerous is sorted upwards', () => {
     expect(hazardsFor('burning smell from the socket', 'power_point')[0]).toBe(HAZARDS.fire)
     expect(hazardsFor('the laundry is flooding', 'other').map((h) => h.key)).toEqual(['flood'])
     expect(hazardsFor('', 'dripping_tap')).toEqual([])
+    // A standing caveat on a card is not a danger someone has described.
+    expect(hazardsFor('The basin drains slowly.', 'blocked_sink')).toEqual([])
+    expect(hazardsFor('', 'burst_pipe').map((h) => h.key)).toEqual(['flood', 'electrical'])
   })
 })
 
@@ -160,5 +164,17 @@ describe('sending someone, or asking for a quote first', () => {
   it('asks for a quote when the cost is open-ended or unknown', () => {
     expect(dispatchMode('routine', { low: 100, high: 200, openEnded: true }, 350)).toBe('quote_first')
     expect(dispatchMode('routine', null, 350)).toBe('quote_first')
+  })
+
+  it('only ever matches a vetted tradesperson for the trade', () => {
+    const { providers } = buildSeed('2026-11-14')
+    expect(providerFor(providers, 'Plumber')?.name).toBe('Tūī Plumbing & Gas')
+    expect(providerFor(providers, 'Gasfitter')?.name).toBe('Tūī Plumbing & Gas')
+    expect(providerFor(providers, 'Heat pump technician')?.name).toBe('Korimako Heat Pumps')
+    // Clearpane Glass is still being vetted, and nobody in the demo network is a roofer.
+    expect(providerFor(providers, 'Glazier')).toBeUndefined()
+    expect(providerFor(providers, 'Roofer')).toBeUndefined()
+    // An inspector is not a tradesperson, whatever their title says.
+    expect(providerFor(providers, 'Property inspector')).toBeUndefined()
   })
 })

@@ -16,7 +16,7 @@
  * dangerous is sorted upwards. `possibleTenantFault` is a flag for a person to
  * check — it is never a finding.
  */
-import type { ISODate, Ticket, Urgency } from './types'
+import type { ISODate, Provider, Ticket, Urgency } from './types'
 
 export type Triage = Ticket['triage']
 
@@ -644,17 +644,27 @@ export function triage(description: string, issueKey: string, today?: ISODate): 
   return finish(issue.urgency, 0.85, issue.because, issue.trade)
 }
 
-/** The safety advice that applies to a report: the issue's own, plus anything the description raises. */
+/**
+ * What to do right now, for a report that describes a danger. Empty for an
+ * ordinary fault: a blocked sink does not need the sewage warning unless the
+ * words, or the kind of fault itself, say there is one.
+ */
 export function hazardsFor(description: string, issueKey: string): Hazard[] {
   const issue = issueOf(issueKey)
   const text = description.toLowerCase().replace(/[’`]/g, "'").replace(/\s+/g, ' ').trim()
   const danger = firstDanger(text)
-  const keys: HazardKey[] = []
-  if (danger?.hazard) keys.push(danger.hazard)
-  if (danger?.id === 'fire') keys.unshift('fire')
-  for (const k of issue.hazards) if (!keys.includes(k)) keys.push(k)
-  // Only the advice that fits: a described danger shows first; an issue's standing caveats follow.
-  return keys.map((k) => HAZARDS[k])
+  if (danger) {
+    const keys: HazardKey[] = danger.id === 'fire' ? ['fire'] : []
+    if (danger.hazard) keys.push(danger.hazard)
+    return keys.map((k) => HAZARDS[k])
+  }
+  return issue.urgency === 'emergency' ? issue.hazards.map((k) => HAZARDS[k]) : []
+}
+
+/** The vetted tradesperson for a job, if the network has one. Suspended and unvetted providers are never matched. */
+export function providerFor(providers: Provider[], trade: string): Provider | undefined {
+  const want = trade.toLowerCase().split(/ or |, | and /)[0]
+  return providers.find((p) => p.kind === 'trade' && p.vetting === 'vetted' && p.trade.toLowerCase().includes(want))
 }
 
 /**

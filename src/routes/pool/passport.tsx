@@ -1,4 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Building } from '@/shell/Building'
+import { Passport } from '@/screens/pool/Passport'
 
-export const Route = createFileRoute('/pool/passport')({ component: () => <Building title="Rent Passport" /> })
+export const Route = createFileRoute('/pool/passport')({ component: Passport })

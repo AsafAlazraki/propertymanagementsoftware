@@ -34,13 +34,13 @@ import { checkTenantInvoice, tenantLiabilityCap } from '@/domain/rules/tenancy'
 import { dispatchMode, ISSUE_GROUPS, ISSUES, issueOf, LIABILITY_EXAMPLES, triage, URGENCY } from '@/domain/triage'
 import { useMe, useOrgRows, useStore } from '@/data/store'
 import { activeTenancy, useNameOf, usePack, useToday } from '@/data/hooks'
-import { logRepair, resolveFault } from '@/data/mutations'
+import { arrangeOwnTrade, logRepair, resolveFault } from '@/data/mutations'
 import { Page } from '@/shell/common'
 import { Badge, type Tone } from '@/ui/Badge'
 import { Button } from '@/ui/Button'
-import { Field, Segmented, Select, Textarea } from '@/ui/controls'
+import { Field, Input, Segmented, Select, Textarea } from '@/ui/controls'
 import { Empty, Fact, Facts, PageHeader, Timeline } from '@/ui/display'
-import { useMediaQuery } from '@/ui/hooks'
+import { useLast, useMediaQuery } from '@/ui/hooks'
 import { Why } from '@/ui/Law'
 import { Sheet } from '@/ui/Sheet'
 import { cn } from '@/ui/cn'
@@ -48,7 +48,7 @@ import { QuoteOffer } from './decisions/money'
 
 /* ─────────────────────────────── vocabulary ─────────────────────────────── */
 
-const NEEDS_YOU: TicketStatus[] = ['quote_ready', 'disputed']
+const NEEDS_YOU: TicketStatus[] = ['submitted', 'quote_ready', 'disputed']
 const URGENCY_RANK: Record<Urgency, number> = { emergency: 0, urgent: 1, routine: 2 }
 const URGENCY_TONE: Record<Urgency, Tone> = { emergency: 'danger', urgent: 'warn', routine: 'neutral' }
 const STAGES = ['Reported', 'Sorted', 'Booked', 'Fixed', 'Settled']
@@ -80,7 +80,7 @@ const whenText = (instant: string) => `${fmtDate(dateOf(instant))}, ${fmtTime(in
 function standing(tk: Ticket): { text: string; tone: Tone } {
   switch (tk.status) {
     case 'submitted':
-      return { text: 'Just reported', tone: 'info' }
+      return { text: 'Yours to arrange', tone: 'accent' }
     case 'quote_requested':
       return { text: 'Waiting for a quote', tone: 'neutral' }
     case 'quote_ready':
@@ -468,6 +468,50 @@ function CausePanel({ tk, provider, onDone }: { tk: Ticket; provider?: Provider;
   )
 }
 
+/** Nobody vetted to send: the landlord finds someone, and says who. */
+function ArrangePanel({ tk }: { tk: Ticket }) {
+  const [who, setWho] = useState('')
+  const [tried, setTried] = useState(false)
+  const trade = tk.triage.suggestedTrade.toLowerCase()
+  return (
+    <Panel tone="you" title={`This one is yours to arrange: it needs a ${trade}`}>
+      <div className="grid gap-4">
+        <p className="text-[13px] leading-relaxed text-ink-2">
+          Nobody vetted for this trade is in the network near this home yet, so Loop has not sent anyone. The tenant has
+          been told you are arranging it.
+        </p>
+        <Field
+          label="Who have you arranged?"
+          error={tried && who.trim().length < 2 ? 'Add a name, so the history shows who was sent.' : undefined}
+        >
+          {(p) => (
+            <Input
+              {...p}
+              value={who}
+              onChange={(e) => setWho(e.target.value)}
+              placeholder="For example: Nelson Roofing, Thursday morning"
+            />
+          )}
+        </Field>
+        <Button
+          intent="primary"
+          className="justify-self-start"
+          onClick={() => {
+            setTried(true)
+            if (who.trim().length < 2) return
+            arrangeOwnTrade(tk.id, who)
+            toast.success('Recorded', {
+              description: 'When the invoice arrives, add it in Money so it lands on the right tax line.',
+            })
+          }}
+        >
+          Record that it is arranged
+        </Button>
+      </div>
+    </Panel>
+  )
+}
+
 function ClosedPanel({ tk, provider }: { tk: Ticket; provider?: Provider }) {
   const paidBy =
     tk.paidFrom === 'tenant'
@@ -536,14 +580,7 @@ function JobDetail({ tk, heading, onDone }: { tk: Ticket; heading: boolean; onDo
 
         <Track status={tk.status} />
 
-        {tk.status === 'submitted' && (
-          <Panel title="Just in">
-            <p className="text-[13px] leading-relaxed text-ink-2">
-              Loop is sorting it now: how urgent it is, which trade it needs, and whether it is inside your automatic
-              limit.
-            </p>
-          </Panel>
-        )}
+        {tk.status === 'submitted' && <ArrangePanel tk={tk} />}
         {tk.status === 'quote_requested' && (
           <Panel title={`Waiting for a quote${provider ? ` from ${provider.name}` : ''}`}>
             <p className="text-[13px] leading-relaxed text-ink-2">
@@ -814,6 +851,7 @@ export function Repairs({ job }: { job?: string }) {
   const waiting = open.filter((t) => NEEDS_YOU.includes(t.status)).length
   const selected = asked ?? (wide ? list[0] : undefined)
   const addressOf = useMemo(() => new Map(properties.map((p) => [p.id, p.address.line1])), [properties])
+  const shown = useLast(asked)
   const pick = (id?: string) => void navigate({ to: '/loop/repairs', search: id ? { job: id } : {}, replace: true })
   const vacant = properties.filter((p) => !activeTenancy(tenancies, p.id)).length
 
@@ -961,11 +999,11 @@ export function Repairs({ job }: { job?: string }) {
           open={Boolean(asked)}
           onOpenChange={(o) => !o && pick(undefined)}
           size="lg"
-          eyebrow={asked ? [addressOf.get(asked.propertyId), asked.room].filter(Boolean).join(' · ') : undefined}
-          title={asked?.title ?? ''}
-          description={asked ? `${URGENCY[asked.triage.urgency].label} · ${asked.category}` : undefined}
+          eyebrow={shown ? [addressOf.get(shown.propertyId), shown.room].filter(Boolean).join(' · ') : undefined}
+          title={shown?.title ?? ''}
+          description={shown ? `${URGENCY[shown.triage.urgency].label} · ${shown.category}` : undefined}
         >
-          {asked && <JobDetail tk={asked} heading={false} onDone={() => pick(undefined)} />}
+          {shown && <JobDetail tk={shown} heading={false} onDone={() => pick(undefined)} />}
         </Sheet>
       )}
 

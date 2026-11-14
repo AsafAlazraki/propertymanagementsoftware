@@ -1,4 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Building } from '@/shell/Building'
+import { Me } from '@/screens/pool/Me'
 
-export const Route = createFileRoute('/pool/me')({ component: () => <Building title="Me" /> })
+export const Route = createFileRoute('/pool/me')({ component: Me })

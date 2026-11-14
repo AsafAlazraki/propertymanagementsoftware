@@ -73,7 +73,7 @@ export function PoolShell() {
             </nav>
           )}
           <span className="flex-1" />
-          <button type="button" onClick={() => setAsk(true)} className="pressable flex h-10 items-center gap-2 rounded-full bg-sunken px-3.5 text-[14px] font-medium text-ink-2 hoverable:hover:text-ink">
+          <button type="button" onClick={() => setAsk(true)} className="pressable flex h-10 shrink-0 items-center gap-2 rounded-full whitespace-nowrap bg-sunken px-3.5 text-[14px] font-medium text-ink-2 hoverable:hover:text-ink">
             <ChatCircleDots className="size-[18px]" aria-hidden />
             <span className="hidden sm:inline">Ask Pool</span>
             <span className="sm:hidden">Ask</span>

@@ -153,6 +153,16 @@ export function resolveFault(ticketId: ID, payer: 'tenant' | 'sinking_fund', not
   return billed
 }
 
+/** The landlord has found their own tradesperson for a job the network could not cover. */
+export function arrangeOwnTrade(ticketId: ID, who: string): void {
+  const tk = db.get().tickets.find((t) => t.id === ticketId)
+  if (!tk) return
+  db.update('tickets', ticketId, {
+    status: 'approved',
+    events: [...tk.events, { at: nowIso(), by: 'landlord', text: `You arranged ${who.trim()} yourself. Loop is not tracking their visit; record the cost in Money when the invoice arrives.` }],
+  })
+}
+
 export interface RepairLog {
   orgId: ID
   propertyId: ID
@@ -194,7 +204,7 @@ export function logRepair(r: RepairLog): ID | undefined {
     category: issue.category,
     photoIds: [],
     triage: sorted,
-    status: mode === 'auto_dispatch' ? 'approved' : 'quote_requested',
+    status: !provider ? 'submitted' : mode === 'auto_dispatch' ? 'approved' : 'quote_requested',
     mode,
     providerId: provider?.id,
     events: [
@@ -202,8 +212,9 @@ export function logRepair(r: RepairLog): ID | undefined {
       {
         at: now,
         by: 'system',
-        text:
-          mode === 'quote_first'
+        text: !provider
+          ? `Sorted as ${tier}. There is no vetted ${sorted.suggestedTrade.toLowerCase()} in the network yet, so it is yours to arrange.`
+          : mode === 'quote_first'
             ? `Sorted as routine. ${issue.cost ? `Likely over the ${money(limit)} limit` : 'The cost is not known yet'}, so a quote was requested from ${who}.`
             : `Sorted as ${tier}${sorted.urgency === 'routine' ? `, within the ${money(limit)} limit` : ''}: sent to ${who}.`,
       },
