@@ -43,7 +43,7 @@ export function Records({ property }: { property: Property }) {
   const docs = useMemo(() => allDocs.filter((d) => d.propertyId === property.id).sort((a, b) => b.addedAt.localeCompare(a.addedAt)), [allDocs, property.id])
 
   return (
-    <div className="grid items-start gap-6 lg:grid-cols-2">
+    <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-6 lg:grid-cols-2">
       <section aria-labelledby="keys-title" className="min-w-0">
         <p className="eyebrow">Key custody</p>
         <h2 id="keys-title" className="mb-3 text-[17px] font-semibold tracking-[-0.01em] text-ink">
@@ -54,7 +54,7 @@ export function Records({ property }: { property: Property }) {
             <Empty icon={<Key />} title="No keys registered" body="Register a spare set at a key depot or in a lockbox, and trades and inspectors can be let in with a one-time code instead of a handover." />
           </div>
         ) : (
-          <ul className="grid gap-2.5">
+          <ul className="grid grid-cols-[minmax(0,1fr)] gap-2.5">
             {property.keys.map((k) => {
               const h = HOLDER[k.holder]
               return (
