@@ -409,8 +409,23 @@ export function ignoreBankLine(lineId: ID): void {
   db.update('bankLines', lineId, { status: 'ignored' })
 }
 
-export function addExpense(input: { orgId: ID; propertyId: ID; date: ISODate; amount: number; category: string; description: string }): void {
-  db.insert('ledger', { id: newId('led'), orgId: input.orgId, propertyId: input.propertyId, date: input.date, kind: 'expense', amount: -Math.abs(input.amount), category: input.category, description: input.description.trim(), match: 'manual' })
+/** Puts a bank line back the way the feed left it, and removes the ledger entry filing it made. */
+export function unfileBankLine(lineId: ID, was: 'suggested' | 'unmatched'): void {
+  const line = db.get().bankLines.find((l) => l.id === lineId)
+  if (!line) return
+  if (line.ledgerId) db.remove('ledger', line.ledgerId)
+  db.update('bankLines', lineId, { status: was, ledgerId: undefined })
+}
+
+/** Adds a cost by hand. Returns the entry's id so the screen can offer to take it back. */
+export function addExpense(input: { orgId: ID; propertyId: ID; date: ISODate; amount: number; category: string; description: string }): ID {
+  const id = newId('led')
+  db.insert('ledger', { id, orgId: input.orgId, propertyId: input.propertyId, date: input.date, kind: 'expense', amount: -Math.abs(input.amount), category: input.category, description: input.description.trim(), match: 'manual' })
+  return id
+}
+
+export function removeLedgerEntry(id: ID): void {
+  db.remove('ledger', id)
 }
 
 /* ────────────────────────────────── queue ───────────────────────────────── */

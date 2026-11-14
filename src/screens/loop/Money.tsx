@@ -26,7 +26,7 @@ import { dateOf, diffDays, fmtDate, today } from '@/domain/rules/calendar'
 import { money, round2, sum } from '@/domain/rules/format'
 import { useStore } from '@/data/store'
 import { activeTenancy, usePack, useToday } from '@/data/hooks'
-import { addExpense, fileBankLine, ignoreBankLine } from '@/data/mutations'
+import { addExpense, fileBankLine, ignoreBankLine, removeLedgerEntry, unfileBankLine } from '@/data/mutations'
 import { Page } from '@/shell/common'
 import { Badge } from '@/ui/Badge'
 import { Button } from '@/ui/Button'
@@ -70,6 +70,7 @@ function FileLine({ line, onClose }: { line: BankLine | null; onClose: () => voi
   const [propertyId, setPropertyId] = useState('')
   const [category, setCategory] = useState('')
   const [what, setWhat] = useState('')
+  const [tried, setTried] = useState(false)
   const income = (line?.amount ?? 0) >= 0
   const options = pack.taxCategories.filter((c) =>
     income ? c.kind === 'income' || c.key === 'private' : c.kind !== 'income',
@@ -99,7 +100,7 @@ function FileLine({ line, onClose }: { line: BankLine | null; onClose: () => voi
               sure, which is not sure enough to file it for you.
             </Callout>
           )}
-          <Field label="Which property?">
+          <Field label="Which property?" error={tried && !pid ? 'Choose the property this belongs to.' : undefined}>
             {(p) => (
               <Select {...p} value={pid} onChange={(e) => setPropertyId(e.target.value)}>
                 <option value="">Choose a property…</option>
@@ -114,6 +115,7 @@ function FileLine({ line, onClose }: { line: BankLine | null; onClose: () => voi
           <Field
             label="What kind of money is it?"
             hint={chosen ? `${chosen.hint} On the return: ${chosen.formLine}.` : undefined}
+            error={tried && !cat ? 'Choose what kind of money it was, so it lands on the right line.' : undefined}
           >
             {(p) => (
               <Select {...p} value={cat} onChange={(e) => setCategory(e.target.value)}>
@@ -139,11 +141,14 @@ function FileLine({ line, onClose }: { line: BankLine | null; onClose: () => voi
           <div className="flex flex-wrap gap-2">
             <Button
               intent="primary"
-              disabled={!pid || !cat}
               onClick={() => {
+                setTried(true)
+                if (!pid || !cat) return
+                const was = line.status === 'suggested' ? 'suggested' : 'unmatched'
                 fileBankLine(line.id, pid, cat, what.trim() || `${chosen?.label ?? 'Payment'} — ${line.reference}`)
                 toast.success('Filed', {
                   description: `Under ${chosen?.label.toLowerCase() ?? cat}. The books still balance.`,
+                  action: { label: 'Undo', onClick: () => unfileBankLine(line.id, was) },
                 })
                 onClose()
               }}
@@ -153,15 +158,18 @@ function FileLine({ line, onClose }: { line: BankLine | null; onClose: () => voi
             <Button
               intent="ghost"
               onClick={() => {
+                const was = line.status === 'suggested' ? 'suggested' : 'unmatched'
                 ignoreBankLine(line.id)
-                toast('Left out of the rental books', { description: 'Nothing was filed for this line.' })
+                toast('Left out of the rental books', {
+                  description: 'Nothing was filed for this line.',
+                  action: { label: 'Undo', onClick: () => unfileBankLine(line.id, was) },
+                })
                 onClose()
               }}
             >
               It is nothing to do with the rentals
             </Button>
           </div>
-          {(!pid || !cat) && <p className="text-xs text-ink-3">Choose a property and a kind of money to file it.</p>}
         </div>
       )}
     </Sheet>
@@ -259,9 +267,10 @@ function AddExpense({ open, onClose }: { open: boolean; onClose: () => void }) {
           onClick={() => {
             setTried(true)
             if (bad.property || bad.amount || bad.what || !orgId) return
-            addExpense({ orgId, propertyId, date, amount: value, category, description: what })
+            const id = addExpense({ orgId, propertyId, date, amount: value, category, description: what })
             toast.success('Cost added', {
               description: `${money(value, { cents: true })} filed under ${chosen?.label.toLowerCase()}.`,
+              action: { label: 'Undo', onClick: () => removeLedgerEntry(id) },
             })
             onClose()
           }}
