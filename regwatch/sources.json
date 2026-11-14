@@ -153,7 +153,49 @@
     "selector": null,
     "frequency": "daily",
     "priority": 1,
-    "notes": "HTTP POST (not GET) with Content-Type: application/json and body {\"id\":null,\"documentPreset\":1,\"keyword\":\"tenancies\",\"selectCommittee\":null,\"status\":[],\"documentTypes\":[],\"documentSubtypes\":[],\"beforeCommittee\":null,\"billStages\":[],\"billTab\":\"Current\",\"billId\":null,\"includeBillStages\":true,\"subject\":null,\"person\":null,\"parliament\":null,\"dateFrom\":null,\"dateTo\":null,\"datePeriod\":null,\"restrictedFrom\":null,\"restrictedTo\":null,\"terminatedReason\":null,\"prettyTerminatedReason\":null,\"terminatedReasons\":[],\"column\":17,\"direction\":1,\"pageSize\":50,\"page\":1} . Returns JSON {results:[{id,title,billNumber,status,billCurrentStageName,lastStageDate,itemType,selectCommittee,...}],totalResults}. Observed 2 current bills: \"Residential Tenancies (Requiring Landlords to Provide Curtains) Amendment Bill\" 318-1 First Reading, and \"Residential Tenancies (Registration of Boarding House Landlords) Amendment Bill\" 183-1 Select Committee. Hash title+billNumber+status+lastStageDate per result. Undocumented internal API of the Blazor site (the HTML pages are a JS shell), so expect it to change without notice; fallback is the RSS feed. Set billTab to \"All\" to include enacted/terminated bills. Bill pages: https://bills.parliament.nz/v/6/{id}. TOP 10."
+    "notes": "HTTP POST (not GET) with Content-Type: application/json and body {\"id\":null,\"documentPreset\":1,\"keyword\":\"tenancies\",\"selectCommittee\":null,\"status\":[],\"documentTypes\":[],\"documentSubtypes\":[],\"beforeCommittee\":null,\"billStages\":[],\"billTab\":\"Current\",\"billId\":null,\"includeBillStages\":true,\"subject\":null,\"person\":null,\"parliament\":null,\"dateFrom\":null,\"dateTo\":null,\"datePeriod\":null,\"restrictedFrom\":null,\"restrictedTo\":null,\"terminatedReason\":null,\"prettyTerminatedReason\":null,\"terminatedReasons\":[],\"column\":17,\"direction\":1,\"pageSize\":50,\"page\":1} . Returns JSON {results:[{id,title,billNumber,status,billCurrentStageName,lastStageDate,itemType,selectCommittee,...}],totalResults}. Observed 2 current bills: \"Residential Tenancies (Requiring Landlords to Provide Curtains) Amendment Bill\" 318-1 First Reading, and \"Residential Tenancies (Registration of Boarding House Landlords) Amendment Bill\" 183-1 Select Committee. Hash title+billNumber+status+lastStageDate per result. Undocumented internal API of the Blazor site (the HTML pages are a JS shell), so expect it to change without notice; fallback is the RSS feed. Set billTab to \"All\" to include enacted/terminated bills. Bill pages: https://bills.parliament.nz/v/6/{id}. TOP 10.",
+    "request": {
+      "method": "POST",
+      "body": {
+        "id": null,
+        "documentPreset": 1,
+        "keyword": "tenancies",
+        "selectCommittee": null,
+        "status": [],
+        "documentTypes": [],
+        "documentSubtypes": [],
+        "beforeCommittee": null,
+        "billStages": [],
+        "billTab": "Current",
+        "billId": null,
+        "includeBillStages": true,
+        "subject": null,
+        "person": null,
+        "parliament": null,
+        "dateFrom": null,
+        "dateTo": null,
+        "datePeriod": null,
+        "restrictedFrom": null,
+        "restrictedTo": null,
+        "terminatedReason": null,
+        "prettyTerminatedReason": null,
+        "terminatedReasons": [],
+        "column": 17,
+        "direction": 1,
+        "pageSize": 50,
+        "page": 1
+      }
+    },
+    "pick": {
+      "list": "results",
+      "fields": [
+        "title",
+        "billNumber",
+        "status",
+        "billCurrentStageName",
+        "lastStageDate"
+      ]
+    }
   },
   {
     "id": "nz-parliament-bills-rss",
@@ -413,7 +455,12 @@
     "selector": null,
     "frequency": "weekly",
     "priority": 3,
-    "notes": "Undocumented public Solr proxy behind the orders search page https://forms.justice.govt.nz/search/TT/ (the page itself is an Angular shell). rows=0 returns only numFound (33,394 observed). Targeted queries work (q=<terms>&sort=publishedDate_dt desc) and return decision text plus PDF names. CAUTION: documents contain party names and tenancy addresses - do not store or republish them; use only for keyword-targeted case-law alerts reviewed by a human. Orders are unpublished after about 3 years. Strip responseHeader.QTime before hashing. robots.txt for this host could not be retrieved (connection reset)."
+    "notes": "Undocumented public Solr proxy behind the orders search page https://forms.justice.govt.nz/search/TT/ (the page itself is an Angular shell). rows=0 returns only numFound (33,394 observed). Targeted queries work (q=<terms>&sort=publishedDate_dt desc) and return decision text plus PDF names. CAUTION: documents contain party names and tenancy addresses - do not store or republish them; use only for keyword-targeted case-law alerts reviewed by a human. Orders are unpublished after about 3 years. Strip responseHeader.QTime before hashing. robots.txt for this host could not be retrieved (connection reset).",
+    "pick": {
+      "fields": [
+        "response.numFound"
+      ]
+    }
   },
   {
     "id": "nz-employment-public-holidays",

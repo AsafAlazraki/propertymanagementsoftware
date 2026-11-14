@@ -42,6 +42,7 @@ import {
 } from './rules/tenancy'
 import { checkRentOffer, parseAdvertisedRent, scanClause } from './rules/text'
 import { money, plural } from './rules/format'
+import { CHALLENGE_PATTERN } from './watcher'
 
 /* ─────────────────────────────── the watcher feed ───────────────────────── */
 
@@ -99,10 +100,9 @@ export function feedHasReported(feed: RegwatchFeed | null): feed is RegwatchFeed
  * has not changed its law; the fetch failed. The watcher applies this rule
  * first and this is the second line of defence.
  */
-const CHALLENGE = /_Incapsula_Resource|Just a moment\.\.\.|cf-chl-|Attention Required!|Checking your browser|Access Denied|Request unsuccessful\. Incapsula/i
 
 export function looksLikeChallenge(lines: string[]): boolean {
-  return lines.some((l) => CHALLENGE.test(l))
+  return lines.some((l) => CHALLENGE_PATTERN.test(l))
 }
 
 /** Money caps, notice periods and termination grounds: the rules that need two reviewers. */

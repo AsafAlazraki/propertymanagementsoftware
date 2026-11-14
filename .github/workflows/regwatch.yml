@@ -1,0 +1,68 @@
+name: regwatch
+
+# Reads the official sources once a day and records what moved.
+# Detection only: nothing here changes a rule. A person does that in the
+# team console (Rulewatch), after reading the evidence.
+on:
+  schedule:
+    # 18:17 UTC is early morning in New Zealand and eastern Australia, and off the hour.
+    - cron: '17 18 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: regwatch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+
+      - name: Wait a random few minutes
+        if: github.event_name == 'schedule'
+        run: sleep $((RANDOM % 300))
+
+      - name: Read the sources
+        run: node scripts/reg-watch.mjs
+        env:
+          # Optional. Without it the watcher still detects every change; it just does not draft a summary.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Optional. A User-Agent that names you and gives a contact address.
+          REGWATCH_USER_AGENT: ${{ vars.REGWATCH_USER_AGENT }}
+
+      # The feed's timestamp moves on every run, so this commits daily. That is
+      # deliberate: it is the heartbeat that shows the watcher is alive, and it
+      # stops GitHub disabling the schedule on a quiet repository.
+      - name: Commit what was seen
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/regwatch/feed.json regwatch/state
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git commit -q -m "Rulewatch: sources read $(date -u +%F)"
+          git pull -q --rebase origin main
+          git push -q origin HEAD:main
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      # A push made with the workflow token does not start other workflows,
+      # so the site is rebuilt explicitly to carry the new feed.
+      - name: Publish the site with the new feed
+        if: steps.commit.outputs.changed == 'true'
+        run: gh workflow run pages.yml --ref main
+        env:
+          GH_TOKEN: ${{ github.token }}

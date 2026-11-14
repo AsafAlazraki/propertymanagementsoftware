@@ -1,0 +1,196 @@
+{
+  "bond.max_weeks": {
+    "label": "Maximum bond",
+    "value": 4
+  },
+  "bond.pet_max_weeks": {
+    "label": "Maximum pet bond",
+    "value": 2
+  },
+  "bond.lodgement_deadline": {
+    "label": "Lodge the bond",
+    "value": {
+      "n": 23,
+      "unit": "working_days"
+    }
+  },
+  "rent.in_advance_max_weeks": {
+    "label": "Rent in advance",
+    "value": 2
+  },
+  "listing.fixed_price_required": {
+    "label": "State the rent",
+    "value": true
+  },
+  "listing.bidding_banned": {
+    "label": "No rent bidding",
+    "value": true
+  },
+  "listing.letting_fee_banned": {
+    "label": "No letting fees",
+    "value": true
+  },
+  "rent_increase.min_interval_months": {
+    "label": "Rent increases",
+    "value": 12
+  },
+  "rent_increase.notice": {
+    "label": "Notice of a rent increase",
+    "value": {
+      "n": 60,
+      "unit": "days"
+    }
+  },
+  "entry.inspection_notice_min": {
+    "label": "Inspection notice",
+    "value": {
+      "n": 48,
+      "unit": "hours"
+    }
+  },
+  "entry.inspection_notice_max": {
+    "label": "Inspection notice, at most",
+    "value": {
+      "n": 14,
+      "unit": "days"
+    }
+  },
+  "entry.inspection_min_interval": {
+    "label": "How often you can inspect",
+    "value": {
+      "n": 4,
+      "unit": "weeks"
+    }
+  },
+  "entry.repairs_notice_min": {
+    "label": "Entry for repairs",
+    "value": {
+      "n": 24,
+      "unit": "hours"
+    }
+  },
+  "entry.hours": {
+    "label": "Entry hours",
+    "value": {
+      "from": 8,
+      "to": 19
+    }
+  },
+  "termination.no_cause_allowed": {
+    "label": "Ending a periodic tenancy without a reason",
+    "value": true
+  },
+  "termination.landlord_periodic_notice": {
+    "label": "Landlord notice, periodic tenancy",
+    "value": {
+      "n": 90,
+      "unit": "days"
+    }
+  },
+  "termination.owner_occupy_notice": {
+    "label": "Owner or family moving in",
+    "value": {
+      "n": 42,
+      "unit": "days"
+    }
+  },
+  "termination.sale_notice": {
+    "label": "Sold with vacant possession",
+    "value": {
+      "n": 42,
+      "unit": "days"
+    }
+  },
+  "termination.tenant_periodic_notice": {
+    "label": "Tenant notice, periodic tenancy",
+    "value": {
+      "n": 21,
+      "unit": "days"
+    }
+  },
+  "fixed_term.notice_window": {
+    "label": "Fixed term ending",
+    "value": {
+      "earliest": {
+        "n": 90,
+        "unit": "days"
+      },
+      "latest": {
+        "n": 21,
+        "unit": "days"
+      }
+    }
+  },
+  "fixed_term.rolls_to_periodic": {
+    "label": "What happens if nobody acts",
+    "value": true
+  },
+  "pets.response_deadline": {
+    "label": "Answering a pet request",
+    "value": {
+      "n": 21,
+      "unit": "days"
+    }
+  },
+  "pets.refusal_needs_grounds": {
+    "label": "Refusing a pet",
+    "value": true
+  },
+  "arrears.remedy_notice": {
+    "label": "Notice to remedy",
+    "value": {
+      "n": 14,
+      "unit": "days"
+    }
+  },
+  "arrears.tribunal_threshold": {
+    "label": "Three weeks behind",
+    "value": {
+      "n": 21,
+      "unit": "days"
+    }
+  },
+  "arrears.repeat_rule": {
+    "label": "Repeatedly late",
+    "value": {
+      "occasions": 3,
+      "lateBy": {
+        "n": 5,
+        "unit": "working_days"
+      },
+      "within": {
+        "n": 90,
+        "unit": "days"
+      }
+    }
+  },
+  "requests.minor_change_response": {
+    "label": "Requests to change the home",
+    "value": {
+      "n": 21,
+      "unit": "days"
+    }
+  },
+  "damage.careless_cap_weeks": {
+    "label": "Careless damage",
+    "value": 4
+  },
+  "contract.contracting_out_void": {
+    "label": "You cannot contract out of the Act",
+    "value": true
+  },
+  "privacy.unsuccessful_applicant_retention": {
+    "label": "Unsuccessful applicants",
+    "value": {
+      "n": 30,
+      "unit": "days"
+    }
+  },
+  "records.retention_after_tenancy": {
+    "label": "Keeping records",
+    "value": {
+      "n": 12,
+      "unit": "months"
+    }
+  }
+}
