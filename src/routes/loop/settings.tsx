@@ -1,4 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Building } from '@/shell/Building'
+import { Settings } from '@/screens/loop/Settings'
 
-export const Route = createFileRoute('/loop/settings')({ component: () => <Building title="Settings" /> })
+export const Route = createFileRoute('/loop/settings')({ component: Settings })
