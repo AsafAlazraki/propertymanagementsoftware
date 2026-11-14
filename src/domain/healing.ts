@@ -21,7 +21,7 @@ import { addDays, dateOf, diffDays, fmtDate } from './rules/calendar'
 import { money } from './rules/format'
 
 export const PROMOTE_AFTER_APPROVALS = 3
-const STALE_SOURCE_DAYS = 7
+const STALE_SOURCE_DAYS = 3
 const CONFIDENT_MATCH = 0.9
 
 interface Finding {
@@ -165,7 +165,7 @@ function findAll(db: Db, today: ISODate): Finding[] {
       playbookId: 'pb_stale_source',
       key: `stale:${stale.map((s) => s.id).join(',')}`,
       severity: 'high',
-      title: `${stale.length} priority legal ${stale.length === 1 ? 'source has' : 'sources have'} not been read for over a week`,
+      title: `${stale.length} priority legal ${stale.length === 1 ? 'source has' : 'sources have'} not been read for more than ${STALE_SOURCE_DAYS} days`,
       signal: stale.map((s) => s.name).join('; '),
       diagnosis: 'The scheduled watcher is failing or blocked for these sources.',
       proposedFix: 'Retry now. Until they are read, rules that depend on them are shown as “not recently verified”.',
