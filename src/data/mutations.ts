@@ -9,6 +9,7 @@
  */
 import type { ID, Inspection, ISODate, Variation } from '@/domain/types'
 import type { JurisdictionPack } from '@/domain/jurisdictions/types'
+import type { Finding, StandardKey } from '@/domain/healthyHomes'
 import { at } from '@/domain/seed'
 import { addDays, fmtDate, today } from '@/domain/rules/calendar'
 import { money } from '@/domain/rules/format'
@@ -233,6 +234,88 @@ export function scheduleInspection(inspectionId: ID, date: ISODate, hour: number
     db.insert('fieldTasks', { id: newId('ft'), orgId: i.orgId, propertyId: i.propertyId, type: 'routine_inspection', price, platformFee: Math.round((price * PLATFORM_FEE_PCT) / 100), status: 'accepted', providerId: inspector?.id, requestedAt: nowIso(), scheduledFor: at(date, hour), inspectionId })
     logAutopilot(i.orgId, 'inspection', `Booked ${inspector?.name ?? 'a local inspector'} for ${property?.address.line1 ?? 'the property'} on ${fmtDate(date)} and served the 48-hour notice.`)
   }
+}
+
+/* ──────────────────────────────── compliance ────────────────────────────── */
+
+export function saveStandard(propertyId: ID, key: StandardKey, finding: Finding): void {
+  const p = db.get().properties.find((x) => x.id === propertyId)
+  if (!p) return
+  db.update('properties', propertyId, { healthyHomes: { ...p.healthyHomes, [key]: { status: finding.status, detail: finding.detail, checkedAt: today() } } })
+}
+
+export function logSmokeAlarmTest(propertyId: ID): void {
+  const p = db.get().properties.find((x) => x.id === propertyId)
+  if (!p) return
+  db.update('properties', propertyId, { smokeAlarms: { ...p.smokeAlarms, lastChecked: today() } })
+}
+
+/** Generates the signed healthy homes statement from the property's own record and files it. */
+export function generateHealthyHomesStatement(propertyId: ID, tenancyId: ID | undefined): void {
+  const p = db.get().properties.find((x) => x.id === propertyId)
+  if (!p) return
+  db.update('properties', propertyId, { healthyHomes: { ...p.healthyHomes, statementSignedAt: today() } })
+  db.insert('docs', { id: newId('doc'), orgId: p.orgId, propertyId, tenancyId, name: 'Healthy homes compliance statement.pdf', kind: 'healthy_homes_statement', addedAt: nowIso(), sizeKb: 184, source: 'generated' })
+}
+
+export function addInsuranceStatement(propertyId: ID, tenancyId: ID | undefined, signer: string): void {
+  const p = db.get().properties.find((x) => x.id === propertyId)
+  if (!p) return
+  db.update('properties', propertyId, { insurance: { ...p.insurance, statementInAgreement: true } })
+  if (tenancyId) {
+    db.insert('variations', {
+      id: newId('var'),
+      orgId: p.orgId,
+      tenancyId,
+      type: 'custom_clause',
+      status: 'awaiting_tenant',
+      requestedBy: 'landlord',
+      requestedAt: nowIso(),
+      summary: 'Insurance statement added to the agreement',
+      detail: { insured: Boolean(p.insurance.insurer), excess: p.insurance.excess ?? 0 },
+      conditions: [],
+      signatures: [{ by: 'landlord', name: signer, at: nowIso() }],
+    })
+  }
+}
+
+export function setSinkingFund(propertyId: ID, patch: Partial<{ ratePct: number; autoApproveLimit: number }>): void {
+  const p = db.get().properties.find((x) => x.id === propertyId)
+  if (!p) return
+  db.update('properties', propertyId, { sinkingFund: { ...p.sinkingFund, ...patch } })
+}
+
+/* ─────────────────────────────────── money ──────────────────────────────── */
+
+/** Files a bank line the feed was unsure about. The landlord says what it was; the ledger entry follows. */
+export function fileBankLine(lineId: ID, propertyId: ID, category: string, description: string): void {
+  const state = db.get()
+  const line = state.bankLines.find((l) => l.id === lineId)
+  const property = state.properties.find((p) => p.id === propertyId)
+  if (!line || !property) return
+  const ledgerId = newId('led')
+  db.insert('ledger', {
+    id: ledgerId,
+    orgId: line.orgId,
+    propertyId,
+    tenancyId: line.suggestedTenancyId,
+    date: line.date,
+    kind: line.amount >= 0 ? (category === 'rent' ? 'rent' : 'tenant_invoice_payment') : 'expense',
+    amount: line.amount,
+    category,
+    description,
+    bankRef: line.reference,
+    match: 'manual',
+  })
+  db.update('bankLines', lineId, { status: 'matched', ledgerId })
+}
+
+export function ignoreBankLine(lineId: ID): void {
+  db.update('bankLines', lineId, { status: 'ignored' })
+}
+
+export function addExpense(input: { orgId: ID; propertyId: ID; date: ISODate; amount: number; category: string; description: string }): void {
+  db.insert('ledger', { id: newId('led'), orgId: input.orgId, propertyId: input.propertyId, date: input.date, kind: 'expense', amount: -Math.abs(input.amount), category: input.category, description: input.description.trim(), match: 'manual' })
 }
 
 /* ────────────────────────────────── queue ───────────────────────────────── */

@@ -11,7 +11,7 @@
  */
 import type { ArrearsEvent, BankLine, ISODate, LedgerEntry, Property, Tenancy } from '../types'
 import type { AutopilotEntry, Db } from '../db'
-import { addDays, diffDays } from '../rules/calendar'
+import { addDays, diffDays, fmtDate } from '../rules/calendar'
 import { money, round2 } from '../rules/format'
 
 const DEMO_ORG = 'org_whitaker'
@@ -67,7 +67,7 @@ export function rollForward(db: Db, today: ISODate): Db {
         kind: 'rent',
         amount,
         category: 'rent',
-        description: periods > 1 ? `Rent, ${periods} weeks from ${dueOn}` : `Rent, week from ${dueOn}`,
+        description: periods > 1 ? `Rent, ${periods} weeks from ${fmtDate(dueOn, { weekday: false, year: 'never' })}` : `Rent, week from ${fmtDate(dueOn, { weekday: false, year: 'never' })}`,
         bankRef: reference,
         match: 'auto',
         dueDate: dueOn,

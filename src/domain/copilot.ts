@@ -329,7 +329,7 @@ const INTENTS: Intent[] = [
       intent: 'healthy_homes',
       headline: 'Every rental must meet five standards from day one of a tenancy: heating, insulation, ventilation, moisture and drainage, and draught stopping.',
       body: [
-        'Heating: a fixed heater that can keep the main living room at 18 °C — at least 1.5 kW, sized with the official heating tool. Insulation: ceiling R 2.9 here (R 3.3 in the coldest zone) and underfloor R 1.3, or older ceiling insulation at least 120 mm thick.',
+        'Heating: a fixed heater that can keep the main living room at 18 °C — at least 1.5 kW, sized with the official heating tool. Insulation: ceiling R 3.3 across the South Island and central plateau (R 2.9 elsewhere) and underfloor R 1.3, or older ceiling insulation at least 120 mm thick.',
         'Ventilation: opening windows in living spaces, and extractor fans ducted outside in kitchens and bathrooms. Moisture: working gutters and drains, and a ground moisture barrier under an enclosed subfloor. Draughts: no unreasonable gaps; unused fireplaces blocked.',
         'A signed compliance statement goes in every new, renewed or varied agreement. A breach can cost up to $7,200.',
       ],

@@ -36,12 +36,12 @@ import type {
   Variation,
 } from '../types'
 import type { AutopilotEntry, Db } from '../db'
-import { addDays, addMonths, diffDays, weekday } from '../rules/calendar'
+import { addDays, addMonths, diffDays, fmtDate, weekday } from '../rules/calendar'
 import { round2 } from '../rules/format'
 import { BED_FACTOR, emailOf, FIRST_NAMES, LAST_NAMES, LISTING_FEATURES, phoneOf, prng, roundRent, STREETS, SUBURBS, type Suburb } from './world'
 import { buildPlatform } from './platform'
 
-export const SEED_VERSION = 1
+export const SEED_VERSION = 2
 
 export const DEMO = {
   org: 'org_whitaker',
@@ -208,7 +208,7 @@ export function buildSeed(day: ISODate): Db {
       onboardingMode: 'existing_tenancy_import',
       healthyHomes: {
         heating: HH_OK('6.0 kW heat pump in the living room; 4.8 kW required.', D(-380)),
-        insulation: HH_OK('Ceiling R 3.2, underfloor R 1.4, topped up 2019.', D(-380)),
+        insulation: HH_OK('Ceiling R 3.6 after a 2019 top-up, underfloor R 1.4.', D(-380)),
         ventilation: HH_OK('Extractor fans in kitchen (150 mm) and bathroom (125 mm), ducted outside.', D(-380)),
         moisture: HH_OK('Gutters clear; ground moisture barrier laid 2019.', D(-95)),
         draught: HH_OK('No gaps over 3 mm; no fireplace.', D(-95)),
@@ -302,10 +302,10 @@ export function buildSeed(day: ISODate): Db {
       onboardingMode: 'existing_tenancy_import',
       healthyHomes: {
         heating: HH_OK('7.1 kW heat pump; 5.6 kW required.', D(-420)),
-        insulation: HH_OK('Ceiling R 3.2, underfloor R 1.5.', D(-420)),
+        insulation: HH_OK('Ceiling R 3.6, underfloor R 1.5.', D(-420)),
         ventilation: { status: 'unknown', detail: 'Ensuite fan runs, but nobody has confirmed it is ducted to the outside.', checkedAt: D(-35) },
         moisture: HH_OK('Gutters cleaned in May; barrier in place.', D(-180)),
-        draught: HH_OK('Wood burner flue sealed when not in use.', D(-35)),
+        draught: HH_OK('No open fireplace; door and window seals intact.', D(-35)),
         statementSignedAt: D(-420),
       },
       smokeAlarms: { lastChecked: D(-410), type: 'photoelectric_10yr', expiryYear: 2028 },
@@ -316,8 +316,8 @@ export function buildSeed(day: ISODate): Db {
         { id: 'a1', kind: 'hot_water', label: 'Hot water cylinder (250 L)', installedYear: 2011, lifespanYears: 15, replaceCost: 3300 },
         { id: 'a2', kind: 'heat_pump', label: 'Heat pump (7.1 kW)', installedYear: 2020, lifespanYears: 14, replaceCost: 3900 },
         { id: 'a3', kind: 'roof', label: 'Concrete tile roof — repoint and seal', installedYear: 2012, lifespanYears: 18, replaceCost: 8500 },
-        { id: 'a4', kind: 'carpet', label: 'Carpet', installedYear: 2014, lifespanYears: 10, replaceCost: 8200 },
-        { id: 'a5', kind: 'paint_ext', label: 'Exterior repaint', installedYear: 2016, lifespanYears: 10, replaceCost: 11500 },
+        { id: 'a4', kind: 'carpet', label: 'Carpet', installedYear: 2018, lifespanYears: 10, replaceCost: 8200 },
+        { id: 'a5', kind: 'paint_ext', label: 'Exterior repaint', installedYear: 2019, lifespanYears: 10, replaceCost: 11500 },
         { id: 'a6', kind: 'dishwasher', label: 'Dishwasher', installedYear: 2017, lifespanYears: 10, replaceCost: 1100 },
       ],
       keys: [
@@ -405,8 +405,8 @@ export function buildSeed(day: ISODate): Db {
       art: { style: 0, hue: 55 },
       onboardingMode: 'existing_tenancy_import',
       healthyHomes: {
-        heating: { status: 'unknown', detail: 'A 2.4 kW panel heater is fitted. Nobody has run the heating calculation for this living room.' },
-        insulation: HH_OK('Ceiling R 2.9 installed 2017; underfloor foil replaced with R 1.4 polyester.', D(-700)),
+        heating: { status: 'unknown', detail: 'A fixed 2.4 kW panel heater. Nobody has run the heating tool, so it is not known whether the room needs more than 2.4 kW — the most a plain electric heater may cover.' },
+        insulation: HH_OK('Ceiling R 3.6 installed 2017; underfloor foil replaced with R 1.4 polyester.', D(-700)),
         ventilation: HH_OK('Bathroom fan (125 mm) ducted outside; kitchen rangehood ducted outside.', D(-23)),
         moisture: HH_OK('Barrier laid 2017; gutters clear at entry inspection.', D(-23)),
         draught: HH_OK('Door seals replaced at entry inspection.', D(-23)),
@@ -557,7 +557,7 @@ export function buildSeed(day: ISODate): Db {
         kind: 'rent',
         amount,
         category: 'rent',
-        description: `Rent, week from ${due}`,
+        description: `Rent, week from ${fmtDate(due, { weekday: false, year: 'never' })}`,
         bankRef: bankRefs[t.id][0],
         match: 'auto',
         dueDate: due,

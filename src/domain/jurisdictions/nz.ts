@@ -402,6 +402,34 @@ export const NZ: JurisdictionPack = {
     { key: 'private', label: 'Private or not claimable', kind: 'non_deductible', formLine: 'Not claimed', hint: 'Mortgage principal, costs of your own home.' },
   ],
 
+  taxForm: { name: 'IR3R', url: 'https://www.ird.govt.nz/-/media/project/ir/home/documents/forms-and-guides/ir1---ir99/ir3r/ir3r-2026.pdf' },
+  taxNotes: [
+    {
+      key: 'interest',
+      title: 'Interest is fully deductible again',
+      plain: 'From 1 April 2025 you can claim all of the interest on money borrowed for a residential rental. For the year before it was 80%.',
+      citation: 'Inland Revenue, property interest rules',
+      sourceUrl: 'https://www.ird.govt.nz/property/renting-out-residential-property/residential-rental-income-and-paying-tax-on-it/rental-expense-deductions/property-interest-rules',
+      lastVerified: V,
+    },
+    {
+      key: 'ring_fencing',
+      title: 'A loss stays with the rentals',
+      plain: 'Rental deductions are capped at your residential rental income. Anything over is carried forward to a later year of rental income; it cannot reduce the tax on salary or wages.',
+      citation: 'Inland Revenue, residential rental property deductions',
+      sourceUrl: 'https://www.ird.govt.nz/property/renting-out-residential-property/residential-rental-property-deductions',
+      lastVerified: V,
+    },
+    {
+      key: 'buildings',
+      title: 'Buildings depreciate at 0%',
+      plain: 'The form has a line for depreciation on buildings, but the rate is 0% for a building with an economic life over 50 years. Chattels and other assets can still be depreciated.',
+      citation: 'Rental income – IR3R, March 2026',
+      sourceUrl: 'https://www.ird.govt.nz/-/media/project/ir/home/documents/forms-and-guides/ir1---ir99/ir3r/ir3r-2026.pdf',
+      lastVerified: V,
+    },
+  ],
+
   complianceChecks: [
     { key: 'agreement', label: 'Written agreement, signed', why: 'An agreement must be in writing, signed, and given to the tenant before the tenancy starts.', citation: 's 13', sourceUrl: `${RTA}#DLM95022`, weight: 7, recursMonths: 0 },
     { key: 'bond_lodged', label: 'Bond lodged with Tenancy Services', why: 'Bond money must be lodged within 23 working days of receiving it.', citation: 's 19', sourceUrl: `${RTA}#DLM95043`, weight: 12, recursMonths: 0 },

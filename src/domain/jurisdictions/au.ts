@@ -129,6 +129,7 @@ function build(s: StateSpec): JurisdictionPack {
     ],
     penalties: [],
     taxCategories: [],
+    taxNotes: [],
     complianceChecks: [],
     privacyStages: [],
     petRefusalGrounds: [],

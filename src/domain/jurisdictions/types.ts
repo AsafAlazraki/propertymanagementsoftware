@@ -174,6 +174,10 @@ export interface JurisdictionPack {
   service: ServiceMethod[]
   penalties: Penalty[]
   taxCategories: TaxCategory[]
+  /** The schedule a landlord files for rental income, where the jurisdiction has one. */
+  taxForm?: { name: string; url: string }
+  /** Plain-language tax points shown beside the rental schedule. General information, each with its source. */
+  taxNotes: { key: string; title: string; plain: string; citation: string; sourceUrl: string; lastVerified: ISODate }[]
   complianceChecks: ComplianceCheckDef[]
   privacyStages: PrivacyStage[]
   /** Statutory examples of reasonable grounds to refuse a pet, and of reasonable conditions. */

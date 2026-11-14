@@ -8,7 +8,19 @@
  * as a table. One series needs no legend: the title already names it.
  */
 import { useId, useState, type ReactNode } from 'react'
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
 import { Table } from '@phosphor-icons/react'
 import { cn } from './cn'
 
@@ -33,6 +45,48 @@ function compact(n: number): string {
   return n.toLocaleString('en-NZ')
 }
 
+/** Axis labels: thousands always shorten the same way, so 10,500 never reads as "11K". */
+function axisLabel(n: number): string {
+  const abs = Math.abs(n)
+  if (abs >= 1_000_000) return `${Number((n / 1_000_000).toFixed(1))}M`
+  if (abs >= 1000) return `${Number((n / 1000).toFixed(1))}K`
+  return n.toLocaleString('en-NZ')
+}
+
+/** Round ticks from zero: a step of 1, 2, 2.5 or 5 times a power of ten. */
+function niceAxis(data: Row[], series: Series[], stacked?: boolean): { domain: [number, number]; ticks: number[] } {
+  let lo = 0
+  let hi = 0
+  for (const row of data) {
+    if (stacked) {
+      const values = series.map((s) => Number(row[s.key]) || 0)
+      hi = Math.max(
+        hi,
+        values.filter((v) => v > 0).reduce((a, b) => a + b, 0),
+      )
+      lo = Math.min(
+        lo,
+        values.filter((v) => v < 0).reduce((a, b) => a + b, 0),
+      )
+    } else {
+      for (const s of series) {
+        const v = Number(row[s.key]) || 0
+        hi = Math.max(hi, v)
+        lo = Math.min(lo, v)
+      }
+    }
+  }
+  if (hi === lo) hi = lo + 1
+  const raw = (hi - lo) / 4
+  const pow = 10 ** Math.floor(Math.log10(raw))
+  const step = [1, 2, 2.5, 5, 10].map((m) => m * pow).find((s) => s >= raw) ?? 10 * pow
+  const min = Math.floor(lo / step) * step
+  const max = Math.ceil(hi / step) * step
+  const ticks: number[] = []
+  for (let v = min; v <= max + step / 2; v += step) ticks.push(Math.round(v * 1e6) / 1e6)
+  return { domain: [min, max], ticks }
+}
+
 interface TipProps {
   active?: boolean
   label?: string | number
@@ -51,7 +105,11 @@ function ChartTip({ active, label, payload, series, format }: TipProps) {
         const s = series.find((x) => x.key === p.dataKey)
         return (
           <p key={String(p.dataKey)} className="flex items-center gap-2 text-[13px]">
-            <span aria-hidden className="h-0.5 w-3 shrink-0 rounded-full" style={{ background: s ? colorOf(s, series.indexOf(s)) : p.color }} />
+            <span
+              aria-hidden
+              className="h-0.5 w-3 shrink-0 rounded-full"
+              style={{ background: s ? colorOf(s, series.indexOf(s)) : p.color }}
+            />
             <span className="num font-semibold text-ink">{format(Number(p.value ?? 0))}</span>
             {series.length > 1 && <span className="text-ink-3">{s?.label ?? p.name ?? i}</span>}
           </p>
@@ -108,7 +166,10 @@ export function ChartFrame({
             type="button"
             aria-pressed={asTable}
             onClick={() => setAsTable((v) => !v)}
-            className={cn('pressable grid size-8 place-items-center rounded-sm text-ink-3 hoverable:hover:bg-sunken hoverable:hover:text-ink coarse:size-10', asTable && 'bg-sunken text-ink')}
+            className={cn(
+              'pressable grid size-8 place-items-center rounded-sm text-ink-3 hoverable:hover:bg-sunken hoverable:hover:text-ink coarse:size-10',
+              asTable && 'bg-sunken text-ink',
+            )}
             aria-label={asTable ? `Show ${title} as a chart` : `Show ${title} as a table`}
           >
             <Table className="size-4" />
@@ -168,15 +229,56 @@ interface PlotProps {
 }
 
 /** Columns from one baseline. Capped at 24px wide; the rest of the band is air. */
-export function Columns({ title, subtitle, data, series, format = compact, height = 220, stacked, aside, className }: PlotProps) {
+export function Columns({
+  title,
+  subtitle,
+  data,
+  series,
+  format = compact,
+  height = 220,
+  stacked,
+  aside,
+  className,
+}: PlotProps) {
+  // A series that dips below zero keeps zero on the axis, and its negative bars read as a shortfall.
+  const dips = data.some((row) => series.some((s) => Number(row[s.key]) < 0))
+  const axis = niceAxis(data, series, stacked)
   return (
-    <ChartFrame title={title} subtitle={subtitle} series={series} rows={data} format={format} aside={aside} className={className}>
+    <ChartFrame
+      title={title}
+      subtitle={subtitle}
+      series={series}
+      rows={data}
+      format={format}
+      aside={aside}
+      className={className}
+    >
       <ResponsiveContainer width="100%" height={height}>
         <BarChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: 0 }} barCategoryGap="28%" barGap={2}>
           <CartesianGrid vertical={false} stroke="var(--line)" />
-          <XAxis dataKey="label" tickLine={false} axisLine={{ stroke: 'var(--line-strong)' }} tick={axisTick} tickMargin={6} minTickGap={12} />
-          <YAxis tickLine={false} axisLine={false} tick={axisTick} tickFormatter={(v: number) => compact(v)} width={44} />
-          <Tooltip cursor={{ fill: 'var(--bg-sunken)', opacity: 0.6 }} isAnimationActive={false} content={(p) => <ChartTip {...(p as unknown as TipProps)} series={series} format={format} />} />
+          <XAxis
+            dataKey="label"
+            tickLine={false}
+            axisLine={{ stroke: 'var(--line-strong)' }}
+            tick={axisTick}
+            tickMargin={6}
+            minTickGap={12}
+          />
+          <YAxis
+            tickLine={false}
+            axisLine={false}
+            tick={axisTick}
+            tickFormatter={axisLabel}
+            width={44}
+            domain={axis.domain}
+            ticks={axis.ticks}
+          />
+          {dips && <ReferenceLine y={0} stroke="var(--line-strong)" />}
+          <Tooltip
+            cursor={{ fill: 'var(--bg-sunken)', opacity: 0.6 }}
+            isAnimationActive={false}
+            content={(p) => <ChartTip {...(p as unknown as TipProps)} series={series} format={format} />}
+          />
           {series.map((s, i) => (
             <Bar
               key={s.key}
@@ -185,11 +287,17 @@ export function Columns({ title, subtitle, data, series, format = compact, heigh
               stackId={stacked ? 'stack' : undefined}
               fill={colorOf(s, i)}
               maxBarSize={24}
-              radius={stacked && i < series.length - 1 ? 0 : [4, 4, 0, 0]}
+              radius={stacked && i < series.length - 1 ? 0 : dips ? 3 : [4, 4, 0, 0]}
               stroke={stacked ? 'var(--surface)' : undefined}
               strokeWidth={stacked ? 2 : 0}
               isAnimationActive={false}
-            />
+            >
+              {dips &&
+                series.length === 1 &&
+                data.map((row) => (
+                  <Cell key={row.label} fill={Number(row[s.key]) < 0 ? 'var(--danger)' : colorOf(s, i)} />
+                ))}
+            </Bar>
           ))}
         </BarChart>
       </ResponsiveContainer>
@@ -198,10 +306,29 @@ export function Columns({ title, subtitle, data, series, format = compact, heigh
 }
 
 /** Change over time: a 2px line over a faint wash, with a crosshair that finds the date for you. */
-export function Trend({ title, subtitle, data, series, format = compact, height = 220, stacked, aside, className }: PlotProps) {
+export function Trend({
+  title,
+  subtitle,
+  data,
+  series,
+  format = compact,
+  height = 220,
+  stacked,
+  aside,
+  className,
+}: PlotProps) {
   const gid = useId().replace(/:/g, '')
+  const axis = niceAxis(data, series, stacked)
   return (
-    <ChartFrame title={title} subtitle={subtitle} series={series} rows={data} format={format} aside={aside} className={className}>
+    <ChartFrame
+      title={title}
+      subtitle={subtitle}
+      series={series}
+      rows={data}
+      format={format}
+      aside={aside}
+      className={className}
+    >
       <ResponsiveContainer width="100%" height={height}>
         <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
           <defs>
@@ -213,9 +340,28 @@ export function Trend({ title, subtitle, data, series, format = compact, height 
             ))}
           </defs>
           <CartesianGrid vertical={false} stroke="var(--line)" />
-          <XAxis dataKey="label" tickLine={false} axisLine={{ stroke: 'var(--line-strong)' }} tick={axisTick} tickMargin={6} minTickGap={24} />
-          <YAxis tickLine={false} axisLine={false} tick={axisTick} tickFormatter={(v: number) => compact(v)} width={44} />
-          <Tooltip cursor={{ stroke: 'var(--line-strong)', strokeWidth: 1 }} isAnimationActive={false} content={(p) => <ChartTip {...(p as unknown as TipProps)} series={series} format={format} />} />
+          <XAxis
+            dataKey="label"
+            tickLine={false}
+            axisLine={{ stroke: 'var(--line-strong)' }}
+            tick={axisTick}
+            tickMargin={6}
+            minTickGap={24}
+          />
+          <YAxis
+            tickLine={false}
+            axisLine={false}
+            tick={axisTick}
+            tickFormatter={axisLabel}
+            width={44}
+            domain={axis.domain}
+            ticks={axis.ticks}
+          />
+          <Tooltip
+            cursor={{ stroke: 'var(--line-strong)', strokeWidth: 1 }}
+            isAnimationActive={false}
+            content={(p) => <ChartTip {...(p as unknown as TipProps)} series={series} format={format} />}
+          />
           {series.map((s, i) => (
             <Area
               key={s.key}
@@ -240,7 +386,17 @@ export function Trend({ title, subtitle, data, series, format = compact, height 
 }
 
 /** A twelve-point trace for a stat tile. Decorative: the figure beside it carries the value. */
-export function Spark({ values, width = 96, height = 28, className }: { values: number[]; width?: number; height?: number; className?: string }) {
+export function Spark({
+  values,
+  width = 96,
+  height = 28,
+  className,
+}: {
+  values: number[]
+  width?: number
+  height?: number
+  className?: string
+}) {
   if (values.length < 2) return null
   const min = Math.min(...values)
   const max = Math.max(...values)
@@ -250,28 +406,66 @@ export function Spark({ values, width = 96, height = 28, className }: { values: 
   const d = pts.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ')
   const [lx, ly] = pts[pts.length - 1]
   return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden className={cn('shrink-0 overflow-visible', className)}>
-      <path d={d} fill="none" stroke="var(--line-strong)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+    <svg
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      aria-hidden
+      className={cn('shrink-0 overflow-visible', className)}
+    >
+      <path
+        d={d}
+        fill="none"
+        stroke="var(--line-strong)"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
       <circle cx={lx} cy={ly} r="3" fill="var(--accent)" stroke="var(--surface)" strokeWidth="2" />
     </svg>
   )
 }
 
 /** One whole split into parts, with a 2px gap doing the separating and a legend that carries the values. */
-export function Segments({ parts, format = compact, label, className }: { parts: { label: string; value: number; color?: string }[]; format?: (n: number) => string; label: string; className?: string }) {
+export function Segments({
+  parts,
+  format = compact,
+  label,
+  className,
+}: {
+  parts: { label: string; value: number; color?: string }[]
+  format?: (n: number) => string
+  label: string
+  className?: string
+}) {
   const total = parts.reduce((a, p) => a + p.value, 0)
   const shown = parts.filter((p) => p.value > 0)
   return (
     <div className={className}>
-      <div role="img" aria-label={`${label}: ${shown.map((p) => `${p.label} ${format(p.value)}`).join(', ')}`} className="flex h-2.5 w-full gap-0.5 overflow-hidden rounded-full">
+      <div
+        role="img"
+        aria-label={`${label}: ${shown.map((p) => `${p.label} ${format(p.value)}`).join(', ')}`}
+        className="flex h-2.5 w-full gap-0.5 overflow-hidden rounded-full"
+      >
         {shown.map((p, i) => (
-          <span key={p.label} className="h-full first:rounded-l-full last:rounded-r-full" style={{ width: `${(p.value / total) * 100}%`, background: p.color ?? SERIES_COLORS[i % SERIES_COLORS.length] }} />
+          <span
+            key={p.label}
+            className="h-full first:rounded-l-full last:rounded-r-full"
+            style={{
+              width: `${(p.value / total) * 100}%`,
+              background: p.color ?? SERIES_COLORS[i % SERIES_COLORS.length],
+            }}
+          />
         ))}
       </div>
       <ul className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1.5">
         {parts.map((p, i) => (
           <li key={p.label} className="flex items-center gap-1.5 text-xs text-ink-2">
-            <span aria-hidden className="size-2.5 rounded-[3px]" style={{ background: p.color ?? SERIES_COLORS[i % SERIES_COLORS.length] }} />
+            <span
+              aria-hidden
+              className="size-2.5 rounded-[3px]"
+              style={{ background: p.color ?? SERIES_COLORS[i % SERIES_COLORS.length] }}
+            />
             {p.label}
             <span className="num font-semibold text-ink">{format(p.value)}</span>
           </li>
