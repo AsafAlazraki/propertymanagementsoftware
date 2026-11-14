@@ -25,6 +25,7 @@ import { useViewport } from '@/ui/hooks'
 import { cn } from '@/ui/cn'
 import { AccountMenu, SkipLink, TabLink, ViewingAsBar, type NavItem } from './common'
 import { AskButton, Assistant } from './Assistant'
+import { Palette } from './Palette'
 
 function useNav(): NavItem[] {
   const db = useStore((s) => s.db)
@@ -34,7 +35,10 @@ function useNav(): NavItem[] {
     const pack = resolvePack('NZ', db.packVersions)
     return landlordActions(db, orgId, pack, today()).filter((a) => a.priority <= 2).length
   }, [db, orgId])
-  const openRepairs = useMemo(() => db.tickets.filter((t) => t.orgId === orgId && t.status !== 'closed').length, [db.tickets, orgId])
+  const openRepairs = useMemo(
+    () => db.tickets.filter((t) => t.orgId === orgId && t.status !== 'closed').length,
+    [db.tickets, orgId],
+  )
   return [
     { to: '/loop', label: 'Command', icon: Lightning, exact: true, count: actionCount, primary: true },
     { to: '/loop/properties', label: 'Properties', icon: HouseLine, primary: true },
@@ -62,11 +66,32 @@ function SideLink({ item, rail }: { item: NavItem; rail: boolean }) {
     >
       {({ isActive }: { isActive: boolean }) => (
         <>
-          {isActive && <span aria-hidden className={cn('absolute rounded-full bg-glow', rail ? 'top-2.5 bottom-2.5 -left-2.5 w-[3px]' : 'top-2 bottom-2 -left-3 w-[3px]')} />}
-          <Icon weight={isActive ? 'fill' : 'regular'} className={cn('size-[19px] shrink-0', isActive && 'text-glow')} aria-hidden />
+          {isActive && (
+            <span
+              aria-hidden
+              className={cn(
+                'absolute rounded-full bg-glow',
+                rail ? 'top-2.5 bottom-2.5 -left-2.5 w-[3px]' : 'top-2 bottom-2 -left-3 w-[3px]',
+              )}
+            />
+          )}
+          <Icon
+            weight={isActive ? 'fill' : 'regular'}
+            className={cn('size-[19px] shrink-0', isActive && 'text-glow')}
+            aria-hidden
+          />
           {!rail && <span className="flex-1 truncate">{item.label}</span>}
           {item.count ? (
-            <span className={cn('num grid h-[18px] min-w-[18px] place-items-center rounded-full px-1 text-[11px] leading-none font-semibold', rail ? 'absolute -top-0.5 -right-0.5 bg-glow text-nav' : isActive ? 'bg-glow text-nav' : 'bg-nav-line text-nav-ink')}>
+            <span
+              className={cn(
+                'num grid h-[18px] min-w-[18px] place-items-center rounded-full px-1 text-[11px] leading-none font-semibold',
+                rail
+                  ? 'absolute -top-0.5 -right-0.5 bg-glow text-nav'
+                  : isActive
+                    ? 'bg-glow text-nav'
+                    : 'bg-nav-line text-nav-ink',
+              )}
+            >
               {item.count}
             </span>
           ) : null}
@@ -92,6 +117,8 @@ export function LoopShell() {
   const org = useStore((s) => s.db.orgs.find((o) => o.id === s.session?.orgId))
   const [more, setMore] = useState(false)
   const [ask, setAsk] = useState(false)
+  const [find, setFind] = useState(false)
+  const [asked, setAsked] = useState<{ text: string; n: number }>()
   const rail = vp.rail
   const side = vp.sidebar || vp.rail
 
@@ -101,8 +128,17 @@ export function LoopShell() {
       <ViewingAsBar />
       <div className={cn(side && 'flex')}>
         {side && (
-          <aside className={cn('sticky top-0 z-30 flex h-dvh shrink-0 flex-col bg-nav text-nav-ink', rail ? 'w-[4.5rem] items-center px-2 py-3' : 'w-[15.5rem] px-3 py-4')}>
-            <Link to="/loop" className={cn('mb-4 flex items-center gap-2.5 rounded-md', rail ? 'justify-center' : 'px-1.5')} aria-label="Loop — command centre">
+          <aside
+            className={cn(
+              'sticky top-0 z-30 flex h-dvh shrink-0 flex-col bg-nav text-nav-ink',
+              rail ? 'w-[4.5rem] items-center px-2 py-3' : 'w-[15.5rem] px-3 py-4',
+            )}
+          >
+            <Link
+              to="/loop"
+              className={cn('mb-4 flex items-center gap-2.5 rounded-md', rail ? 'justify-center' : 'px-1.5')}
+              aria-label="Loop — command centre"
+            >
               <LoopMark size={30} className="rounded-[9px] ring-1 ring-nav-line" />
               {!rail && (
                 <span className="min-w-0">
@@ -114,15 +150,26 @@ export function LoopShell() {
 
             {rail ? (
               <Tip label="Ask Loop" side="right">
-                <button type="button" onClick={() => setAsk(true)} className="pressable mb-3 grid size-11 place-items-center rounded-md bg-nav-2 text-nav-ink-2 hoverable:hover:text-nav-ink" aria-label="Ask Loop">
+                <button
+                  type="button"
+                  onClick={() => setFind(true)}
+                  className="pressable mb-3 grid size-11 place-items-center rounded-md bg-nav-2 text-nav-ink-2 hoverable:hover:text-nav-ink"
+                  aria-label="Ask Loop"
+                >
                   <MagnifyingGlass className="size-[18px]" />
                 </button>
               </Tip>
             ) : (
-              <AskButton onOpen={() => setAsk(true)} label="Ask Loop anything" className="mb-4" />
+              <AskButton onOpen={() => setFind(true)} label="Find or ask anything" className="mb-4" />
             )}
 
-            <nav aria-label="Loop" className={cn('flex flex-1 flex-col gap-0.5 no-scrollbar overflow-y-auto overflow-x-hidden', rail ? 'items-center' : 'pl-0')}>
+            <nav
+              aria-label="Loop"
+              className={cn(
+                'flex flex-1 flex-col gap-0.5 no-scrollbar overflow-y-auto overflow-x-hidden',
+                rail ? 'items-center' : 'pl-0',
+              )}
+            >
               {nav.slice(0, 7).map((item) => (
                 <SideLink key={item.to} item={item} rail={rail} />
               ))}
@@ -149,7 +196,12 @@ export function LoopShell() {
                 </span>
               </Link>
               <span className="flex-1" />
-              <button type="button" onClick={() => setAsk(true)} className="pressable grid size-10 place-items-center rounded-md text-nav-ink-2 hoverable:hover:bg-nav-2" aria-label="Ask Loop">
+              <button
+                type="button"
+                onClick={() => setFind(true)}
+                className="pressable grid size-10 place-items-center rounded-md text-nav-ink-2 hoverable:hover:bg-nav-2"
+                aria-label="Ask Loop"
+              >
                 <MagnifyingGlass className="size-5" />
               </button>
               <AccountMenu tone="nav" compact />
@@ -163,13 +215,20 @@ export function LoopShell() {
       </div>
 
       {!side && (
-        <nav aria-label="Loop" className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-surface/92 backdrop-blur-xl pb-safe">
+        <nav
+          aria-label="Loop"
+          className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-surface/92 backdrop-blur-xl pb-safe"
+        >
           {nav
             .filter((n) => n.primary)
             .map((item) => (
               <TabLink key={item.to} item={item} idleClass="text-ink-3" activeClass="!text-accent-text" />
             ))}
-          <button type="button" onClick={() => setMore(true)} className="pressable flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 pt-2 pb-1.5 text-[11px] font-medium text-ink-3">
+          <button
+            type="button"
+            onClick={() => setMore(true)}
+            className="pressable flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 pt-2 pb-1.5 text-[11px] font-medium text-ink-3"
+          >
             <DotsThreeOutline className="size-6" aria-hidden />
             <span>More</span>
           </button>
@@ -184,7 +243,12 @@ export function LoopShell() {
               const Icon = item.icon
               return (
                 <li key={item.to}>
-                  <Link to={item.to} onClick={() => setMore(false)} className="pressable flex min-h-12 items-center gap-3.5 rounded-md px-3 text-[15px] font-medium text-ink hoverable:hover:bg-sunken" activeProps={{ className: 'bg-accent-soft !text-accent-text' }}>
+                  <Link
+                    to={item.to}
+                    onClick={() => setMore(false)}
+                    className="pressable flex min-h-12 items-center gap-3.5 rounded-md px-3 text-[15px] font-medium text-ink hoverable:hover:bg-sunken"
+                    activeProps={{ className: 'bg-accent-soft !text-accent-text' }}
+                  >
                     <Icon className="size-[22px] text-ink-3" aria-hidden />
                     {item.label}
                   </Link>
@@ -194,7 +258,16 @@ export function LoopShell() {
         </ul>
       </Sheet>
 
-      <Assistant open={ask} onOpenChange={setAsk} portal="loop" />
+      <Assistant open={ask} onOpenChange={setAsk} portal="loop" asked={asked} />
+      <Palette
+        open={find}
+        onOpenChange={setFind}
+        nav={nav}
+        onAsk={(text) => {
+          setAsked((a) => ({ text, n: (a?.n ?? 0) + 1 }))
+          setAsk(true)
+        }}
+      />
     </div>
   )
 }
