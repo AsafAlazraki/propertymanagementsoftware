@@ -477,6 +477,13 @@ export interface Doc {
   addedAt: ISODateTime
   sizeKb: number
   source: 'uploaded' | 'generated' | 'imported'
+  /** The record this was made from: the inspection behind a report, the notice behind a notice. */
+  refId?: ID
+  /** The file itself, when one has been attached. In the prototype it is kept on the device (src/data/files.ts). */
+  fileId?: string
+  mime?: string
+  /** True for a document a person added themselves, which they may also remove. */
+  addedHere?: boolean
 }
 
 /* ───────────────────────────── Pool: renters ────────────────────────────── */

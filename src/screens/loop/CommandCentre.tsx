@@ -222,7 +222,7 @@ function SleepScore() {
   const arc = (circumference * sweep) / 360
   const tone = score >= 90 ? 'var(--ok)' : score >= 75 ? 'var(--accent)' : 'var(--warn)'
   return (
-    <section id="sleep" aria-labelledby="sleep-title" className="scroll-mt-20 rounded-lg bg-surface p-5 shadow-card">
+    <section id="sleep" aria-labelledby="sleep-title" className="@container scroll-mt-20 rounded-lg bg-surface p-5 shadow-card">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="eyebrow">Sleep-at-night score</p>
@@ -233,7 +233,9 @@ function SleepScore() {
           </h2>
         </div>
       </div>
-      <div className="mt-2 flex flex-col items-center gap-4 sm:flex-row sm:items-center xl:flex-col 2xl:flex-row">
+      {/* The dial sits beside the list only when this card is wide enough for both. The card is a
+          half-width column on a tablet and a narrow rail on a desktop, so the screen's width says nothing about it. */}
+      <div className="mt-2 flex flex-col items-center gap-4 @md:flex-row">
         <div
           className="relative grid shrink-0 place-items-center"
           style={{ width: 160, height: 132 }}

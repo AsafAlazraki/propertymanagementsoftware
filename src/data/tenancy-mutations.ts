@@ -43,6 +43,7 @@ export function serveNotice(
     tenancyId,
     name: `${draft.title} ${d.servedOn}.pdf`,
     kind: 'notice',
+    refId: id,
     addedAt: nowIso(),
     sizeKb: 38,
     source: 'generated',

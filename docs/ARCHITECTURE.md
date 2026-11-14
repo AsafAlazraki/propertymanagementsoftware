@@ -58,11 +58,14 @@ The design follows the evidence in `docs/research/regulatory-watch-sources.md`: 
 
 ## From prototype to production
 
+The table is the short version. `docs/GOING-LIVE.md` is the full log, kept current, and covers billing and the public site.
+
 | Today | Production | Where the seam is |
 | --- | --- | --- |
 | zustand store in `localStorage` | Supabase Postgres with RLS | `src/data/store.ts` and the `*mutations.ts` files: each mutation becomes a server action of the same name, where the rule checks run again |
 | Choosing a demo persona | Supabase Auth | `src/app/session.ts` |
 | Photos in IndexedDB | Supabase Storage | `src/data/photos.ts` |
+| Document files in IndexedDB | Supabase Storage, private per organisation | `src/data/files.ts` |
 | Simulated bank feed | An open-banking provider that reads the landlord's own account | `rollForward` in `src/domain/seed/simulate.ts` is the stand-in |
 | Simulated tradespeople, notices "served by email" | Real messaging and a provider network | the mutation that records the event is where the send goes |
 | Rule overrides in the browser store | `pack_versions` table, read by every client | `resolvePack` |

@@ -70,6 +70,8 @@ npm run preview:pages
 
 ## Honest limits
 
+This is a prototype of a product meant to be sold. [docs/GOING-LIVE.md](docs/GOING-LIVE.md) is the running log of what each part needs before it works for a paying customer, and of the plan for a public site with self-serve sign-up and a monthly card.
+
 - **No accounts and no backend.** Data lives in this browser. The schema that would hold it is in `supabase/migrations/0001_init.sql` and has not been applied to a live database.
 - **Simulated, and labelled so on screen:** the bank feed, payments and payouts, the Bond Hub hand-off, listing syndication, tradespeople and inspectors, email and text delivery, and billing.
 - **The assistant is not a language model.** It answers from the verified rule pack, the team's taught answers and your own records, with its sources, or says it does not know and passes the question to a person.

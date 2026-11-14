@@ -28,6 +28,7 @@ import { calendarFor, deemedReceived, type Verdict } from '@/domain/rules/core'
 import { listOf, money, plural } from '@/domain/rules/format'
 import { inspectionWindow } from '@/domain/rules/tenancy'
 import { at } from '@/domain/seed'
+import { deleteFile } from './files'
 import { deletePhoto } from './photos'
 import { FIELD_PRICES, logRepair, logSmokeAlarmTest, PLATFORM_FEE_PCT, setSinkingFund } from './mutations'
 import { audit, db, newId, nowIso, useStore, type Prefs } from './store'
@@ -194,6 +195,7 @@ export function completeInspection(inspectionId: ID, summary: string, alarmsTest
     tenancyId: i.tenancyId,
     name: REPORT_NAME[i.type],
     kind: 'inspection_report',
+    refId: inspectionId,
     addedAt: nowIso(),
     sizeKb: 60 + photos * 140,
     source: 'generated',
@@ -598,5 +600,6 @@ export function resetDemoData(): void {
     ...state.tickets.flatMap((t) => t.photoIds),
   ]
   for (const id of photoIds) void deletePhoto(id)
+  for (const d of state.docs) if (d.fileId) void deleteFile(d.fileId)
   useStore.getState().resetDemo()
 }

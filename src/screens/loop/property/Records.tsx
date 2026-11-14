@@ -2,16 +2,22 @@
  * Keys and paperwork: who holds which key and when it last moved, and every
  * document the law expects a landlord to be able to produce.
  */
-import { useMemo } from 'react'
-import { ArrowsLeftRight, Certificate, ClipboardText, FileText, Key, LockKey, Receipt, ShieldCheck, Storefront, User } from '@phosphor-icons/react'
+import { useMemo, useRef, useState } from 'react'
+import { toast } from 'sonner'
+import { ArrowsLeftRight, CaretRight, Certificate, Paperclip, Plus, ClipboardText, FileText, Key, LockKey, Receipt, ShieldCheck, Storefront, User } from '@phosphor-icons/react'
 import type { Doc, KeySet, Property } from '@/domain/types'
 import { dateOf, fmtDate, fmtRelative } from '@/domain/rules/calendar'
 import { useStore } from '@/data/store'
+import { ACCEPTED_FILES, saveFile } from '@/data/files'
+import { addDocument } from '@/data/doc-mutations'
+import { activeTenancy } from '@/data/hooks'
 import { durationText } from '@/domain/rules/core'
 import { usePack, useToday } from '@/data/hooks'
 import { Badge } from '@/ui/Badge'
+import { Button } from '@/ui/Button'
 import { Empty, Timeline } from '@/ui/display'
 import { Why } from '@/ui/Law'
+import { DocumentViewer } from './DocumentViewer'
 
 const HOLDER: Record<KeySet['holder'], { icon: typeof Key; word: string }> = {
   tenant: { icon: User, word: 'With the tenant' },
@@ -43,6 +49,26 @@ export function Records({ property }: { property: Property }) {
   const allDocs = useStore((s) => s.db.docs)
   const events = useMemo(() => allEvents.filter((e) => e.propertyId === property.id).sort((a, b) => b.at.localeCompare(a.at)), [allEvents, property.id])
   const docs = useMemo(() => allDocs.filter((d) => d.propertyId === property.id).sort((a, b) => b.addedAt.localeCompare(a.addedAt)), [allDocs, property.id])
+  const tenancies = useStore((s) => s.db.tenancies)
+  const [openId, setOpenId] = useState<string | null>(null)
+  const [adding, setAdding] = useState(false)
+  const picker = useRef<HTMLInputElement>(null)
+  const open = docs.find((d) => d.id === openId) ?? null
+
+  async function add(file: File | undefined) {
+    if (!file) return
+    setAdding(true)
+    try {
+      const saved = await saveFile(file)
+      // Opened straight away, so the person can check it is the right file and say what it is.
+      setOpenId(addDocument(property, saved, file.name, activeTenancy(tenancies, property.id)?.id))
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'The document could not be added.')
+    } finally {
+      setAdding(false)
+      if (picker.current) picker.current.value = ''
+    }
+  }
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-6 lg:grid-cols-2">
@@ -106,6 +132,7 @@ export function Records({ property }: { property: Property }) {
           </h2>
           <Why rule="records.retention_after_tenancy" label="how long to keep it" />
         </div>
+        <input ref={picker} type="file" accept={ACCEPTED_FILES} className="sr-only" tabIndex={-1} aria-hidden onChange={(e) => void add(e.target.files?.[0])} />
         {docs.length === 0 ? (
           <div className="rounded-lg bg-surface shadow-card">
             <Empty icon={<FileText />} title="Nothing filed yet" body="The agreement, statements, inspection reports and notices land here automatically as they are made." />
@@ -115,23 +142,46 @@ export function Records({ property }: { property: Property }) {
             {docs.map((d) => {
               const Icon = DOC_ICON[d.kind]
               return (
-                <li key={d.id} className="flex items-center gap-3 border-b border-line px-4 py-3 last:border-b-0">
-                  <Icon className="size-5 shrink-0 text-ink-3" aria-hidden />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[13px] font-medium text-ink">{d.name}</p>
-                    <p className="num text-[11px] text-ink-3">
-                      {fmtDate(dateOf(d.addedAt), { weekday: false, year: 'always' })} · {d.sizeKb >= 1000 ? `${(d.sizeKb / 1000).toFixed(1)} MB` : `${d.sizeKb} KB`}
-                    </p>
-                  </div>
-                  <Badge tone={d.source === 'generated' ? 'accent' : 'neutral'} size="sm">
-                    {d.source === 'generated' ? 'Made by Loop' : d.source === 'imported' ? 'Imported' : 'Uploaded'}
-                  </Badge>
+                <li key={d.id} className="border-b border-line last:border-b-0">
+                  <button
+                    type="button"
+                    onClick={() => setOpenId(d.id)}
+                    className="pressable flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hoverable:hover:bg-surface-2"
+                  >
+                    <Icon className="size-5 shrink-0 text-ink-3" aria-hidden />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[13px] font-medium text-ink">{d.name}</span>
+                      <span className="num flex items-center gap-1.5 text-[11px] text-ink-3">
+                        {fmtDate(dateOf(d.addedAt), { weekday: false, year: 'always' })}
+                        {d.fileId && (
+                          <>
+                            <span aria-hidden>·</span>
+                            <Paperclip className="size-3" aria-hidden />
+                            {d.sizeKb >= 1000 ? `${(d.sizeKb / 1000).toFixed(1)} MB` : `${d.sizeKb} KB`}
+                          </>
+                        )}
+                      </span>
+                    </span>
+                    <Badge tone={d.source === 'generated' ? 'accent' : 'neutral'} size="sm">
+                      {d.source === 'generated' ? 'Made by Loop' : d.source === 'imported' ? 'Imported' : 'Uploaded'}
+                    </Badge>
+                    <CaretRight className="size-4 shrink-0 text-ink-3" aria-hidden />
+                    <span className="sr-only">Open</span>
+                  </button>
                 </li>
               )
             })}
           </ul>
         )}
-        <p className="mt-2 text-xs leading-relaxed text-ink-3">Demo records: the entries are real rows, but no files sit behind them in this prototype.</p>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <Button intent="secondary" size="sm" icon={<Plus className="size-4" />} loading={adding} onClick={() => picker.current?.click()}>
+            Add a document
+          </Button>
+          <p className="min-w-0 flex-1 basis-56 text-xs leading-relaxed text-ink-3">
+            Open any row to read what Loop holds. The rows that came with the demo have no file behind them; a file you attach is kept in this browser.
+          </p>
+        </div>
+        <DocumentViewer doc={open} onClose={() => setOpenId(null)} />
       </section>
     </div>
   )

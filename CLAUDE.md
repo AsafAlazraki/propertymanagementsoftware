@@ -10,6 +10,7 @@ A property-management platform built from Sam's spec (`docs/spec/`): **Loop** fo
 - **Publishing is not commencement.** A value published ahead of the date it comes into force is held until then (`resolvePack(code, versions, on)`). Wherever `rule.plain` is printed, `<RuleMoves>` is printed with it. Sentences read their numbers from the pack; `no-typed-law.test.ts` checks the assistant and the action queue.
 - **Show the working.** A date comes with the steps that produced it (`<Working>`), a rule with its source (`<Why>`). Loop's own safety margin is always marked "not law".
 - **A refusal is a sentence with its reason, where it is refused** (`<Refusal>`). Never a silently disabled control.
+- **It is a prototype of a real product.** Every part is meant to work for a paying customer. `docs/GOING-LIVE.md` logs what each simulated or on-device part needs and where the real version plugs in; change its row in the same commit as the feature. Build to that seam: screens call a mutation, never the stand-in behind it.
 - **Demo data is labelled.** People are invented; simulated things (bank feed, integrations) say so on screen. Nothing fake is presented as real, and there is no password field that protects nothing.
 - **The assistant never guesses.** It answers from the rule pack or a taught entry, with sources, or says it does not know and sends the question to a person.
 - **Report what was measured.** A failing test is a bug to fix, never an assertion to soften.
