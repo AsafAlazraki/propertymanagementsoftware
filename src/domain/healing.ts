@@ -17,7 +17,7 @@
  */
 import type { ID, Incident, ISODate, Playbook } from './types'
 import type { Db } from './db'
-import { addDays, dateOf, diffDays } from './rules/calendar'
+import { addDays, dateOf, diffDays, fmtDate } from './rules/calendar'
 import { money } from './rules/format'
 
 export const PROMOTE_AFTER_APPROVALS = 3
@@ -114,7 +114,7 @@ function findAll(db: Db, today: ISODate): Finding[] {
         orgId: t.orgId,
         severity: 'medium',
         title: 'Bond marked lodged with no reference',
-        signal: `${address(t.propertyId)}: lodged ${t.bond.lodgedOn}, reference blank.`,
+        signal: `${address(t.propertyId)}: lodged ${fmtDate(t.bond.lodgedOn, { year: 'always', weekday: false })}, reference blank.`,
         diagnosis: 'Either the reference was never entered, or the bond was marked lodged before Tenancy Services confirmed it.',
         proposedFix: 'Ask the owner for the Bond Hub reference. If there is none, reopen the lodgement countdown.',
         refs: [{ collection: 'tenancies', id: t.id }],

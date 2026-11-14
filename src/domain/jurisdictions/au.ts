@@ -117,6 +117,7 @@ function build(s: StateSpec): JurisdictionPack {
     bondAuthority: s.bondAuthority,
     tribunal: { name: s.tribunal, url: s.regulator.url, maxClaim: null },
     salesTax: { name: 'GST', ratePct: 10, appliesToResidentialRent: false },
+    emergencyNumber: '000',
     taxYearStartMonth: 7,
     safetyBufferDays: 1,
     calendar: { weekend: [0, 6], holidays: [], coveredThroughYear: 2026 },

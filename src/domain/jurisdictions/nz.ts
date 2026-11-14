@@ -37,6 +37,7 @@ export const NZ: JurisdictionPack = {
     },
   },
   salesTax: { name: 'GST', ratePct: 15, appliesToResidentialRent: false },
+  emergencyNumber: '111',
   taxYearStartMonth: 4,
   safetyBufferDays: 1,
 

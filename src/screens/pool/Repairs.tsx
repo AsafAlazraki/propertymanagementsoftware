@@ -138,6 +138,7 @@ export function Repairs() {
 }
 
 function RepairsFor({ home }: { home: MyHome }) {
+  const pack = usePack()
   const search = route.useSearch()
   const navigate = route.useNavigate()
   const landlord = firstName(home.landlord?.fullName)
@@ -167,7 +168,7 @@ function RepairsFor({ home }: { home: MyHome }) {
       <p className="mb-6 flex items-start gap-2.5 rounded-xl bg-danger-soft p-3.5 text-[14px] leading-relaxed text-ink sm:items-center">
         <Siren weight="fill" className="mt-0.5 size-[18px] shrink-0 text-danger-text sm:mt-0" aria-hidden />
         <span>
-          <strong className="font-semibold text-danger-text">Fire, a gas smell, or anyone in danger?</strong> Call 111 first. Tell {landlord} second.
+          <strong className="font-semibold text-danger-text">Fire, a gas smell, or anyone in danger?</strong> Call {pack.emergencyNumber} first. Tell {landlord} second.
         </span>
       </p>
 

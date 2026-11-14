@@ -280,7 +280,7 @@ export function ReportFlow({ open, home, onClose, onSent }: { open: boolean; hom
               <p className="flex items-start gap-2.5 rounded-lg bg-danger-soft p-3.5 text-[14px] leading-relaxed text-ink">
                 <Siren weight="fill" className="mt-0.5 size-[18px] shrink-0 text-danger-text" aria-hidden />
                 <span>
-                  <strong className="font-semibold text-danger-text">Fire, a gas smell, or anyone in danger?</strong> Call 111 first, then report it here.
+                  <strong className="font-semibold text-danger-text">Fire, a gas smell, or anyone in danger?</strong> Call {pack.emergencyNumber} first, then report it here.
                 </span>
               </p>
               {ISSUE_GROUPS.map((g) => {

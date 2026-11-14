@@ -167,6 +167,8 @@ export interface JurisdictionPack {
     filing?: { disclosed: string; redaction: string; citation: string; sourceUrl: string }
   }
   salesTax: { name: string; ratePct: number; appliesToResidentialRent: boolean }
+  /** The number to call when someone is in danger. */
+  emergencyNumber: string
   taxYearStartMonth: number
   calendar: CalendarConfig
   /** Non-working days that apply only in one area (provincial anniversary days). */
