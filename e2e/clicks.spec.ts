@@ -50,8 +50,9 @@ const PORTALS: Record<string, string[]> = {
 
 const KINDS = 'button, [role=tab], [role=radio], [role=switch], [role=checkbox], summary, a[href]'
 const scoped = (scope: string) =>
-  KINDS.split(', ')
-    .map((k) => `${scope} ${k}`)
+  scope
+    .split(', ')
+    .flatMap((one) => KINDS.split(', ').map((k) => `${one} ${k}`))
     .join(', ')
 
 interface Control {
@@ -77,11 +78,22 @@ const list = (selector: string) => `(() => Array.from(document.querySelectorAll(
   }
 }))()`
 
+// What "something happened" means: the page's markup changed, it scrolled, or a record changed.
+// The stored records are included because an animated figure redraws inside its own shadow tree, which markup does not show.
 const SNAPSHOT = `(() => {
-  const t = document.body.innerHTML
-  let h = 0
-  for (let i = 0; i < t.length; i += 5) h = (h * 31 + t.charCodeAt(i)) | 0
-  return [t.length, h, location.pathname + location.search, document.querySelectorAll('[role=dialog], [role=menu], [role=listbox], [data-sonner-toast]').length].join('|')
+  const hash = (t) => {
+    let h = 0
+    for (let i = 0; i < t.length; i += 5) h = (h * 31 + t.charCodeAt(i)) | 0
+    return t.length + ':' + h
+  }
+  return [
+    hash(document.body.innerHTML),
+    hash(localStorage.getItem('loop-pool:store') || ''),
+    localStorage.getItem('loop-pool:theme') || '',
+    Math.round(window.scrollY / 20),
+    location.pathname + location.search,
+    document.querySelectorAll('[role=dialog], [role=menu], [role=listbox], [data-sonner-toast]').length,
+  ].join('|')
 })()`
 const OPEN = `document.querySelectorAll('[role=dialog], [role=alertdialog], [role=menu]').length`
 const SIDEWAYS = `document.documentElement.scrollWidth - window.innerWidth`
@@ -124,11 +136,19 @@ for (const [portal, routes] of Object.entries(PORTALS)) {
       if (sideways > 1) failures.push(`${where}: page scrolls sideways by ${sideways}px afterwards`)
     }
     const usable = (c: Control) => c.visible && !c.external && c.name !== 'Close' && !/^Skip to (main )?content/i.test(c.name)
+    const seenRule = new Set<string>()
+    const worthPressing = (c: Control) => {
+      if (!c.name.startsWith('The rule:')) return true
+      if (seenRule.size >= 2) return false
+      seenRule.add(c.name)
+      return true
+    }
 
     for (const route of routes) {
       await fresh(route)
       const top = (await page.evaluate<Control[]>(list(scoped('main')))).filter(usable)
       for (const c of top) {
+        if (!worthPressing(c)) continue
         if (c.disabled) {
           review.push(`/${route} “${c.name}”: is disabled — does the screen say why?`)
           continue

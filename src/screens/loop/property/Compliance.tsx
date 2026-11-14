@@ -32,6 +32,7 @@ import { Checkbox, Field, Input, Select } from '@/ui/controls'
 import { Callout, Num } from '@/ui/display'
 import { Refusal } from '@/ui/Law'
 import { Sheet } from '@/ui/Sheet'
+import { useLast } from '@/ui/hooks'
 import { cn } from '@/ui/cn'
 
 const STATUS: Record<CheckResult['status'], { word: string; icon: typeof CheckCircle; className: string }> = {
@@ -317,7 +318,8 @@ export function Compliance({ property, tenancy, report, onLodgeBond }: { propert
   const pack = usePack()
   const me = useMe()
   const [checking, setChecking] = useState<StandardKey | null>(null)
-  const guide = STANDARDS.find((g) => g.key === checking)
+  const shownCheck = useLast(checking)
+  const guide = STANDARDS.find((g) => g.key === shownCheck)
   const hh = property.healthyHomes
   const unassessed = STANDARDS.filter((g) => hh[g.key].status === 'unknown' || hh[g.key].status === 'non_compliant')
   const others = report.checks.filter((c) => !c.def.key.startsWith('hh_') || c.def.key === 'hh_statement')
@@ -457,7 +459,7 @@ export function Compliance({ property, tenancy, report, onLodgeBond }: { propert
         </section>
       </div>
 
-      <Sheet open={guide !== undefined} onOpenChange={(o) => !o && setChecking(null)} size="lg" eyebrow="Healthy homes check" title={guide?.title ?? ''}>
+      <Sheet open={checking !== null} onOpenChange={(o) => !o && setChecking(null)} size="lg" eyebrow="Healthy homes check" title={guide?.title ?? ''}>
         {guide && <StandardCheck key={guide.key} guide={guide} property={property} onDone={() => setChecking(null)} />}
       </Sheet>
     </div>

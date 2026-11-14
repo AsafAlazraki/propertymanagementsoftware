@@ -20,6 +20,7 @@ import { Button } from '@/ui/Button'
 import { Avatar, Callout, Empty } from '@/ui/display'
 import { Why } from '@/ui/Law'
 import { Modal } from '@/ui/Sheet'
+import { useLast } from '@/ui/hooks'
 import { cn } from '@/ui/cn'
 
 const PREFERRED: ApplicationStage[] = ['preferred', 'checks', 'approved']
@@ -195,6 +196,7 @@ function Listing({ property, apps }: { property: Property; apps: Application[] }
   const users = useStore((s) => s.db.users)
   const profiles = useStore((s) => s.db.renterProfiles)
   const [declining, setDeclining] = useState<Application | null>(null)
+  const shownDeclining = useLast(declining)
   const listing = property.listing
   const keep = pack.rules['privacy.unsuccessful_applicant_retention'].value
   const open = apps.filter((a) => a.stage !== 'declined' && a.stage !== 'withdrawn')
@@ -206,7 +208,9 @@ function Listing({ property, apps }: { property: Property; apps: Application[] }
     { key: 'viewing', title: 'Viewing only', rows: open.filter((a) => privacyStep(a) === 0), step: 0 },
   ].filter((g) => g.rows.length > 0)
   const userOf = (id: string) => users.find((u) => u.id === id)
-  const decliningName = declining ? (userOf(declining.applicantId)?.fullName.split(' ')[0] ?? 'this applicant') : ''
+  const decliningName = shownDeclining
+    ? (userOf(shownDeclining.applicantId)?.fullName.split(' ')[0] ?? 'this applicant')
+    : ''
 
   return (
     <section className="grid grid-cols-[minmax(0,1fr)] gap-4">

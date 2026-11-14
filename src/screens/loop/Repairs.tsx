@@ -831,6 +831,11 @@ export function Repairs({ job }: { job?: string }) {
   const tenancies = useOrgRows('tenancies')
   const wide = useMediaQuery('(min-width: 1024px)')
   const [logging, setLogging] = useState(false)
+  const [logKey, setLogKey] = useState(0)
+  const openLog = () => {
+    setLogKey((k) => k + 1)
+    setLogging(true)
+  }
   const asked = tickets.find((t) => t.id === job)
   const [view, setView] = useState<'open' | 'done'>(asked?.status === 'closed' ? 'done' : 'open')
 
@@ -868,7 +873,7 @@ export function Repairs({ job }: { job?: string }) {
         }
         lede="Tenants report faults from Pool. Loop sorts each one by urgency, sends a vetted tradesperson when it is urgent or inside your limit, and asks you about the rest."
         actions={
-          <Button intent="secondary" icon={<Plus weight="bold" className="size-4" />} onClick={() => setLogging(true)}>
+          <Button intent="secondary" icon={<Plus weight="bold" className="size-4" />} onClick={openLog}>
             Log a repair
           </Button>
         }
@@ -897,7 +902,7 @@ export function Repairs({ job }: { job?: string }) {
                   title="Nothing is broken"
                   body={`When a tenant reports a fault from Pool it lands here already sorted. ${vacant ? 'For an empty home, or something you spotted yourself, log it here.' : 'If you spot something yourself, log it here.'}`}
                   action={
-                    <Button intent="primary" onClick={() => setLogging(true)}>
+                    <Button intent="primary" onClick={openLog}>
                       Log a repair
                     </Button>
                   }
@@ -1008,7 +1013,7 @@ export function Repairs({ job }: { job?: string }) {
       )}
 
       <LogRepair
-        key={logging ? 'open' : 'closed'}
+        key={logKey}
         open={logging}
         onClose={() => setLogging(false)}
         onLogged={(id) => {

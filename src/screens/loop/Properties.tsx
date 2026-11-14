@@ -41,6 +41,7 @@ export function Properties() {
   const applications = useStore((s) => s.db.applications)
   const nameOf = useNameOf()
   const [adding, setAdding] = useState(false)
+  const [addKey, setAddKey] = useState(0)
   const actions = useActions()
   const reports = useComplianceReports()
 
@@ -75,7 +76,14 @@ export function Properties() {
           </>
         }
         actions={
-          <Button intent="primary" icon={<Plus weight="bold" className="size-4" />} onClick={() => setAdding(true)}>
+          <Button
+            intent="primary"
+            icon={<Plus weight="bold" className="size-4" />}
+            onClick={() => {
+              setAddKey((k) => k + 1)
+              setAdding(true)
+            }}
+          >
             Add a home
           </Button>
         }
@@ -236,7 +244,7 @@ export function Properties() {
           )
         })}
       </ul>
-      <AddHome key={adding ? 'open' : 'closed'} open={adding} onClose={() => setAdding(false)} />
+      <AddHome key={addKey} open={adding} onClose={() => setAdding(false)} />
     </Page>
   )
 }

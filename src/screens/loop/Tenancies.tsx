@@ -22,6 +22,7 @@ import { Tabs } from '@/ui/controls'
 import { Avatar, Empty, PageHeader } from '@/ui/display'
 import { ActionMenu } from '@/ui/overlays'
 import { Modal, Sheet } from '@/ui/Sheet'
+import { useLast } from '@/ui/hooks'
 import { FixedTermDecision } from './decisions/tenancy'
 import { Applicants } from './tenancies/Applicants'
 import { Changes } from './tenancies/Changes'
@@ -264,6 +265,7 @@ function Notices() {
   const tenancies = useOrgRows('tenancies')
   const properties = useOrgRows('properties')
   const [open, setOpen] = useState<Notice | null>(null)
+  const shown = useLast(open)
   const rows = useMemo(() => [...notices].sort((a, b) => b.servedOn.localeCompare(a.servedOn)), [notices])
   const addressOf = (n: Notice) =>
     properties.find((p) => p.id === tenancies.find((t) => t.id === n.tenancyId)?.propertyId)?.address.line1 ?? ''
@@ -321,19 +323,19 @@ function Notices() {
         open={open !== null}
         onOpenChange={(o) => !o && setOpen(null)}
         size="doc"
-        title={open ? addressOf(open) : ''}
+        title={shown ? addressOf(shown) : ''}
         description={
-          open
-            ? `Given ${fmtDate(open.servedOn, { year: 'always' })} by ${how(open)} · received ${fmtDate(open.deemedReceivedOn, { year: 'always' })}`
+          shown
+            ? `Given ${fmtDate(shown.servedOn, { year: 'always' })} by ${how(shown)} · received ${fmtDate(shown.deemedReceivedOn, { year: 'always' })}`
             : undefined
         }
       >
-        {open && (
+        {shown && (
           <NoticeDoc
-            title={open.title}
-            body={open.body}
-            footer={`Built from rule pack ${open.packVersion}.`}
-            fileName={`notice-${open.servedOn}.html`}
+            title={shown.title}
+            body={shown.body}
+            footer={`Built from rule pack ${shown.packVersion}.`}
+            fileName={`notice-${shown.servedOn}.html`}
           />
         )}
       </Modal>
@@ -358,7 +360,8 @@ export function Tenancies({ view, review }: { view: TenanciesView; review?: stri
   const live = homes.filter((h) => h.t).length
   const applying = applications.filter((a) => a.stage !== 'declined' && a.stage !== 'withdrawn')
   const waiting = variations.filter((v) => v.status === 'awaiting_landlord').length
-  const flowTenancy = tenancies.find((t) => t.id === flow?.tenancyId)
+  const shownFlow = useLast(flow)
+  const flowTenancy = tenancies.find((t) => t.id === shownFlow?.tenancyId)
   const flowAddress = properties.find((p) => p.id === flowTenancy?.propertyId)?.address.line1
   const setView = (v: TenanciesView) =>
     void navigate({ to: '/loop/tenancies', search: v === 'agreements' ? {} : { view: v }, replace: true })
@@ -421,31 +424,37 @@ export function Tenancies({ view, review }: { view: TenanciesView; review?: stri
       <Sheet
         open={flow !== null}
         onOpenChange={(o) => !o && close()}
-        size={flow?.kind === 'pack' ? 'xl' : 'lg'}
+        size={shownFlow?.kind === 'pack' ? 'xl' : 'lg'}
         eyebrow={flowAddress}
         title={
-          flow?.kind === 'rent'
+          shownFlow?.kind === 'rent'
             ? 'Review the rent'
-            : flow?.kind === 'pack'
+            : shownFlow?.kind === 'pack'
               ? 'Tribunal record'
               : flowTenancy?.type === 'fixed'
                 ? 'When the fixed term ends'
                 : 'End the tenancy'
         }
         description={
-          flow?.kind === 'end' && flowTenancy?.type !== 'fixed'
+          shownFlow?.kind === 'end' && flowTenancy?.type !== 'fixed'
             ? 'Choose the reason first. It sets the notice and what has to be true.'
             : undefined
         }
       >
-        {flow?.kind === 'rent' && <RentReview key={flow.tenancyId} tenancyId={flow.tenancyId} done={close} />}
-        {flow?.kind === 'end' &&
+        {shownFlow?.kind === 'rent' && (
+          <RentReview key={shownFlow.tenancyId} tenancyId={shownFlow.tenancyId} done={close} />
+        )}
+        {shownFlow?.kind === 'end' &&
           (flowTenancy?.type === 'fixed' ? (
-            <FixedTermDecision tenancyId={flow.tenancyId} actionId={`fixed_term:${flow.tenancyId}`} done={close} />
+            <FixedTermDecision
+              tenancyId={shownFlow.tenancyId}
+              actionId={`fixed_term:${shownFlow.tenancyId}`}
+              done={close}
+            />
           ) : (
-            <EndTenancy key={flow.tenancyId} tenancyId={flow.tenancyId} done={close} />
+            <EndTenancy key={shownFlow.tenancyId} tenancyId={shownFlow.tenancyId} done={close} />
           ))}
-        {flow?.kind === 'pack' && <TribunalPack tenancyId={flow.tenancyId} />}
+        {shownFlow?.kind === 'pack' && <TribunalPack tenancyId={shownFlow.tenancyId} />}
       </Sheet>
     </Page>
   )

@@ -85,8 +85,10 @@ export function BondDecision({ tenancyId, done }: { tenancyId: ID; done: () => v
                 className="mt-1 -ml-2"
                 icon={<Copy className="size-3.5" />}
                 onClick={() => {
-                  void navigator.clipboard?.writeText(details)
-                  toast('Copied the tenancy details')
+                  // A browser may refuse the clipboard. Say "copied" only when it was.
+                  const failed = () => toast('This browser would not copy it', { description: 'Select the details above and copy them by hand.' })
+                  if (!navigator.clipboard) return failed()
+                  navigator.clipboard.writeText(details).then(() => toast('Copied the tenancy details'), failed)
                 }}
               >
                 Copy

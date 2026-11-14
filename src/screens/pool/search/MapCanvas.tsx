@@ -138,13 +138,28 @@ export default function MapCanvas({ pins, selectedId, hoveredId, onSelect, onUna
       return { id: p.id, el, marker }
     })
     setMounts(made.map(({ id, el }) => ({ id, el })))
+    // Homes close together would put one pill on top of another, and the one underneath could not be pressed.
+    // Each is lifted clear of the ones already placed; zooming in brings them back down onto their own spot.
+    const spread = () => {
+      const placed: { x: number; y: number }[] = []
+      const byRow = made.map((m) => ({ m, at: map.project(m.marker.getLngLat()) })).sort((a, b) => b.at.y - a.at.y)
+      for (const { m, at } of byRow) {
+        let lift = 0
+        while (lift < 204 && placed.some((q) => Math.abs(q.x - at.x) < 64 && Math.abs(q.y - (at.y - lift)) < 34)) lift += 34
+        m.marker.setOffset([0, -lift])
+        placed.push({ x: at.x, y: at.y - lift })
+      }
+    }
+    map.on('moveend', spread)
     if (current.length > 0) {
       const bounds = new LngLatBounds()
       for (const p of current) bounds.extend([p.lng, p.lat])
       map.fitBounds(bounds, { padding: paddingFor(latest.current.inset), maxZoom: 14, duration: fitted.current && !latest.current.reduced ? 500 : 0 })
       fitted.current = true
     }
+    spread()
     return () => {
+      map.off('moveend', spread)
       for (const m of made) m.marker.remove()
       setMounts([])
     }

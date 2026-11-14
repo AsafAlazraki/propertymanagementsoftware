@@ -27,6 +27,7 @@ import { Field, Select, Textarea } from '@/ui/controls'
 import { Empty } from '@/ui/display'
 import { Refusal, Why } from '@/ui/Law'
 import { Sheet } from '@/ui/Sheet'
+import { useLast } from '@/ui/hooks'
 import { PetDecision } from '../decisions/tenancy'
 
 const KIND: Record<Variation['type'], { label: string; Icon: typeof PawPrint }> = {
@@ -167,6 +168,7 @@ export function Changes() {
   const tenancies = useOrgRows('tenancies')
   const properties = useOrgRows('properties')
   const [pet, setPet] = useState<string | null>(null)
+  const shownPet = useLast(pet)
   const rows = useMemo(
     () =>
       [...variations].sort(
@@ -259,7 +261,7 @@ export function Changes() {
         eyebrow="Pet request"
         title="Answer the pet request"
       >
-        {pet && <PetDecision variationId={pet} done={() => setPet(null)} />}
+        {shownPet && <PetDecision variationId={shownPet} done={() => setPet(null)} />}
       </Sheet>
     </div>
   )

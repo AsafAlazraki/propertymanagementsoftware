@@ -34,6 +34,7 @@ import { Columns } from '@/ui/charts'
 import { Field, Input, Select, Tabs } from '@/ui/controls'
 import { Callout, Empty, Money as Cash, PageHeader } from '@/ui/display'
 import { Sheet } from '@/ui/Sheet'
+import { useLast } from '@/ui/hooks'
 import { cn } from '@/ui/cn'
 
 export type MoneyTab = 'feed' | 'ledger' | 'tax' | 'savings'
@@ -60,7 +61,7 @@ function downloadCsv(name: string, rows: (string | number)[][]): void {
 
 /* ───────────────────────────── the bank feed ────────────────────────────── */
 
-function FileLine({ line, onClose }: { line: BankLine | null; onClose: () => void }) {
+function FileLine({ line, open, onClose }: { line: BankLine | null; open: boolean; onClose: () => void }) {
   const pack = usePack()
   const orgId = useStore((s) => s.session?.orgId)
   const properties = useStore((s) => s.db.properties)
@@ -81,7 +82,7 @@ function FileLine({ line, onClose }: { line: BankLine | null; onClose: () => voi
 
   return (
     <Sheet
-      open={line !== null}
+      open={open}
       onOpenChange={(o) => !o && onClose()}
       eyebrow="Bank feed"
       title={line ? `${money(Math.abs(line.amount), { cents: true })} ${income ? 'in' : 'out'} — what was it?` : ''}
@@ -297,6 +298,8 @@ export function Money({ tab }: { tab: MoneyTab }) {
   const fieldTasks = useStore((s) => s.db.fieldTasks)
   const [filing, setFiling] = useState<BankLine | null>(null)
   const [adding, setAdding] = useState(false)
+  const [addKey, setAddKey] = useState(0)
+  const shownFiling = useLast(filing)
   const [propertyFilter, setPropertyFilter] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
   const [query, setQuery] = useState('')
@@ -440,7 +443,14 @@ export function Money({ tab }: { tab: MoneyTab }) {
           </>
         }
         actions={
-          <Button intent="secondary" icon={<Plus weight="bold" className="size-4" />} onClick={() => setAdding(true)}>
+          <Button
+            intent="secondary"
+            icon={<Plus weight="bold" className="size-4" />}
+            onClick={() => {
+              setAddKey((k) => k + 1)
+              setAdding(true)
+            }}
+          >
             Add a cost
           </Button>
         }
@@ -931,8 +941,13 @@ export function Money({ tab }: { tab: MoneyTab }) {
         </div>
       </div>
 
-      <FileLine key={filing?.id ?? 'none'} line={filing} onClose={() => setFiling(null)} />
-      <AddExpense key={adding ? 'open' : 'closed'} open={adding} onClose={() => setAdding(false)} />
+      <FileLine
+        key={shownFiling?.id ?? 'none'}
+        line={shownFiling ?? null}
+        open={filing !== null}
+        onClose={() => setFiling(null)}
+      />
+      <AddExpense key={addKey} open={adding} onClose={() => setAdding(false)} />
     </Page>
   )
 }
