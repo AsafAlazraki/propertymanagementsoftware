@@ -1,4 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Building } from '@/shell/Building'
+import { Migration, migrationSearch } from '@/screens/admin/Migration'
 
-export const Route = createFileRoute('/admin/migration')({ component: () => <Building title="Migration" /> })
+export const Route = createFileRoute('/admin/migration')({ validateSearch: migrationSearch, component: Migration })

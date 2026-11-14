@@ -1,4 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Building } from '@/shell/Building'
+import { Queue, queueSearch } from '@/screens/admin/Queue'
 
-export const Route = createFileRoute('/admin/queue')({ component: () => <Building title="Action queue" /> })
+export const Route = createFileRoute('/admin/queue')({ validateSearch: queueSearch, component: Queue })

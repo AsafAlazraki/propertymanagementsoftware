@@ -1,4 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Building } from '@/shell/Building'
+import { Orgs, orgsSearch } from '@/screens/admin/Orgs'
 
-export const Route = createFileRoute('/admin/orgs')({ component: () => <Building title="Organisations" /> })
+export const Route = createFileRoute('/admin/orgs')({ validateSearch: orgsSearch, component: Orgs })

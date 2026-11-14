@@ -1,4 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Building } from '@/shell/Building'
+import { Assistant, assistantSearch } from '@/screens/admin/Assistant'
 
-export const Route = createFileRoute('/admin/assistant')({ component: () => <Building title="Assistant" /> })
+export const Route = createFileRoute('/admin/assistant')({ validateSearch: assistantSearch, component: Assistant })

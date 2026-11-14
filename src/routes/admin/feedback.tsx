@@ -1,4 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Building } from '@/shell/Building'
+import { Feedback, feedbackSearch } from '@/screens/admin/Feedback'
 
-export const Route = createFileRoute('/admin/feedback')({ component: () => <Building title="Feedback" /> })
+export const Route = createFileRoute('/admin/feedback')({ validateSearch: feedbackSearch, component: Feedback })
