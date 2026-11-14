@@ -767,7 +767,7 @@ export function Money({ tab }: { tab: MoneyTab }) {
                     </ul>
                   </div>
 
-                  <div className="hidden overflow-x-auto rounded-lg bg-surface shadow-card md:block">
+                  <div className="relative hidden overflow-x-auto rounded-lg bg-surface shadow-card md:block">
                     <table className="w-full text-left text-[13px]">
                       <thead className="text-xs text-ink-3">
                         <tr className="border-b border-line">
