@@ -327,7 +327,7 @@ export function CommandCentre() {
     if (DECIDED_IN_SHEET.includes(a.kind)) setOpen(a)
     else {
       const d = destinationOf(a)
-      void navigate({ to: d.to as LinkProps['to'], params: d.params as never })
+      void navigate({ to: d.to as LinkProps['to'], params: d.params as never, search: d.search as never })
     }
   }
 

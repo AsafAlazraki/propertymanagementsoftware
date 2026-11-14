@@ -122,7 +122,7 @@ export function LoopShell() {
               <AskButton onOpen={() => setAsk(true)} label="Ask Loop anything" className="mb-4" />
             )}
 
-            <nav aria-label="Loop" className={cn('flex flex-1 flex-col gap-0.5 overflow-y-auto', rail ? 'items-center' : 'pl-0')}>
+            <nav aria-label="Loop" className={cn('flex flex-1 flex-col gap-0.5 no-scrollbar overflow-y-auto overflow-x-hidden', rail ? 'items-center' : 'pl-0')}>
               {nav.slice(0, 7).map((item) => (
                 <SideLink key={item.to} item={item} rail={rail} />
               ))}

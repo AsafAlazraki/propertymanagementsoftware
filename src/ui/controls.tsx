@@ -162,7 +162,7 @@ export function Segmented<T extends string>({
           key={o.value}
           value={o.value}
           className={cn(
-            'pressable inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-[calc(var(--r-md)-2px)] px-3 font-medium whitespace-nowrap text-ink-2 transition-[background-color,color,box-shadow] duration-150',
+            'pressable inline-flex min-w-0 flex-auto items-center justify-center gap-1.5 rounded-[calc(var(--r-md)-2px)] px-3 font-medium whitespace-nowrap text-ink-2 transition-[background-color,color,box-shadow] duration-150',
             'data-checked:bg-surface data-checked:text-ink data-checked:shadow-card',
             size === 'sm' ? 'h-7 text-xs coarse:h-9' : 'h-9 text-[13px] coarse:h-10',
           )}

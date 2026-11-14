@@ -271,6 +271,24 @@ export function ArrearsDecision({ tenancyId, done }: { tenancyId: ID; done: () =
 
 export function QuoteDecision({ ticketId, done }: { ticketId: ID; done: () => void }) {
   const tk = useStore((s) => s.db.tickets.find((t) => t.id === ticketId))
+  if (!tk?.quote) return null
+  return (
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-6">
+      <div>
+        <p className="text-[13px] leading-relaxed text-ink-2">{tk.description}</p>
+        <Callout tone="accent" className="mt-3" title={`Sorted as ${tk.triage.urgency}`}>
+          {tk.triage.reasoning}
+          {tk.triage.selfHelpTried && <span className="mt-1 block text-ink-2">Already tried: {tk.triage.selfHelpTried}</span>}
+        </Callout>
+      </div>
+      <QuoteOffer ticketId={ticketId} done={done} />
+    </div>
+  )
+}
+
+/** The quote itself: who, what for, what it does to the fund, and the two answers. */
+export function QuoteOffer({ ticketId, done }: { ticketId: ID; done: () => void }) {
+  const tk = useStore((s) => s.db.tickets.find((t) => t.id === ticketId))
   const property = useStore((s) => s.db.properties.find((p) => p.id === tk?.propertyId))
   const provider = useStore((s) => s.db.providers.find((p) => p.id === tk?.providerId))
   const entity = useStore((s) => s.db.entities.find((e) => e.id === property?.entityId))
@@ -283,14 +301,6 @@ export function QuoteDecision({ ticketId, done }: { ticketId: ID; done: () => vo
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-6">
-      <div>
-        <p className="text-[13px] leading-relaxed text-ink-2">{tk.description}</p>
-        <Callout tone="accent" className="mt-3" title={`Sorted as ${tk.triage.urgency}`}>
-          {tk.triage.reasoning}
-          {tk.triage.selfHelpTried && <span className="mt-1 block text-ink-2">Already tried: {tk.triage.selfHelpTried}</span>}
-        </Callout>
-      </div>
-
       <div className="overflow-hidden rounded-lg shadow-card">
         <div className="flex items-center gap-3 bg-surface px-4 py-3">
           <div className="min-w-0 flex-1">

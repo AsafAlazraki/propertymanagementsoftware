@@ -167,6 +167,14 @@ export function fmtDate(iso: ISODate, opts: { weekday?: boolean; year?: 'auto' |
   return `${wd}${d} ${MONTHS[m - 1]}${showYear ? ` ${y}` : ''}`
 }
 
+/** `10:30 am` — the local clock time of an instant. */
+export function fmtTime(instant: string): string {
+  const d = new Date(instant)
+  const h = d.getHours()
+  const m = d.getMinutes()
+  return `${h % 12 || 12}${m ? `:${String(m).padStart(2, '0')}` : ''} ${h < 12 ? 'am' : 'pm'}`
+}
+
 /** `Friday 14 November 2026` — for documents. */
 export function fmtDateLong(iso: ISODate): string {
   const [y, m, d] = iso.split('-').map(Number)

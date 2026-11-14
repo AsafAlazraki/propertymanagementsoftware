@@ -12,7 +12,9 @@ import type { JurisdictionPack } from '@/domain/jurisdictions/types'
 import type { Finding, StandardKey } from '@/domain/healthyHomes'
 import { at } from '@/domain/seed'
 import { addDays, fmtDate, today } from '@/domain/rules/calendar'
-import { money } from '@/domain/rules/format'
+import { money, round2 } from '@/domain/rules/format'
+import { checkTenantInvoice } from '@/domain/rules/tenancy'
+import { dispatchMode, issueOf, triage } from '@/domain/triage'
 import { audit, db, logAutopilot, newId, nowIso } from './store'
 
 const FIELD_PRICES = { routine_inspection: 85, viewing: 65, entry_exit_report: 140, tribunal_representation: 250 } as const
@@ -117,15 +119,97 @@ export function declineQuote(ticketId: ID, reason: string): void {
   })
 }
 
-/** Settles a dispute over who caused the damage. */
-export function resolveFault(ticketId: ID, payer: 'tenant' | 'sinking_fund', note: string): void {
-  const tk = db.get().tickets.find((t) => t.id === ticketId)
-  if (!tk) return
-  db.update('tickets', ticketId, {
-    status: 'closed',
-    paidFrom: payer,
-    events: [...tk.events, { at: nowIso(), by: 'landlord', text: payer === 'tenant' ? `Decided the tenant pays. ${note}`.trim() : `Decided this is fair wear and tear; paid from the sinking fund. ${note}`.trim() }],
+/**
+ * Settles who pays for a repair the tradesperson recorded as tenant damage.
+ * Billing the tenant always goes through the careless-damage cap; the landlord
+ * decides the cause, never the amount. Returns what was billed.
+ */
+export function resolveFault(ticketId: ID, payer: 'tenant' | 'sinking_fund', note: string, pack: JurisdictionPack): number {
+  const state = db.get()
+  const tk = state.tickets.find((t) => t.id === ticketId)
+  const tenancy = state.tenancies.find((t) => t.id === tk?.tenancyId)
+  const property = state.properties.find((p) => p.id === tk?.propertyId)
+  if (!tk?.invoice || !property) return 0
+  const now = nowIso()
+  const said = note.trim()
+  const events = [...tk.events]
+  let billed = 0
+
+  if (payer === 'tenant' && tenancy) {
+    billed = checkTenantInvoice(pack, tk.invoice.amount, 'careless', tenancy.weeklyRent, { insured: Boolean(property.insurance.insurer), excess: property.insurance.excess }).billable
+    const rest = round2(tk.invoice.amount - billed)
+    events.push({ at: now, by: 'landlord', text: `Decided this was careless damage.${said ? ` ${said}` : ''}` })
+    events.push({
+      at: now,
+      by: 'system',
+      text: `Invoiced the tenants ${money(billed)}${rest > 0 ? `; the remaining ${money(rest)} is over the careless-damage cap and stays with the owner` : ''}. If they still disagree, the Tribunal decides.`,
+    })
+    db.insert('ledger', { id: newId('led'), orgId: tk.orgId, propertyId: tk.propertyId, tenancyId: tenancy.id, date: today(), kind: 'tenant_invoice', amount: billed, category: 'other_income', description: `Tenant invoice: ${tk.title.toLowerCase()}`, match: 'none', ticketId })
+  } else {
+    events.push({ at: now, by: 'landlord', text: `Decided this is fair wear and tear.${said ? ` ${said}` : ''}` })
+    events.push({ at: now, by: 'system', text: `Nothing is billed to the tenants. The ${money(tk.invoice.amount)} stays with the owner, paid from the sinking fund.` })
+  }
+  db.update('tickets', ticketId, { status: 'closed', paidFrom: payer === 'tenant' && tenancy ? 'tenant' : 'sinking_fund', events })
+  return billed
+}
+
+export interface RepairLog {
+  orgId: ID
+  propertyId: ID
+  reporterId: ID
+  issueKey: string
+  title: string
+  description: string
+}
+
+/**
+ * The landlord logs a fault themselves. It is sorted by the same rules as a
+ * report from a renter: urgent work is sent, routine work inside the home's
+ * limit is sent, anything else waits for a quote. Returns the ticket id.
+ */
+export function logRepair(r: RepairLog): ID | undefined {
+  const state = db.get()
+  const property = state.properties.find((p) => p.id === r.propertyId)
+  if (!property) return undefined
+  const issue = issueOf(r.issueKey)
+  const sorted = triage(r.description, r.issueKey, today())
+  const limit = property.sinkingFund.autoApproveLimit
+  const mode = dispatchMode(sorted.urgency, issue.cost, limit)
+  const want = sorted.suggestedTrade.toLowerCase().split(/ or |, | and /)[0]
+  const provider = state.providers.find((p) => p.kind === 'trade' && p.vetting === 'vetted' && p.trade.toLowerCase().includes(want))
+  const who = provider?.name ?? `a ${sorted.suggestedTrade.toLowerCase()}`
+  const tenancy = state.tenancies.find((t) => t.propertyId === property.id && (t.status === 'active' || t.status === 'notice_given'))
+  const now = nowIso()
+  const id = newId('tk')
+  const tier = sorted.urgency === 'emergency' ? 'an emergency' : sorted.urgency
+  db.insert('tickets', {
+    id,
+    orgId: r.orgId,
+    propertyId: property.id,
+    tenancyId: tenancy?.id,
+    reportedBy: r.reporterId,
+    createdAt: now,
+    title: r.title.trim(),
+    description: r.description.trim(),
+    category: issue.category,
+    photoIds: [],
+    triage: sorted,
+    status: mode === 'auto_dispatch' ? 'approved' : 'quote_requested',
+    mode,
+    providerId: provider?.id,
+    events: [
+      { at: now, by: 'landlord', text: 'You logged this yourself.' },
+      {
+        at: now,
+        by: 'system',
+        text:
+          mode === 'quote_first'
+            ? `Sorted as routine. ${issue.cost ? `Likely over the ${money(limit)} limit` : 'The cost is not known yet'}, so a quote was requested from ${who}.`
+            : `Sorted as ${tier}${sorted.urgency === 'routine' ? `, within the ${money(limit)} limit` : ''}: sent to ${who}.`,
+      },
+    ],
   })
+  return id
 }
 
 /* ──────────────────────────────── requests ──────────────────────────────── */

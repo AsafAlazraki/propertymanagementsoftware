@@ -8,7 +8,7 @@ import { FixedTermDecision, InspectionDecision, PetDecision } from './tenancy'
 export const DECIDED_IN_SHEET: ActionItem['kind'][] = ['bond', 'arrears', 'quote', 'pet', 'fixed_term', 'inspection']
 
 /** Where an action leads when it is not decided in a sheet. */
-export function destinationOf(a: ActionItem): { to: string; params?: Record<string, string> } {
+export function destinationOf(a: ActionItem): { to: string; params?: Record<string, string>; search?: Record<string, string> } {
   switch (a.kind) {
     case 'compliance':
     case 'insurance':
@@ -18,7 +18,7 @@ export function destinationOf(a: ActionItem): { to: string; params?: Record<stri
     case 'variation':
       return { to: '/loop/tenancies' }
     case 'dispute':
-      return { to: '/loop/repairs' }
+      return { to: '/loop/repairs', search: { job: a.refId } }
     case 'bank':
       return { to: '/loop/money' }
     default:
