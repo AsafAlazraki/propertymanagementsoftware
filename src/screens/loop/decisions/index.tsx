@@ -14,9 +14,11 @@ export function destinationOf(a: ActionItem): { to: string; params?: Record<stri
     case 'insurance':
       return { to: '/loop/properties/$id', params: { id: a.propertyId ?? a.refId } }
     case 'applications':
+      return { to: '/loop/tenancies', search: { view: 'applicants' } }
     case 'rent_review':
+      return { to: '/loop/tenancies', search: { review: a.refId } }
     case 'variation':
-      return { to: '/loop/tenancies' }
+      return { to: '/loop/tenancies', search: { view: 'changes' } }
     case 'dispute':
       return { to: '/loop/repairs', search: { job: a.refId } }
     case 'bank':

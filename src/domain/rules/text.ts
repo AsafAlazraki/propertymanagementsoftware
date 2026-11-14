@@ -35,7 +35,7 @@ const NZ_PATTERNS: ClausePattern[] = [
   {
     id: 'late_fee',
     severity: 'block',
-    test: /\b(late (payment )?(fee|charge|penalt)|penalty (fee|interest)|interest (on|for) (late|overdue|unpaid)|\$\s?\d+\s*(per|a|each)\s*day\s*(late|overdue))/i,
+    test: /\b(late (payment )?(fee|charge|penalt)|penalty (fee|interest)|interest (on|for) (late|overdue|unpaid)|\$\s?\d+\s*(per|a|each)\s*day\s*(late|overdue)|(fee|charge|fine|penalt\w*)\b[^.;]{0,40}\b(rent|payment)\b[^.;]{0,25}\b(late|overdue|not paid on time)|(late|overdue)\b[^.;]{0,30}\b(rent|payment)\b[^.;]{0,30}\b(fee|charge|fine|penalt\w*))/i,
     title: 'Late fees have no effect',
     why: 'A clause that makes a tenant pay a set sum, more rent, or interest for breaching the agreement is of no effect.',
     citation: 'RTA s 32',

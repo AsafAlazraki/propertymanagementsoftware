@@ -266,6 +266,9 @@ describe('words', () => {
   it('catches the clauses landlords most often write', () => {
     const ids = (text: string) => scanClause(NZ, text).map((f) => f.id)
     expect(ids('A late fee of $25 will apply to overdue rent.')).toContain('late_fee')
+    expect(ids('The tenant pays a $50 fee if rent is late.')).toContain('late_fee')
+    expect(ids('Overdue rent attracts a charge of $10.')).toContain('late_fee')
+    expect(ids('Rent is due every Friday. Late rent will be followed up by phone.')).not.toContain('late_fee')
     expect(ids('No pets are permitted at the premises.')).toContain('no_pets')
     expect(ids('The landlord may enter the premises at any time to inspect.')).toContain('entry_any_time')
     expect(ids('Rent is payable one month in advance.')).toContain('rent_in_advance')

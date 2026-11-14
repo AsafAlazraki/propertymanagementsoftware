@@ -25,7 +25,17 @@ export const NZ: JurisdictionPack = {
   act: { name: 'Residential Tenancies Act 1986', url: RTA },
   regulator: { name: 'Tenancy Services (MBIE)', url: 'https://www.tenancy.govt.nz/' },
   bondAuthority: { name: 'Bond Hub — Tenancy Services', url: 'https://www.tenancy.govt.nz/rent-bond-and-bills/bond/' },
-  tribunal: { name: 'Tenancy Tribunal', url: 'https://www.justice.govt.nz/tribunals/tenancy/', maxClaim: 100_000 },
+  tribunal: {
+    name: 'Tenancy Tribunal',
+    url: 'https://www.justice.govt.nz/tribunals/tenancy/',
+    maxClaim: 100_000,
+    filing: {
+      disclosed: 'Every document you file becomes part of the Tribunal file and is given to the other party.',
+      redaction: 'Personal information that is not relevant may be blacked out before filing; the hidden part is then ignored. Relevant information must stay visible.',
+      citation: 'Tenancy Tribunal Practice Direction 4/2026, paras 17–21',
+      sourceUrl: 'https://www.justice.govt.nz/assets/Documents/Publications/Tenancy-Practice-note-4-Applications-to-the-Tribunal.pdf',
+    },
+  },
   salesTax: { name: 'GST', ratePct: 15, appliesToResidentialRent: false },
   taxYearStartMonth: 4,
   safetyBufferDays: 1,

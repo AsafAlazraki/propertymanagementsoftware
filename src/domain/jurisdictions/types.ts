@@ -159,7 +159,13 @@ export interface JurisdictionPack {
   act: { name: string; url: string }
   regulator: { name: string; url: string }
   bondAuthority: { name: string; url: string }
-  tribunal: { name: string; url: string; maxClaim: number | null }
+  tribunal: {
+    name: string
+    url: string
+    maxClaim: number | null
+    /** What happens to documents filed with an application, where that has been read at source. */
+    filing?: { disclosed: string; redaction: string; citation: string; sourceUrl: string }
+  }
   salesTax: { name: string; ratePct: number; appliesToResidentialRent: boolean }
   taxYearStartMonth: number
   calendar: CalendarConfig
