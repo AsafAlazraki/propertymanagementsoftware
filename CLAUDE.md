@@ -38,7 +38,8 @@ A property-management platform built from Sam's spec (`docs/spec/`): **Loop** fo
 
 - `npm test` — typecheck, lint, unit tests. Must pass before every push.
 - `npm run dev` — the app on port 5200.
-- `npm run e2e` — every screen at the six sizes, against the Pages build (build it first). Fails on a thrown error, a sideways scroll or a placeholder.
+- `npm run e2e` — every screen at the six sizes, against the Pages build (build it first), in about two minutes. Fails on a thrown error, a sideways scroll or a placeholder.
+- `npm run e2e:clicks` — presses every control in each portal and checks every sheet fits on a phone. About 45 minutes for all three; `npm run e2e:clicks -- -g pool` (or `loop`, `admin`) runs one.
 - `node scripts/reg-watch.mjs --dry` — read the official sources and report, writing nothing. Without `--dry` it updates `public/regwatch/feed.json` and `regwatch/state/`.
 - `npm run build:pages` then `npm run preview:pages` — the GitHub Pages build at `/propertymanagementsoftware/` on port 5201. Never pass `--base /x/` on the command line: Git Bash rewrites it into a Windows path.
 

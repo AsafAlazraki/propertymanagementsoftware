@@ -18,7 +18,8 @@
     "format": "prettier --write .",
     "unit": "vitest run",
     "test": "npm run typecheck && npm run lint && npm run unit",
-    "e2e": "playwright test",
+    "e2e": "playwright test smoke",
+    "e2e:clicks": "playwright test clicks",
     "regwatch": "node scripts/reg-watch.mjs"
   },
   "dependencies": {
