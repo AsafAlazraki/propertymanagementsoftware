@@ -41,7 +41,7 @@ import { round2 } from '../rules/format'
 import { BED_FACTOR, emailOf, FIRST_NAMES, LAST_NAMES, LISTING_FEATURES, phoneOf, prng, roundRent, STREETS, SUBURBS, type Suburb } from './world'
 import { buildPlatform } from './platform'
 
-export const SEED_VERSION = 2
+export const SEED_VERSION = 3
 
 export const DEMO = {
   org: 'org_whitaker',

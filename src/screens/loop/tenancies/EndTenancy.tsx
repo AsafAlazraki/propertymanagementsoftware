@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { ArrowLeft } from '@phosphor-icons/react'
 import type { ID } from '@/domain/types'
 import type { RuleKey, ServiceMethod } from '@/domain/jurisdictions/types'
+import { OK, type Verdict } from '@/domain/rules/core'
 import { GROUND_LABEL, terminationNotice } from '@/domain/notices'
 import { fmtDate } from '@/domain/rules/calendar'
 import { planTermination, type EndGround } from '@/domain/rules/tenancy'
@@ -34,6 +35,7 @@ export function EndTenancy({ tenancyId, done }: { tenancyId: ID; done: () => voi
   const day = useToday()
   const me = useMe()
   const nameOf = useNameOf()
+  const users = useStore((s) => s.db.users)
   const t = useStore((s) => s.db.tenancies.find((x) => x.id === tenancyId))
   const property = useStore((s) => s.db.properties.find((p) => p.id === t?.propertyId))
   const [ground, setGround] = useState<EndGround | null>(null)
@@ -58,6 +60,15 @@ export function EndTenancy({ tenancyId, done }: { tenancyId: ID; done: () => voi
       )
     : null
   const how = pack.service.find((s) => s.id === method)
+  // Email only counts as service when there is an address to send it to.
+  const without =
+    ground !== 'tenant' && method === 'email'
+      ? t.tenantIds.flatMap((id) => {
+          const u = users.find((x) => x.id === id)
+          return u && !u.email ? [u.fullName.split(' ')[0]] : []
+        })
+      : []
+  const address: Verdict = without.length ? { ok: false, reason: `There is no email address for service on file for ${without.join(' and ')}.`, fix: 'Choose another way to give the notice.' } : OK
   const facts = plan ? plan.conditions.filter((c) => !/notice states/i.test(c)) : []
   const allTrue = facts.every((c) => confirmed.includes(c))
   const draft =
@@ -103,7 +114,7 @@ export function EndTenancy({ tenancyId, done }: { tenancyId: ID; done: () => voi
               pack,
             )
             recordTermination(t.id, 'landlord', GROUND_LABEL[ground], plan.endsOn, plan.received)
-            toast.success('Notice served', {
+            toast.success(method === 'email' ? 'Notice recorded as served by email' : 'Notice recorded as given', {
               description: `The tenancy ends on ${fmtDate(plan.endsOn, { year: 'always' })}. ${first} can see the notice in Pool.`,
             })
             done()
@@ -113,6 +124,7 @@ export function EndTenancy({ tenancyId, done }: { tenancyId: ID; done: () => voi
         </Button>
         <p className="text-xs leading-relaxed text-ink-3">
           Once served, a notice can only be withdrawn if {first} agrees.
+          {method === 'email' && ' Email is simulated in this prototype: the notice is recorded with today’s date and shown to the tenant in Pool; nothing is actually sent.'}
         </p>
       </div>
     )
@@ -179,7 +191,7 @@ export function EndTenancy({ tenancyId, done }: { tenancyId: ID; done: () => voi
                       type="date"
                       value={receivedOn}
                       max={day}
-                      onChange={(e) => setReceivedOn(e.target.value)}
+                      onChange={(e) => e.target.value && setReceivedOn(e.target.value)}
                     />
                   )}
                 </Field>
@@ -200,6 +212,7 @@ export function EndTenancy({ tenancyId, done }: { tenancyId: ID; done: () => voi
               <section>
                 <h3 className="mb-3 text-[13px] font-semibold text-ink">The date, worked out</h3>
                 <Working steps={plan.steps} />
+                <Refusal verdict={address} className="mt-3" />
               </section>
 
               {facts.length > 0 && (
@@ -252,7 +265,7 @@ export function EndTenancy({ tenancyId, done }: { tenancyId: ID; done: () => voi
                   block
                   onClick={() => {
                     setTried(true)
-                    if (allTrue) setPreview(true)
+                    if (allTrue && address.ok) setPreview(true)
                   }}
                 >
                   Read the notice before it goes

@@ -19,7 +19,9 @@ Dependencies point one way: screens use data and domain; data uses domain; domai
 
 A jurisdiction is a file: `src/domain/jurisdictions/nz.ts`. Each rule is a value with its plain-English text, citation, source URL, how it was verified and when. Calculators in `src/domain/rules/` take a pack and return an answer **with its steps**, so every date on screen can show its working. Screens read rules only through `usePack()`.
 
-`resolvePack(code, versions)` lays admin-published overrides over the shipped file. Approving a change in the team console therefore changes what every calculator returns, with no deploy, and every notice records the pack version that produced it.
+`resolvePack(code, versions, on)` lays admin-published overrides over the shipped file, as the law stands on the day `on` (today, unless a date is passed). Publishing a change in the team console therefore changes what every calculator returns, with no deploy, and every notice records the pack version that produced it.
+
+Publishing is not commencement. Each override carries the date it comes into force (`RulePackVersion.commences`). Before that date the rule keeps its value and gains `upcoming`; from that date the value moves and the rule gains `revised`, because its plain-English text was written for the shipped value. `<RuleMoves>` prints both, and goes wherever `rule.plain` goes. Sentences outside the pack read their numbers from it too: `src/domain/no-typed-law.test.ts` fails if a number of days, weeks, months or hours is typed into the assistant or the action queue.
 
 Loop's own safety margin is a field on the pack (`safetyBufferDays`) and is marked "not law" wherever it appears.
 

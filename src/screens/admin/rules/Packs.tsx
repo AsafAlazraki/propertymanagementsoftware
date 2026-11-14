@@ -20,8 +20,7 @@ import { Filter, Flag, Out, Status } from '../kit'
 import { JURISDICTION_NAME, VERIFIED } from '../labels'
 import { PackTag, SHORT } from './shared'
 
-export const PACK_VIEWS = ['rules', 'compare'] as const
-export type PackView = (typeof PACK_VIEWS)[number]
+import { type PackView } from '../search'
 
 const FAMILY: Record<string, string> = {
   bond: 'Bond',
@@ -108,7 +107,12 @@ function RuleRow({ ruleKey, rule, shipped }: { ruleKey: RuleKey; rule: Rule<unkn
         <p className="mt-1.5 font-mono text-[13px] font-semibold text-ink">{formatRuleValue(ruleKey, rule.value)}</p>
         {overridden && (
           <p className="mt-1 text-xs text-accent-text">
-            Overridden by a published version. The shipped pack holds {formatRuleValue(ruleKey, shipped.value)}.
+            Overridden by a published version. The shipped pack holds {formatRuleValue(ruleKey, shipped.value)}, and the words alongside were written for it.
+          </p>
+        )}
+        {rule.upcoming && (
+          <p className="mt-1 text-xs text-warn-text">
+            Published in {rule.upcoming.version} and held: becomes {formatRuleValue(ruleKey, rule.upcoming.value)} on {fmtDate(rule.upcoming.from, { weekday: false, year: 'always' })}.
           </p>
         )}
       </div>

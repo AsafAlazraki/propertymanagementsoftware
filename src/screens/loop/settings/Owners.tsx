@@ -173,8 +173,9 @@ export function OwnersSection() {
         </ul>
       )}
       <Truth>
-        A quote above the amount is flagged for a second approval when you open it. This prototype shows the flag; it
-        does not yet hold the job until the second person answers.
+        A quote above the amount waits for two owners: the first yes is recorded and nobody is booked until a different
+        owner approves. This prototype has no sign-in, so the second owner’s yes is given from the same screen, and the
+        button says so.
       </Truth>
     </Section>
   )

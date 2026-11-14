@@ -74,7 +74,7 @@ export default defineConfig(({ mode }) => ({
         globPatterns: ['**/*.{js,css,html,svg,png,woff2,json}'],
         // pdf.js and the map are fetched on demand; keeping them out of the precache
         // keeps the first install small on a phone.
-        globIgnores: ['**/pdf.worker*', '**/maplibre*'],
+        globIgnores: ['**/pdf.worker*', '**/maplibre*', '**/regwatch/**'],
         maximumFileSizeToCacheInBytes: 3_000_000,
         navigateFallback: 'index.html',
         cleanupOutdatedCaches: true,

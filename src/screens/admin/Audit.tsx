@@ -20,26 +20,12 @@ import { Button } from '@/ui/Button'
 import { Segmented } from '@/ui/controls'
 import { Avatar, Empty } from '@/ui/display'
 import { Filter, Head, SearchBox, Tally, Toolbar } from './kit'
-import { clock, matches, oneOf, text, whenExact } from './format'
+import { clock, matches, whenExact } from './format'
 import { saveFile } from './hooks'
+import { type AuditSearch, type Span } from './search'
 
-const SPANS = ['today', 'week', 'month', 'all'] as const
-type Span = (typeof SPANS)[number]
 const SPAN_DAYS: Record<Span, number> = { today: 0, week: 6, month: 29, all: Number.POSITIVE_INFINITY }
-const BY = ['people', 'engine'] as const
 
-export interface AuditSearch {
-  q?: string
-  actor?: string
-  org?: string
-  span?: Span
-  /** `people` is the team; `engine` is everything that acts on its own. */
-  by?: (typeof BY)[number]
-}
-
-export function auditSearch(s: Record<string, unknown>): AuditSearch {
-  return { q: text(s.q), actor: text(s.actor), org: text(s.org), span: oneOf(s.span, SPANS), by: oneOf(s.by, BY) }
-}
 
 const route = getRouteApi('/admin/audit')
 

@@ -223,7 +223,7 @@ function AddExpense({ open, onClose }: { open: boolean; onClose: () => void }) {
             )}
           </Field>
           <Field label="Date paid">
-            {(p) => <Input {...p} type="date" value={date} max={today()} onChange={(e) => setDate(e.target.value)} />}
+            {(p) => <Input {...p} type="date" value={date} max={today()} onChange={(e) => e.target.value && setDate(e.target.value)} />}
           </Field>
         </div>
         <Field

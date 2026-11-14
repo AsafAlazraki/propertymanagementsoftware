@@ -111,7 +111,7 @@ export function buildPlatform({ D, T, orgs, users, tenancies }: Ctx): PlatformSl
     fb('u_wiremu', 'pool', 'Home', 'complaint', 'negative', 'Reminders', 'I got a reminder text at 7 am on a day I was already going to pay. Could it wait until lunchtime?', 0, 'new', 2),
     fb(ownerOf('org_okafor'), 'loop', 'Pricing', 'question', 'neutral', 'Billing', 'On the free plan do I still get the legal date reminders, or only on Autopilot?', 7, 'triaged', 1, { adminReply: 'You get the reminders and the compliance checklist on Ledger Free. Generating the notices themselves is part of Autopilot Pro.' }),
     fb('u_aleks', 'pool', 'Passport', 'idea', 'neutral', 'Rent Passport', 'Let me add my rental history from before I joined, with the old landlord confirming it by email.', 8, 'shipped', 14, { adminReply: 'Shipped. Add a past tenancy from your Passport and we will email your old landlord a one-tap confirmation.' }),
-    fb(ownerOf('org_brightwater'), 'loop', 'Billing', 'complaint', 'negative', 'Billing', 'My card expired and I only found out when the app went read-only. An email a week before would have helped.', 9, 'planned', 3),
+    fb(ownerOf('org_brightwater'), 'loop', 'Billing', 'complaint', 'negative', 'Billing', 'My card expired and I only found out when a red bar appeared across the app. An email a week before would have helped.', 9, 'planned', 3),
     fb(tenantIn('org_chenli'), 'pool', 'Repairs', 'bug', 'negative', 'Maintenance', 'The self-help card for "no hot water" told me to check a switch I could not find. A photo of what a cylinder switch looks like would help.', 10, 'triaged', 6),
     fb(ownerOf('org_kowalczyk'), 'loop', 'Services', 'idea', 'positive', 'Field services', 'Would pay for a gardener visit between tenancies the same way I book an inspection.', 12, 'new', 4),
     fb('u_emma', 'pool', 'Applications', 'praise', 'positive', 'Applications', 'Applying without uploading three months of bank statements felt almost suspicious. Nice to be treated like an adult.', 2, 'new', 12),
@@ -122,7 +122,7 @@ export function buildPlatform({ D, T, orgs, users, tenancies }: Ctx): PlatformSl
 
   const adminTasks: AdminTask[] = [
     { id: 'at_drill', kind: 'rule_change_review', title: 'Review a detected law change: tenant notice period', detail: 'High-impact change to a termination rule. Needs two reviewers before it can be published.', refId: 'rc_drill', priority: 'p1', status: 'open', createdAt: T(0, 6, 30), dueAt: T(2, 17) },
-    { id: 'at_hope', kind: 'billing_issue', title: 'Hope Street Trust is suspended and has not been called', detail: 'Three active tenancies are read-only. Both billing emails bounced; a mobile number is on file.', orgId: 'org_hope', priority: 'p1', status: 'open', createdAt: T(-12, 9), dueAt: T(0, 17) },
+    { id: 'at_hope', kind: 'billing_issue', title: 'Hope Street Trust is suspended and has not been called', detail: 'Three active tenancies sit in the suspended account. Both billing emails bounced; a mobile number is on file.', orgId: 'org_hope', priority: 'p1', status: 'open', createdAt: T(-12, 9), dueAt: T(0, 17) },
     { id: 'at_election', kind: 'rule_change_review', title: 'New Parliament: decide what to watch', detail: 'All bills lapsed at dissolution. Official results are due 27 November.', refId: 'rc_election', priority: 'p2', status: 'open', createdAt: T(-6, 9) },
     { id: 'at_oliver', kind: 'provider_vetting', title: 'Vet new inspector: Oliver Schmidt', detail: 'Identity and insurance received. Police vetting and referee check outstanding.', refId: 'pr_oliver', priority: 'p2', status: 'open', createdAt: T(-3, 11) },
     { id: 'at_glass', kind: 'provider_vetting', title: 'Vet new trade: Clearpane Glass', detail: 'Public liability certificate has not been uploaded.', refId: 'pr_glass', priority: 'p3', status: 'in_progress', createdAt: T(-6, 14), assignee: 'Mere Parata' },
@@ -161,7 +161,7 @@ export function buildPlatform({ D, T, orgs, users, tenancies }: Ctx): PlatformSl
         'This is a practice item, not a real change to the law. It exists so the team can rehearse the review path: read the evidence, approve it twice (termination rules need two reviewers), publish, and watch every notice calculator pick up the new value. Reject it to leave the live rule at 21 days.',
       evidenceQuote: '[Practice text] “…the tenant shall give the landlord at least 28 days’ notice of termination, in any case.”',
       evidenceUrl: `${RTA}#DLM95514`,
-      patches: [{ ruleKey: 'termination.tenant_periodic_notice', from: { n: 21, unit: 'days' }, to: { n: 28, unit: 'days' }, effectiveFrom: D(30) }],
+      patches: [{ ruleKey: 'termination.tenant_periodic_notice', from: { n: 21, unit: 'days' }, to: { n: 28, unit: 'days' }, effectiveFrom: D(0) }],
       confidence: 'medium',
       impact: 'high',
       status: 'pending_review',
@@ -327,7 +327,7 @@ export function buildPlatform({ D, T, orgs, users, tenancies }: Ctx): PlatformSl
     },
     {
       id: 'kb_smoking',
-      keywords: ['smoking', 'smoke', 'cigarettes', 'vaping', 'vape'],
+      keywords: ['smoking', 'smoker', 'smokers', 'smokes', 'smoke inside', 'smoke indoors', 'smoke in the', 'cigarettes', 'vaping', 'vape'],
       question: 'Can I ban smoking?',
       answer: 'The agreement can prohibit smoking tobacco indoors. It cannot ban smoking everywhere on the property unless that is consistent with the tenant’s other rights, and the rule does not cover vaping.',
       citation: 'RTA 1986, s 43AA',

@@ -10,6 +10,7 @@ import type { ID } from '@/domain/types'
 import { arrearsState, bondLodgement, remedyDeadline } from '@/domain/rules/tenancy'
 import { dateOf, fmtDate, fmtRelative } from '@/domain/rules/calendar'
 import { money, plural } from '@/domain/rules/format'
+import { durationText } from '@/domain/rules/core'
 import { useStore } from '@/data/store'
 import { calendarOf, usePack, useToday } from '@/data/hooks'
 import { approveQuote, declineQuote, logArrearsCall, recordBondLodged, requestConciergeCall, sendRemedyNotice } from '@/data/mutations'
@@ -57,7 +58,7 @@ export function BondDecision({ tenancyId, done }: { tenancyId: ID; done: () => v
       <Working
         steps={[
           { label: `${money(t.bond.amount)} received from ${tenants.split(',')[0]}`, date: t.bond.receivedOn },
-          { label: '23 working days to lodge it', date: b.deadline, rule: 'bond.lodgement_deadline', detail: 'Weekends, public holidays, Nelson Anniversary Day and 24 December – 3 January are not working days.' },
+          { label: `${durationText(pack.rules['bond.lodgement_deadline'].value)} to lodge it`, date: b.deadline, rule: 'bond.lodgement_deadline', detail: 'Weekends, public holidays, your region’s anniversary day and the summer shutdown the Act excludes are not working days.' },
         ]}
       />
 
@@ -118,7 +119,7 @@ export function BondDecision({ tenancyId, done }: { tenancyId: ID; done: () => v
         onClick={() => {
           setTried(true)
           if (invalid) return
-          recordBondLodged(tenancyId, ref)
+          recordBondLodged(tenancyId, ref, pack)
           toast.success('Bond recorded as lodged', { description: `Reference ${ref.trim()} is on file for ${property.address.line1}.` })
           done()
         }}
@@ -294,12 +295,25 @@ export function QuoteOffer({ ticketId, done }: { ticketId: ID; done: () => void 
   const property = useStore((s) => s.db.properties.find((p) => p.id === tk?.propertyId))
   const provider = useStore((s) => s.db.providers.find((p) => p.id === tk?.providerId))
   const entity = useStore((s) => s.db.entities.find((e) => e.id === property?.entityId))
+  const pack = usePack()
+  const users = useStore((s) => s.db.users)
+  const session = useStore((s) => s.session)
+  const me = users.find((u) => u.id === session?.userId)
+  // Who can approve: the owner and co-owners, not the read-only accountant.
+  const owners = useMemo(() => users.filter((u) => u.orgId === tk?.orgId && (u.role === 'landlord' || u.role === 'co_owner') && u.status !== 'deactivated'), [users, tk?.orgId])
   const [declining, setDeclining] = useState(false)
   const [reason, setReason] = useState('')
   if (!tk?.quote || !property) return null
 
   const after = property.sinkingFund.balance - tk.quote.amount
   const needsSecond = entity?.dualApprovalThreshold !== undefined && tk.quote.amount > entity.dualApprovalThreshold
+  const first = tk.quote.firstApproval
+  const second = owners.find((u) => u.id !== me?.id && u.fullName !== first?.by)
+  const myName = me?.fullName ?? 'You'
+  // The person who gave the first yes cannot also give the second.
+  const waitingOnAnother = first?.by === myName
+  const noSecondOwner = needsSecond && !second
+  const booked = () => toast.success('Approved and booked', { description: `${provider?.name ?? 'The tradesperson'} is booked, and the tenant has ${durationText(pack.rules['entry.repairs_notice_min'].value)} of notice.` })
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-6">
@@ -346,7 +360,36 @@ export function QuoteOffer({ ticketId, done }: { ticketId: ID; done: () => void 
         {entity?.dualApprovalThreshold !== undefined && <Fact label="Second trustee needed above">{money(entity.dualApprovalThreshold)}</Fact>}
       </Facts>
 
-      {needsSecond && <Callout tone="warn">This is above the trust’s two-trustee threshold. Your approval sends it to the second trustee before anything is booked.</Callout>}
+      {needsSecond && !first && second && (
+        <Callout tone="warn">
+          This is above the second-approval line of {money(entity?.dualApprovalThreshold ?? 0)}. Your yes is recorded and the quote then waits for {second.fullName.split(' ')[0]}; nothing is booked until they approve too.
+        </Callout>
+      )}
+      {noSecondOwner && !first && (
+        <Callout tone="warn" title="This needs two owners, and there is only one">
+          The quote is above the second-approval line of {money(entity?.dualApprovalThreshold ?? 0)}, and nobody else in this organisation can approve. Add a co-owner under Settings → People, then come back to it.
+        </Callout>
+      )}
+      {first && (
+        <Callout tone="accent" title={`${first.by} approved this ${fmtRelative(dateOf(first.at))}`}>
+          {second ? `Waiting for ${second.fullName} to approve. Nothing is booked yet.` : 'Nobody else in this organisation can approve, so it cannot be booked. Add a co-owner under Settings → People.'}
+          {second && (
+            <span className="mt-3 block">
+              <Button
+                size="sm"
+                intent="secondary"
+                onClick={() => {
+                  if (approveQuote(ticketId, second.fullName) === 'booked') booked()
+                  done()
+                }}
+              >
+                Approve as {second.fullName.split(' ')[0]} (demo)
+              </Button>
+              <span className="mt-1.5 block text-xs text-ink-3">Demo control. In the real product {second.fullName.split(' ')[0]} signs in and approves as themselves.</span>
+            </span>
+          )}
+        </Callout>
+      )}
 
       {declining ? (
         <div className="grid gap-3">
@@ -371,18 +414,21 @@ export function QuoteOffer({ ticketId, done }: { ticketId: ID; done: () => void 
         </div>
       ) : (
         <div className="grid gap-2">
+          {!waitingOnAnother && !(noSecondOwner && !first) && (
           <Button
             intent="primary"
             size="lg"
             block
             onClick={() => {
-              approveQuote(ticketId)
-              toast.success('Approved and booked', { description: `${provider?.name ?? 'The tradesperson'} is booked, and the tenant has 24 hours of notice.` })
+              const result = approveQuote(ticketId, myName)
+              if (result === 'booked') booked()
+              if (result === 'waiting') toast.success('Your approval is recorded', { description: second ? `It now waits for ${second.fullName.split(' ')[0]}. Nothing is booked until they approve.` : 'It still needs a second owner.' })
               done()
             }}
           >
-            Approve {money(tk.quote.amount)} and book it
+            {needsSecond && !first ? `Approve ${money(tk.quote.amount)} — first of two` : `Approve ${money(tk.quote.amount)} and book it`}
           </Button>
+          )}
           <Button intent="ghost" block onClick={() => setDeclining(true)}>
             Not this quote
           </Button>

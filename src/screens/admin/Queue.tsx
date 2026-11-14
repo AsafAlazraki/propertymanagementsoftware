@@ -10,7 +10,7 @@
 import { useMemo } from 'react'
 import { getRouteApi } from '@tanstack/react-router'
 import { ClockCountdown, ListChecks, Sparkle } from '@phosphor-icons/react'
-import type { AdminTask, AdminTaskKind } from '@/domain/types'
+import type { AdminTask } from '@/domain/types'
 import { dateOf, diffDays } from '@/domain/rules/calendar'
 import { useMe, useStore } from '@/data/store'
 import { useToday } from '@/data/hooks'
@@ -22,26 +22,11 @@ import { Sheet } from '@/ui/Sheet'
 import { cn } from '@/ui/cn'
 import { Filter, Flag, Head, Status, TONE_SOFT, Tally, Toolbar } from './kit'
 import { PRIORITY, TASK_KIND, TASK_KINDS, TASK_STATUS } from './labels'
-import { clock, oneOf, text, whenInline, whenShort } from './format'
+import { PRIORITIES, type QueueSearch, type View } from './search'
+import { clock, whenInline, whenShort } from './format'
 import { arrowNav, useLast } from './hooks'
 import { TaskDetail } from './queue/TaskDetail'
 
-const VIEWS = ['active', 'done', 'all'] as const
-type View = (typeof VIEWS)[number]
-const PRIORITIES = ['p1', 'p2', 'p3'] as const
-
-export interface QueueSearch {
-  task?: string
-  kind?: AdminTaskKind
-  priority?: AdminTask['priority']
-  /** `active` is open or in progress: the default, because that is the work. */
-  view?: View
-  mine?: boolean
-}
-
-export function queueSearch(s: Record<string, unknown>): QueueSearch {
-  return { task: text(s.task), kind: oneOf(s.kind, TASK_KINDS), priority: oneOf(s.priority, PRIORITIES), view: oneOf(s.view, VIEWS), mine: s.mine === true || s.mine === 'true' ? true : undefined }
-}
 
 const route = getRouteApi('/admin/queue')
 

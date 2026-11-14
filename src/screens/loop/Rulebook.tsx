@@ -18,7 +18,7 @@ import {
 } from '@phosphor-icons/react'
 import type { JurisdictionCode } from '@/domain/types'
 import type { Duration, JurisdictionPack, RuleKey, ServiceMethod, Verification } from '@/domain/jurisdictions/types'
-import { PACK_ORDER, resolvePack } from '@/domain/jurisdictions'
+import { PACK_ORDER, regionalHolidaysFor, resolvePack } from '@/domain/jurisdictions'
 import {
   addDays,
   addWorkingDays,
@@ -34,9 +34,9 @@ import { useOrgRows, useStore } from '@/data/store'
 import { calendarOf, usePack, useToday } from '@/data/hooks'
 import { Page } from '@/shell/common'
 import { Badge } from '@/ui/Badge'
-import { Field, Input, Select, Tabs } from '@/ui/controls'
+import { Choice, Choices, Field, Input, Select, Tabs } from '@/ui/controls'
 import { Empty, PageHeader } from '@/ui/display'
-import { Working } from '@/ui/Law'
+import { RuleMoves, Working } from '@/ui/Law'
 import { cn } from '@/ui/cn'
 
 export type RulebookTab = 'rules' | 'dates' | 'penalties' | 'changes' | 'compare'
@@ -72,6 +72,8 @@ const TOPICS: { key: string; label: string; prefixes: string[] }[] = [
   { key: 'records', label: 'Privacy and records', prefixes: ['privacy', 'records'] },
 ]
 const topicOf = (key: string) => TOPICS.find((t) => t.prefixes.includes(key.split('.')[0]))?.key ?? 'records'
+/** The radio value for "no topic chosen": a radio group reads an empty value as nothing selected. */
+const EVERYTHING = 'everything'
 
 const VERIFIED: Record<Verification, { text: string; tone: 'ok' | 'warn' | 'danger'; Icon: typeof SealCheck }> = {
   primary: { text: 'Read at the source', tone: 'ok', Icon: SealCheck },
@@ -125,34 +127,32 @@ function Rules({ pack }: { pack: JurisdictionPack }) {
             className="pl-9"
           />
         </label>
-        <div
-          role="radiogroup"
-          aria-label="Topic"
+        <Choices
+          label="Topic"
+          value={topic || EVERYTHING}
+          onChange={(key) => setTopic(key === EVERYTHING ? '' : key)}
           className="no-scrollbar -mx-4 flex gap-1.5 overflow-x-auto px-4 lg:mx-0 lg:flex-col lg:gap-0.5 lg:overflow-visible lg:px-0"
         >
           {[{ key: '', label: 'Everything' }, ...TOPICS].map((t) => {
             const on = topic === t.key
             const n = t.key ? all.filter((r) => r.topic === t.key).length : all.length
             return (
-              <button
-                key={t.key || 'all'}
-                type="button"
-                role="radio"
-                aria-checked={on}
-                onClick={() => setTopic(t.key)}
+              <Choice
+                key={t.key || EVERYTHING}
+                value={t.key || EVERYTHING}
                 className={cn(
-                  'pressable flex h-9 shrink-0 items-center justify-between gap-2 rounded-md px-3 text-[13px] whitespace-nowrap transition-colors coarse:h-11',
+                  'pressable flex h-9 shrink-0 cursor-pointer items-center justify-between gap-2 rounded-md px-3 text-[13px] whitespace-nowrap transition-colors coarse:h-11',
                   on
                     ? 'bg-accent-soft font-semibold text-accent-text'
                     : 'bg-surface text-ink-2 shadow-card hoverable:hover:text-ink lg:bg-transparent lg:shadow-none hoverable:lg:hover:bg-sunken',
                 )}
               >
                 {t.label}
-                <span className="num text-[11px] opacity-70">{n}</span>
-              </button>
+                <span className={cn('num text-[11px]', !on && 'text-ink-3')}>{n}</span>
+              </Choice>
             )
           })}
-        </div>
+        </Choices>
       </div>
 
       {rows.length === 0 ? (
@@ -182,6 +182,7 @@ function Rules({ pack }: { pack: JurisdictionPack }) {
                       {v.text}
                     </Badge>
                   </div>
+                  <RuleMoves ruleKey={key} rule={rule} className="mt-1.5" />
                   <p className="mt-1 text-[14px] leading-relaxed text-ink-2">{rule.plain}</p>
                   {rule.notes && <p className="mt-1.5 text-[13px] leading-relaxed text-ink-3">{rule.notes}</p>}
                   <p className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-ink-3">
@@ -213,7 +214,10 @@ function skipLabel(reason: string, count: number): string {
 function Dates({ pack }: { pack: JurisdictionPack }) {
   const day = useToday()
   const properties = useOrgRows('properties')
-  const cal = calendarOf(pack, properties[0])
+  // The count runs on the calendar of the organisation's first home, so the note under it names that home.
+  const home = properties[0]
+  const cal = calendarOf(pack, home)
+  const local = home ? regionalHolidaysFor(pack, home.address.city) : undefined
   const [method, setMethod] = useState<ServiceMethod['id']>('email')
   const [sentOn, setSentOn] = useState(day)
   const [hour, setHour] = useState(10)
@@ -342,8 +346,14 @@ function Dates({ pack }: { pack: JurisdictionPack }) {
         )}
         <p className="mt-3 flex items-start gap-1.5 text-xs leading-relaxed text-ink-3">
           <CalendarDots className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-          Uses {pack.shortName}’s calendar for your region, including the local anniversary day. Holidays are loaded to
-          the end of {cal.coveredThroughYear}.
+          <span>
+            {home && local
+              ? `Counted on ${pack.shortName}’s calendar for ${home.address.city}, where ${home.address.line1} is, including ${local.label}.`
+              : home
+                ? `Counted on ${pack.shortName}’s national calendar. Loop does not hold the local anniversary day for ${home.address.city} yet, so a count that crosses that day can be a working day out.`
+                : `Counted on ${pack.shortName}’s national calendar, with no local anniversary day: there is no home yet to take a region from.`}{' '}
+            Holidays are loaded to the end of {cal.coveredThroughYear}.
+          </span>
         </p>
       </section>
     </div>

@@ -11,7 +11,16 @@
 import { useMemo, useRef, useState, type ReactNode } from 'react'
 import { getRouteApi, Link } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import { CheckCircle, DownloadSimple, FileCsv, PaperPlaneTilt, UploadSimple, Warning, WarningCircle, XCircle } from '@phosphor-icons/react'
+import {
+  CheckCircle,
+  DownloadSimple,
+  FileCsv,
+  PaperPlaneTilt,
+  UploadSimple,
+  Warning,
+  WarningCircle,
+  XCircle,
+} from '@phosphor-icons/react'
 import type { MigrationBatch } from '@/domain/types'
 import { dateOf, fmtDate } from '@/domain/rules/calendar'
 import { money, plural } from '@/domain/rules/format'
@@ -25,17 +34,9 @@ import { Empty } from '@/ui/display'
 import { Refusal, Why } from '@/ui/Law'
 import { cn } from '@/ui/cn'
 import { Flag, Head, Panel, Simulated, Status, type Icon, type Tone } from './kit'
-import { share, text } from './format'
+import { share } from './format'
 import { COLUMNS, SAMPLE_CSV, addressKey, checkRentRoll, type CheckedRow } from './migration/validate'
 
-export interface MigrationSearch {
-  /** The batch to bring into view, set after an import. */
-  batch?: string
-}
-
-export function migrationSearch(s: Record<string, unknown>): MigrationSearch {
-  return { batch: text(s.batch) }
-}
 
 const route = getRouteApi('/admin/migration')
 
@@ -46,12 +47,26 @@ const BATCH_STATE: Record<MigrationBatch['status'], { label: string; tone: Tone;
   invited: { label: 'Invites sent', tone: 'ok', icon: CheckCircle },
 }
 
-function Station({ n, title, note, children, action }: { n: number; title: string; note?: ReactNode; children: ReactNode; action?: ReactNode }) {
+function Station({
+  n,
+  title,
+  note,
+  children,
+  action,
+}: {
+  n: number
+  title: string
+  note?: ReactNode
+  children: ReactNode
+  action?: ReactNode
+}) {
   return (
     <Panel
       title={
         <span className="flex items-center gap-2">
-          <span className="num grid size-5 place-items-center rounded-full bg-ink text-[11px] font-semibold text-bg">{n}</span>
+          <span className="num grid size-5 place-items-center rounded-full bg-ink text-[11px] font-semibold text-bg">
+            {n}
+          </span>
           {title}
         </span>
       }
@@ -79,7 +94,8 @@ function RowLine({ r }: { r: CheckedRow }) {
           {r.value ? (
             <>
               {' '}
-              · <span className="num">{money(r.value.weeklyRent)}</span> a week · bond <span className="num">{money(r.value.bond)}</span>
+              · <span className="num">{money(r.value.weeklyRent)}</span> a week · bond{' '}
+              <span className="num">{money(r.value.bond)}</span>
             </>
           ) : (
             r.raw.weekly_rent && <> · rent given as “{r.raw.weekly_rent}”</>
@@ -89,7 +105,11 @@ function RowLine({ r }: { r: CheckedRow }) {
           <ul className="mt-1.5 grid gap-1">
             {r.problems.map((p) => (
               <li key={p.field + p.problem} className="flex items-start gap-1.5 text-xs leading-relaxed">
-                {p.blocks ? <XCircle weight="fill" className="mt-0.5 size-3.5 shrink-0 text-danger-text" aria-hidden /> : <WarningCircle weight="fill" className="mt-0.5 size-3.5 shrink-0 text-warn-text" aria-hidden />}
+                {p.blocks ? (
+                  <XCircle weight="fill" className="mt-0.5 size-3.5 shrink-0 text-danger-text" aria-hidden />
+                ) : (
+                  <WarningCircle weight="fill" className="mt-0.5 size-3.5 shrink-0 text-warn-text" aria-hidden />
+                )}
                 <span className="min-w-0 text-ink">
                   <span className="font-mono text-[11px] text-ink-3">{p.field}</span> {p.problem}
                 </span>
@@ -130,14 +150,24 @@ function Funnel({ batch }: { batch: MigrationBatch }) {
         <li key={s.label} className="min-w-0">
           <p className="truncate text-[11px] text-ink-3">{s.label}</p>
           <p className="num text-[15px] font-semibold text-ink">{s.value}</p>
-          <span role="img" aria-label={`${s.value} of ${batch.rows}`} className="mt-1 block h-1 overflow-hidden rounded-full bg-sunken">
-            <span className={cn('block h-full rounded-full', i === 3 ? 'bg-ok' : 'bg-accent')} style={{ width: `${batch.rows ? (s.value / batch.rows) * 100 : 0}%` }} />
+          <span
+            role="img"
+            aria-label={`${s.value} of ${batch.rows}`}
+            className="mt-1 block h-1 overflow-hidden rounded-full bg-sunken"
+          >
+            <span
+              className={cn('block h-full rounded-full', i === 3 ? 'bg-ok' : 'bg-accent')}
+              style={{ width: `${batch.rows ? (s.value / batch.rows) * 100 : 0}%` }}
+            />
           </span>
         </li>
       ))}
     </ol>
   )
 }
+
+/** The most rows one import takes. Each becomes a home, a tenancy and a person, held in localStorage. */
+const MAX_IMPORT_ROWS = 500
 
 export function Migration() {
   const search = route.useSearch()
@@ -154,11 +184,21 @@ export function Migration() {
   const [tried, setTried] = useState(false)
   const file = useRef<HTMLInputElement>(null)
 
-  const onPlatform = useMemo(() => new Set(properties.map((p) => addressKey(p.address.line1, p.address.suburb))), [properties])
-  const checked = useMemo(() => (csv.trim() ? checkRentRoll(csv, pack, day, onPlatform) : null), [csv, pack, day, onPlatform])
+  const onPlatform = useMemo(
+    () => new Set(properties.map((p) => addressKey(p.address.line1, p.address.suburb))),
+    [properties],
+  )
+  const checked = useMemo(
+    () => (csv.trim() ? checkRentRoll(csv, pack, day, onPlatform) : null),
+    [csv, pack, day, onPlatform],
+  )
   const leftOut = checked ? checked.rows.filter((r) => !r.value) : []
   const noted = checked ? checked.rows.filter((r) => r.value && r.problems.length > 0).length : 0
-  const visible = checked ? (only === 'problems' ? checked.rows.filter((r) => r.problems.length > 0) : checked.rows) : []
+  const visible = checked
+    ? only === 'problems'
+      ? checked.rows.filter((r) => r.problems.length > 0)
+      : checked.rows
+    : []
 
   const load = (value: string) => {
     setCsv(value)
@@ -166,13 +206,21 @@ export function Migration() {
     setOnly('all')
   }
 
+  // Every record lives in this browser's own storage, which is a few megabytes for the whole
+  // site. One import is capped so a single file cannot fill it.
+  const tooMany = checked !== null && checked.ready.length > MAX_IMPORT_ROWS
+
   const doImport = () => {
     setTried(true)
-    if (!checked || checked.ready.length === 0) return
-    const issues = leftOut.flatMap((r) => r.problems.filter((p) => p.blocks).map((p) => ({ row: r.row, field: p.field, problem: p.problem })))
+    if (!checked || checked.ready.length === 0 || tooMany) return
+    const issues = leftOut.flatMap((r) =>
+      r.problems.filter((p) => p.blocks).map((p) => ({ row: r.row, field: p.field, problem: p.problem })),
+    )
     const { batchId, createdRecords } = importBatch(name, checked.ready, checked.rows.length, issues, me.fullName)
     toast.success(`${plural(checked.ready.length, 'row')} imported`, {
-      description: createdRecords ? `${plural(checked.ready.length, 'home')} and ${checked.ready.length === 1 ? 'its tenancy' : 'their tenancies'} now sit under ${agency?.name ?? 'the partner agency'}.` : 'The batch is recorded. No partner agency exists to hold the homes, so no property records were created.',
+      description: createdRecords
+        ? `${plural(checked.ready.length, 'home')} and ${checked.ready.length === 1 ? 'its tenancy' : 'their tenancies'} now sit under ${agency?.name ?? 'the partner agency'}.`
+        : 'The batch is recorded. No partner agency exists to hold the homes, so no property records were created.',
     })
     load('')
     setName('')
@@ -185,7 +233,9 @@ export function Migration() {
         title="Migration"
         lede={
           <>
-            Bring an agency’s rent roll across in one file. Each row is checked by the rules engine before anything is imported; rows that pass become a home and a live tenancy under {agency?.name ?? 'the partner agency'}, and their owners and tenants can then be invited.
+            Bring an agency’s rent roll across in one file. Each row is checked by the rules engine before anything is
+            imported; rows that pass become a home and a live tenancy under {agency?.name ?? 'the partner agency'}, and
+            their owners and tenants can then be invited.
           </>
         }
       />
@@ -197,7 +247,11 @@ export function Migration() {
             title="Bring in the rent roll"
             note="Paste the rows or choose a .csv file. The first line names the columns."
             action={
-              <a href={`data:text/csv;charset=utf-8,${encodeURIComponent(SAMPLE_CSV)}`} download="rent-roll-sample.csv" className={buttonClass({ intent: 'ghost', size: 'sm' })}>
+              <a
+                href={`data:text/csv;charset=utf-8,${encodeURIComponent(SAMPLE_CSV)}`}
+                download="rent-roll-sample.csv"
+                className={buttonClass({ intent: 'ghost', size: 'sm' })}
+              >
                 <DownloadSimple className="size-4" aria-hidden /> Sample file
               </a>
             }
@@ -212,7 +266,7 @@ export function Migration() {
               spellCheck={false}
               rows={7}
               placeholder={`${COLUMNS.map((c) => c.key).join(',')}\n12 Kōtuku Lane,Stoke,Nelson,7011,house,3,560,2240,BND-5512-0931,2025-03-14,…`}
-              className="block w-full resize-y rounded-md bg-sunken px-3 py-2.5 font-mono text-xs leading-relaxed whitespace-pre text-ink shadow-[inset_0_0_0_1px_var(--line)] outline-none placeholder:text-ink-3 focus:shadow-[inset_0_0_0_2px_var(--focus)]"
+              className="block w-full resize-y rounded-md bg-sunken px-3 py-2.5 font-mono text-xs leading-relaxed whitespace-pre text-ink shadow-[inset_0_0_0_1px_var(--field-line)] outline-none placeholder:text-ink-3 focus:shadow-[inset_0_0_0_2px_var(--focus)]"
             />
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <input
@@ -229,7 +283,12 @@ export function Migration() {
                   if (!name) setName(picked.name.replace(/\.[^.]+$/, ''))
                 }}
               />
-              <Button intent="secondary" size="sm" icon={<UploadSimple className="size-4" />} onClick={() => file.current?.click()}>
+              <Button
+                intent="secondary"
+                size="sm"
+                icon={<UploadSimple className="size-4" />}
+                onClick={() => file.current?.click()}
+              >
                 Choose a file
               </Button>
               <Button
@@ -249,7 +308,9 @@ export function Migration() {
               )}
             </div>
             <details className="mt-3 text-xs text-ink-2">
-              <summary className="w-fit rounded-sm text-ink-3 underline decoration-line-strong underline-offset-2 hoverable:hover:text-ink">The columns the file needs</summary>
+              <summary className="w-fit rounded-sm text-ink-3 underline decoration-line-strong underline-offset-2 hoverable:hover:text-ink">
+                The columns the file needs
+              </summary>
               <ul className="mt-2 grid gap-x-6 gap-y-1 sm:grid-cols-2">
                 {COLUMNS.map((c) => (
                   <li key={c.key} className="flex min-w-0 items-baseline gap-2">
@@ -261,7 +322,10 @@ export function Migration() {
                   </li>
                 ))}
               </ul>
-              <p className="mt-2 text-ink-3">The sample file’s people and addresses are invented. Some of its rows carry deliberate mistakes so you can see the checks work.</p>
+              <p className="mt-2 text-ink-3">
+                The sample file’s people and addresses are invented. Some of its rows carry deliberate mistakes so you
+                can see the checks work.
+              </p>
             </details>
           </Station>
 
@@ -270,7 +334,8 @@ export function Migration() {
             title="Every row, checked"
             note={
               <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
-                Rent must be one figure <Why rule="listing.fixed_price_required" /> and the bond within the cap <Why rule="bond.max_weeks" />
+                Rent must be one figure <Why rule="listing.fixed_price_required" /> and the bond within the cap{' '}
+                <Why rule="bond.max_weeks" />
               </span>
             }
             action={
@@ -289,7 +354,12 @@ export function Migration() {
             }
           >
             {!checked ? (
-              <Empty icon={<FileCsv />} title="Nothing to check yet" body="Paste a rent roll above, choose a file, or load the sample. Each row is judged here before anything is imported." className="py-6" />
+              <Empty
+                icon={<FileCsv />}
+                title="Nothing to check yet"
+                body="Paste a rent roll above, choose a file, or load the sample. Each row is judged here before anything is imported."
+                className="py-6"
+              />
             ) : checked.missingColumns.length > 0 ? (
               <Refusal
                 verdict={{
@@ -299,7 +369,13 @@ export function Migration() {
                 }}
               />
             ) : checked.rows.length === 0 ? (
-              <Refusal verdict={{ ok: false, reason: 'The file has a heading line and no rows under it.', fix: 'Add one line for each tenancy.' }} />
+              <Refusal
+                verdict={{
+                  ok: false,
+                  reason: 'The file has a heading line and no rows under it.',
+                  fix: 'Add one line for each tenancy.',
+                }}
+              />
             ) : (
               <div className="-mx-4 -mb-4">
                 <p className="flex flex-wrap items-center gap-x-4 gap-y-1 border-y border-line bg-surface-2 px-4 py-2 text-xs">
@@ -316,27 +392,70 @@ export function Migration() {
                       {leftOut.length} left out
                     </Status>
                   )}
-                  {checked.ignoredColumns.length > 0 && <span className="text-ink-3">Ignored {plural(checked.ignoredColumns.length, 'column')} the import does not use: {checked.ignoredColumns.join(', ')}</span>}
+                  {checked.ignoredColumns.length > 0 && (
+                    <span className="text-ink-3">
+                      Ignored {plural(checked.ignoredColumns.length, 'column')} the import does not use:{' '}
+                      {checked.ignoredColumns.join(', ')}
+                    </span>
+                  )}
                 </p>
-                <ol className="max-h-[28rem] divide-y divide-line overflow-y-auto overscroll-contain">
-                  {visible.map((r) => (
-                    <RowLine key={r.row} r={r} />
-                  ))}
-                </ol>
+                <div
+                  role="region"
+                  aria-label="The rows of the rent roll, each with its checks"
+                  tabIndex={0}
+                  className="max-h-[28rem] overflow-y-auto overscroll-contain outline-offset-[-2px]"
+                >
+                  <ol className="divide-y divide-line">
+                    {visible.map((r) => (
+                      <RowLine key={r.row} r={r} />
+                    ))}
+                  </ol>
+                </div>
               </div>
             )}
           </Station>
 
-          <Station n={3} title="Import what passed" note={`Rows that passed become records under ${agency?.name ?? 'the partner agency'}. Rows left out stay listed on the batch.`}>
+          <Station
+            n={3}
+            title="Import what passed"
+            note={`Rows that passed become records under ${agency?.name ?? 'the partner agency'}. Rows left out stay listed on the batch.`}
+          >
             <div className="grid gap-3">
               <Field label="Name this batch" optional hint="How it will appear in the list and the audit log.">
-                {(p) => <Input {...p} value={name} onChange={(e) => setName(e.target.value)} placeholder="For example: Blue Penguin rent roll, Richmond" />}
+                {(p) => (
+                  <Input
+                    {...p}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="For example: Blue Penguin rent roll, Richmond"
+                  />
+                )}
               </Field>
               <p className="text-xs leading-relaxed text-ink-3">
-                Only what the rent roll states is recorded as known. Healthy homes, insurance and the signed agreement start as “not on file”, rent is taken as paid to today until the bank feed says otherwise, and a bond with a reference is recorded as lodged on the tenancy’s start date until Bond Hub confirms the real one.
+                Only what the rent roll states is recorded as known. Healthy homes, insurance and the signed agreement
+                start as “not on file”, rent is taken as paid to today until the bank feed says otherwise, and a bond
+                with a reference is recorded as lodged on the tenancy’s start date until Bond Hub confirms the real one.
               </p>
+              {tooMany && checked && (
+                <Refusal
+                  verdict={{
+                    ok: false,
+                    reason: `${plural(checked.ready.length, 'row')} passed, and this prototype imports at most ${MAX_IMPORT_ROWS} at a time.`,
+                    fix: 'It keeps every record in this browser’s own storage, which is small. Split the file into parts and bring them across one by one.',
+                  }}
+                />
+              )}
               {tried && (!checked || checked.ready.length === 0) && (
-                <Refusal verdict={{ ok: false, reason: 'There is no row to import.', fix: checked && checked.rows.length > 0 ? 'Every row has a blocking problem. Fix the file and bring it in again.' : 'Bring in a rent roll first.' }} />
+                <Refusal
+                  verdict={{
+                    ok: false,
+                    reason: 'There is no row to import.',
+                    fix:
+                      checked && checked.rows.length > 0
+                        ? 'Every row has a blocking problem. Fix the file and bring it in again.'
+                        : 'Bring in a rent roll first.',
+                  }}
+                />
               )}
               <div>
                 <Button intent="primary" icon={<UploadSimple weight="bold" className="size-4" />} onClick={doImport}>
@@ -353,18 +472,30 @@ export function Migration() {
           </h2>
           {batches.length === 0 ? (
             <div className="rounded-lg bg-surface shadow-card">
-              <Empty icon={<FileCsv />} title="No rent roll has been imported" body="Each import is kept here as a batch: how many rows came across, who has been invited and who has accepted." />
+              <Empty
+                icon={<FileCsv />}
+                title="No rent roll has been imported"
+                body="Each import is kept here as a batch: how many rows came across, who has been invited and who has accepted."
+              />
             </div>
           ) : (
             <ul className="grid gap-3">
               {batches.map((b) => {
                 const state = BATCH_STATE[b.status]
                 return (
-                  <li key={b.id} className={cn('rounded-lg bg-surface p-4 shadow-card', b.id === search.batch && 'outline-2 outline-offset-2 outline-accent')}>
+                  <li
+                    key={b.id}
+                    className={cn(
+                      'rounded-lg bg-surface p-4 shadow-card',
+                      b.id === search.batch && 'outline-2 outline-offset-2 outline-accent',
+                    )}
+                  >
                     <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
                       <div className="min-w-0">
                         <h3 className="text-[14px] font-semibold text-ink">{b.name}</h3>
-                        <p className="text-xs text-ink-3">Imported {fmtDate(dateOf(b.createdAt), { weekday: false, year: 'always' })}</p>
+                        <p className="text-xs text-ink-3">
+                          Imported {fmtDate(dateOf(b.createdAt), { weekday: false, year: 'always' })}
+                        </p>
                       </div>
                       <Status tone={state.tone} icon={state.icon} strong className="text-xs">
                         {state.label}
@@ -373,7 +504,11 @@ export function Migration() {
                     <div className="mt-3">
                       <Funnel batch={b} />
                     </div>
-                    {b.invitesSent > 0 && <p className="mt-2 text-xs text-ink-3">{share(b.invitesAccepted, b.invitesSent)} of invites accepted so far.</p>}
+                    {b.invitesSent > 0 && (
+                      <p className="mt-2 text-xs text-ink-3">
+                        {share(b.invitesAccepted, b.invitesSent)} of invites accepted so far.
+                      </p>
+                    )}
 
                     {b.issues.length > 0 && (
                       <details className="mt-3 border-t border-line pt-2.5">
@@ -382,8 +517,15 @@ export function Migration() {
                         </summary>
                         <ul className="mt-2 grid gap-1.5">
                           {b.issues.map((issue) => (
-                            <li key={`${issue.row}-${issue.field}`} className="flex items-start gap-1.5 text-xs leading-relaxed text-ink">
-                              <XCircle weight="fill" className="mt-0.5 size-3.5 shrink-0 text-danger-text" aria-hidden />
+                            <li
+                              key={`${issue.row}-${issue.field}`}
+                              className="flex items-start gap-1.5 text-xs leading-relaxed text-ink"
+                            >
+                              <XCircle
+                                weight="fill"
+                                className="mt-0.5 size-3.5 shrink-0 text-danger-text"
+                                aria-hidden
+                              />
                               <span className="min-w-0">
                                 <span className="num font-mono text-[11px] text-ink-3">
                                   row {issue.row} · {issue.field}
@@ -404,14 +546,17 @@ export function Migration() {
                           icon={<PaperPlaneTilt weight="fill" className="size-3.5" />}
                           onClick={() => {
                             sendFoundingInvites(b.id, me.fullName)
-                            toast.success(`${plural(b.imported, 'founding invite')} marked as sent`, { description: 'Simulated: the prototype sends no email.' })
+                            toast.success(`${plural(b.imported, 'founding invite')} marked as sent`, {
+                              description: 'Simulated: the prototype sends no email.',
+                            })
                           }}
                         >
                           Send founding invites
                         </Button>
                       ) : b.status === 'invited' ? (
                         <span className="text-xs text-ink-2">
-                          {b.invitesSent} founding {b.invitesSent === 1 ? 'invite' : 'invites'} sent to owners and tenants.
+                          {b.invitesSent} founding {b.invitesSent === 1 ? 'invite' : 'invites'} sent to owners and
+                          tenants.
                         </span>
                       ) : (
                         <span className="text-xs text-ink-3">Nothing was imported, so there is nobody to invite.</span>
@@ -426,7 +571,11 @@ export function Migration() {
           {agency && (
             <p className="mt-3 text-xs text-ink-3">
               Imported homes are held by{' '}
-              <Link to="/admin/orgs" search={{ org: agency.id }} className="rounded-sm text-accent-text underline decoration-accent-line underline-offset-2">
+              <Link
+                to="/admin/orgs"
+                search={{ org: agency.id }}
+                className="rounded-sm text-accent-text underline decoration-accent-line underline-offset-2"
+              >
                 {agency.name}
               </Link>{' '}
               until their owners accept a founding invite.

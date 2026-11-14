@@ -177,7 +177,7 @@ export function ChartFrame({
         </div>
       </figcaption>
       {asTable ? (
-        <div className="max-h-72 overflow-auto rounded-md bg-sunken/60">
+        <div role="region" aria-labelledby={id} tabIndex={0} className="max-h-72 overflow-auto rounded-md bg-sunken/60">
           <table aria-labelledby={id} className="w-full text-left text-[13px]">
             <thead className="sticky top-0 bg-sunken text-xs text-ink-3">
               <tr>

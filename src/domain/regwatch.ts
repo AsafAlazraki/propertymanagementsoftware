@@ -22,7 +22,7 @@ import type { Db } from './db'
 import type { Duration, JurisdictionPack, Rule, RuleKey } from './jurisdictions/types'
 import { PACKS, resolvePack } from './jurisdictions'
 import { addDays, addMonths, dateOf, diffDays, fmtDate } from './rules/calendar'
-import { addDuration, calendarFor, durationText, type Verdict } from './rules/core'
+import { addDuration, calendarFor, durationText, ruleValueText as formatRuleValue, sameValue, type Verdict } from './rules/core'
 import {
   arrearsState,
   bondCaps,
@@ -43,6 +43,8 @@ import {
 import { checkRentOffer, parseAdvertisedRent, scanClause } from './rules/text'
 import { money, plural } from './rules/format'
 import { CHALLENGE_PATTERN } from './watcher'
+
+export { formatRuleValue, sameValue }
 
 /* ─────────────────────────────── the watcher feed ───────────────────────── */
 
@@ -283,40 +285,6 @@ export function ruleIsStale(rule: Pick<Rule<unknown>, 'lastVerified'>, today: IS
 
 function isDuration(v: unknown): v is Duration {
   return typeof v === 'object' && v !== null && typeof (v as Duration).n === 'number' && typeof (v as Duration).unit === 'string'
-}
-
-/** Any rule value as words, for a diff line or a comparison cell. */
-export function formatRuleValue(ruleKey: string, value: unknown): string {
-  if (value === null || value === undefined) return 'No rule'
-  if (typeof value === 'boolean') return value ? 'Yes' : 'No'
-  if (typeof value === 'number') {
-    if (ruleKey.endsWith('_weeks')) return `${value} ${value === 1 ? 'week' : 'weeks'} of rent`
-    if (ruleKey.endsWith('_months')) return `${value} ${value === 1 ? 'month' : 'months'}`
-    return String(value)
-  }
-  if (isDuration(value)) return durationText(value)
-  if (typeof value === 'object') {
-    const v = value as Record<string, unknown>
-    if (isDuration(v.earliest) && isDuration(v.latest)) return `${durationText(v.earliest)} to ${durationText(v.latest)} before the end`
-    if (typeof v.occasions === 'number' && isDuration(v.lateBy) && isDuration(v.within)) return `${v.occasions} times, each ${durationText(v.lateBy)} late, within ${durationText(v.within)}`
-    if (typeof v.from === 'number' && typeof v.to === 'number') return `${String(v.from).padStart(2, '0')}:00 to ${String(v.to).padStart(2, '0')}:00`
-  }
-  return JSON.stringify(value)
-}
-
-function stable(value: unknown): string {
-  if (typeof value !== 'object' || value === null) return JSON.stringify(value ?? null)
-  if (Array.isArray(value)) return `[${value.map(stable).join(',')}]`
-  const o = value as Record<string, unknown>
-  return `{${Object.keys(o)
-    .sort()
-    .map((k) => `${k}:${stable(o[k])}`)
-    .join(',')}}`
-}
-
-/** Deep equality for rule values, which are plain data. */
-export function sameValue(a: unknown, b: unknown): boolean {
-  return stable(a) === stable(b)
 }
 
 /** The rules whose values can be laid side by side across jurisdictions. */
@@ -621,6 +589,8 @@ export function buildVersion(change: RuleChange, versions: RulePackVersion[], by
     publishedBy: by,
     note: change.title,
     overrides: Object.fromEntries(change.patches.map((p) => [p.ruleKey, p.to])),
+    // Publishing early is how a team gets ahead of a law change; it must not bring the law forward.
+    commences: Object.fromEntries(change.patches.filter((p) => isCalendarDate(p.effectiveFrom)).map((p) => [p.ruleKey, p.effectiveFrom])),
     changeIds: [change.id],
   }
 }
@@ -657,6 +627,19 @@ export function latestOverriding(versions: RulePackVersion[], code: Jurisdiction
 /** True when every value a change proposes is what the pack returns today. */
 export function inForce(change: Pick<RuleChange, 'patches'>, pack: JurisdictionPack): boolean {
   return change.patches.length > 0 && change.patches.every((p) => p.ruleKey in pack.rules && sameValue(pack.rules[p.ruleKey as RuleKey].value, p.to))
+}
+
+/**
+ * The date a published change takes effect, when that is still ahead: the
+ * latest commencement among its values that the pack is holding back. A change
+ * with several values is not in force until the last of them is.
+ */
+export function comesIntoForce(change: Pick<RuleChange, 'patches'>, pack: JurisdictionPack): ISODate | undefined {
+  const dates = change.patches.flatMap((p) => {
+    const coming = p.ruleKey in pack.rules ? pack.rules[p.ruleKey as RuleKey].upcoming : undefined
+    return coming && sameValue(coming.value, p.to) ? [coming.from] : []
+  })
+  return dates.length ? dates.sort()[dates.length - 1] : undefined
 }
 
 /* ───────────────────────────── impact analysis ──────────────────────────── */

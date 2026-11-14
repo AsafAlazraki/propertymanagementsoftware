@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Link, Outlet } from '@tanstack/react-router'
+import { Link, Outlet, useMatchRoute } from '@tanstack/react-router'
 import {
   ClipboardText,
   DotsThreeOutline,
@@ -23,7 +23,16 @@ import { Tip } from '@/ui/overlays'
 import { Sheet } from '@/ui/Sheet'
 import { useViewport } from '@/ui/hooks'
 import { cn } from '@/ui/cn'
-import { AccountMenu, SkipLink, TabLink, ViewingAsBar, type NavItem } from './common'
+import {
+  AccountMenu,
+  CountWords,
+  SkipLink,
+  StorageWatch,
+  SuspendedBar,
+  TabLink,
+  ViewingAsBar,
+  type NavItem,
+} from './common'
 import { AskButton, Assistant } from './Assistant'
 import { Palette } from './Palette'
 
@@ -43,7 +52,7 @@ function useNav(): NavItem[] {
     { to: '/loop', label: 'Command', icon: Lightning, exact: true, count: actionCount, primary: true },
     { to: '/loop/properties', label: 'Properties', icon: HouseLine, primary: true },
     { to: '/loop/money', label: 'Money', icon: Wallet, primary: true },
-    { to: '/loop/repairs', label: 'Repairs', icon: Wrench, count: openRepairs, primary: true },
+    { to: '/loop/repairs', label: 'Repairs', icon: Wrench, count: openRepairs, countLabel: 'open', primary: true },
     { to: '/loop/inspections', label: 'Inspections', icon: ClipboardText },
     { to: '/loop/tenancies', label: 'Tenancies', icon: Handshake },
     { to: '/loop/services', label: 'Services', icon: UsersThree },
@@ -80,7 +89,7 @@ function SideLink({ item, rail }: { item: NavItem; rail: boolean }) {
             className={cn('size-[19px] shrink-0', isActive && 'text-glow')}
             aria-hidden
           />
-          {!rail && <span className="flex-1 truncate">{item.label}</span>}
+          {rail ? <span className="sr-only">{item.label}</span> : <span className="flex-1 truncate">{item.label}</span>}
           {item.count ? (
             <span
               className={cn(
@@ -93,9 +102,9 @@ function SideLink({ item, rail }: { item: NavItem; rail: boolean }) {
               )}
             >
               {item.count}
+              <CountWords item={item} />
             </span>
           ) : null}
-          {rail && <span className="sr-only">{item.label}</span>}
         </>
       )}
     </Link>
@@ -121,11 +130,16 @@ export function LoopShell() {
   const [asked, setAsked] = useState<{ text: string; n: number }>()
   const rail = vp.rail
   const side = vp.sidebar || vp.rail
+  // On a phone the screens under "More" have no tab of their own, so More is marked while one is open.
+  const matchRoute = useMatchRoute()
+  const inMore = nav.some((n) => !n.primary && matchRoute({ to: n.to, fuzzy: true }) !== false)
 
   return (
     <div className="min-h-dvh bg-bg text-ink">
       <SkipLink />
+      <StorageWatch />
       <ViewingAsBar />
+      <SuspendedBar />
       <div className={cn(side && 'flex')}>
         {side && (
           <aside
@@ -227,9 +241,13 @@ export function LoopShell() {
           <button
             type="button"
             onClick={() => setMore(true)}
-            className="pressable flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 pt-2 pb-1.5 text-[11px] font-medium text-ink-3"
+            aria-current={inMore ? 'true' : undefined}
+            className={cn(
+              'pressable flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 pt-2 pb-1.5 text-[11px] font-medium',
+              inMore ? 'text-accent-text' : 'text-ink-3',
+            )}
           >
-            <DotsThreeOutline className="size-6" aria-hidden />
+            <DotsThreeOutline weight={inMore ? 'fill' : 'regular'} className="size-6" aria-hidden />
             <span>More</span>
           </button>
         </nav>

@@ -9,6 +9,7 @@ import { PACKS, PACK_ORDER, resolvePack } from '@/domain/jurisdictions'
 import { formatRuleValue, latestOverriding } from '@/domain/regwatch'
 import { fmtDate } from '@/domain/rules/calendar'
 import { useMe, useStore } from '@/data/store'
+import { useToday } from '@/data/hooks'
 import { rollbackVersion } from '@/data/admin-mutations'
 import { Button } from '@/ui/Button'
 import { Empty } from '@/ui/display'
@@ -22,7 +23,10 @@ function VersionCard({ v, all, current, canRollBack, onOpenChange }: { v: RulePa
   const changes = useStore((s) => s.db.ruleChanges)
   const [refusal, setRefusal] = useState<Verdict | null>(null)
   const before = useMemo(() => resolvePack(v.jurisdiction, all.filter((x) => x.publishedAt < v.publishedAt)), [v, all])
+  const day = useToday()
   const keys = Object.keys(v.overrides)
+  const heldUntil = (key: string) => (v.commences?.[key] && v.commences[key] > day ? v.commences[key] : undefined)
+  const allHeld = keys.length > 0 && keys.every((k) => heldUntil(k))
   const linked = changes.filter((c) => v.changeIds.includes(c.id))
   return (
     <li className="relative pb-5 pl-7 last:pb-0">
@@ -32,7 +36,7 @@ function VersionCard({ v, all, current, canRollBack, onOpenChange }: { v: RulePa
         <header className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
           <PackTag code={v.jurisdiction} />
           <h3 className="font-mono text-[15px] font-semibold text-ink">{v.version}</h3>
-          {current && <span className="rounded-sm bg-accent-soft px-1.5 py-0.5 text-[11px] font-medium text-accent-text">What the calculators run on now</span>}
+          {current && <span className="rounded-sm bg-accent-soft px-1.5 py-0.5 text-[11px] font-medium text-accent-text">{allHeld ? 'Newest version, waiting for its commencement date' : 'What the calculators run on now'}</span>}
           <span className="ml-auto text-xs text-ink-3" title={whenExact(v.publishedAt)}>
             {v.publishedBy} · {whenExact(v.publishedAt)}
           </span>
@@ -52,7 +56,9 @@ function VersionCard({ v, all, current, canRollBack, onOpenChange }: { v: RulePa
                     <span className="font-mono text-[11px] text-ink-3">{key}</span>
                   </p>
                   {known && <DiffLine side="before">{formatRuleValue(key, before.rules[key as RuleKey].value)}</DiffLine>}
-                  <DiffLine side="after">{formatRuleValue(key, v.overrides[key])}</DiffLine>
+                  <DiffLine side="after" note={heldUntil(key) ? `held until ${fmtDate(heldUntil(key)!, { weekday: false, year: 'always' })}` : undefined}>
+                    {formatRuleValue(key, v.overrides[key])}
+                  </DiffLine>
                 </div>
               )
             })}
@@ -101,7 +107,7 @@ export function Versions({ onOpenChange }: { onOpenChange: (id: string) => void 
   return (
     <div className="max-w-5xl">
       <p className="mb-4 max-w-[80ch] text-[13px] leading-relaxed text-ink-2">
-        A published version is never edited. Each one is laid over the pack shipped in the code, oldest first, and the newest is what every calculator reads. Rolling back publishes another version that restores the values the last one replaced, so both stay in the record.
+        A published version is never edited. Each one is laid over the pack shipped in the code, oldest first, and the result is what every calculator reads. A value published ahead of its commencement date is held until that day. Rolling back publishes another version that restores the values the last one replaced, so both stay in the record.
       </p>
       {sorted.length === 0 ? (
         <div className="rounded-lg bg-surface shadow-card">

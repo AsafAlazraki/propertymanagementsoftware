@@ -38,6 +38,17 @@ export interface RuleMeta {
   effectiveFrom?: ISODate
   /** Edge cases a careful person should know. */
   notes?: string
+  /**
+   * Set by `resolvePack`, never written in a pack file: a published value
+   * that has not commenced. The calculators keep `value` until `from`.
+   */
+  upcoming?: { value: unknown; from: ISODate; version: string }
+  /**
+   * Set by `resolvePack`: the shipped value a published version replaced.
+   * `plain` and `notes` were written for that value, so wherever they are
+   * shown this has to be shown with them.
+   */
+  revised?: { was: unknown; on: ISODate; version: string }
 }
 
 export interface Rule<T> extends RuleMeta {
@@ -108,6 +119,8 @@ export type RuleKey = keyof RuleValues
 export type RuleSet = { [K in RuleKey]: Rule<RuleValues[K]> }
 
 export interface Penalty {
+  /** A stable name for the entry, so a sentence can quote its amount without matching on the wording of `act`. */
+  key?: string
   act: string
   /** Maximum exemplary damages or fine, in the pack's currency. */
   max: number

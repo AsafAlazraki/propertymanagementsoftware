@@ -26,31 +26,16 @@ import { Sheet } from '@/ui/Sheet'
 import { cn } from '@/ui/cn'
 import { DataTable, Filter, Head, SearchBox, Status, Tally, Toolbar, type Column } from './kit'
 import { IDENTITY, USER_STATUS } from './labels'
-import { daysSince, matches, oneOf, text, whenExact, whenShort } from './format'
+import { daysSince, matches, whenExact, whenShort } from './format'
 import { useLast } from './hooks'
+import { GROUP_IDS, STATUSES, type GroupId, type PeopleSearch } from './search'
 
 /** Roles gathered the way the team thinks about them. */
-const GROUP_IDS = ['owners', 'renters', 'providers', 'team'] as const
-type GroupId = (typeof GROUP_IDS)[number]
 const GROUP: Record<GroupId, { label: string; roles: Role[] }> = {
   owners: { label: 'Owners and their advisers', roles: ['landlord', 'co_owner', 'advisor'] },
   renters: { label: 'Renters', roles: ['tenant', 'prospective_renter'] },
   providers: { label: 'Trades and field providers', roles: ['tradesperson', 'field_provider'] },
   team: { label: 'Platform team', roles: ['platform_admin'] },
-}
-const STATUSES = ['active', 'invited', 'deactivated'] as const
-const IDENTITIES = ['verified', 'unverified'] as const
-
-export interface PeopleSearch {
-  user?: string
-  q?: string
-  group?: GroupId
-  status?: User['status']
-  identity?: (typeof IDENTITIES)[number]
-}
-
-export function peopleSearch(s: Record<string, unknown>): PeopleSearch {
-  return { user: text(s.user), q: text(s.q), group: oneOf(s.group, GROUP_IDS), status: oneOf(s.status, STATUSES), identity: oneOf(s.identity, IDENTITIES) }
 }
 
 const route = getRouteApi('/admin/people')

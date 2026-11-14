@@ -11,7 +11,20 @@
 import { useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
 import { getRouteApi } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import { ArrowRight, ChatCircleDots, CheckCircle, GraduationCap, Play, Robot, SealCheck, ThumbsDown, Trash, UserCircle, Warning, XCircle } from '@phosphor-icons/react'
+import {
+  ArrowRight,
+  ChatCircleDots,
+  CheckCircle,
+  GraduationCap,
+  Play,
+  Robot,
+  SealCheck,
+  ThumbsDown,
+  Trash,
+  UserCircle,
+  Warning,
+  XCircle,
+} from '@phosphor-icons/react'
 import type { CopilotTurn, KbEntry, Portal } from '@/domain/types'
 import type { Verdict } from '@/domain/rules/core'
 import { ask, type Answer } from '@/domain/copilot'
@@ -23,27 +36,55 @@ import { usePack, useToday } from '@/data/hooks'
 import { checkTeaching, dismissTurn, forgetAnswer, teachAnswer, type Teaching } from '@/data/admin-mutations'
 import { Page, roleLabel } from '@/shell/common'
 import { Button } from '@/ui/Button'
-import { Field, Input, Segmented, Textarea } from '@/ui/controls'
+import { Choice, Choices, Field, Input, Segmented, Textarea } from '@/ui/controls'
 import { Empty } from '@/ui/display'
 import { Refusal } from '@/ui/Law'
 import { Sheet } from '@/ui/Sheet'
 import { cn } from '@/ui/cn'
 import { Flag, Head, Out, Panel, Status } from './kit'
-import { initialCap, share, text, whenInline } from './format'
+import { initialCap, share, whenInline } from './format'
 import { useLast } from './hooks'
 
-export interface AssistantSearch {
-  /** The turn being taught. `new` opens an empty form. */
-  turn?: string
-}
-
-export function assistantSearch(s: Record<string, unknown>): AssistantSearch {
-  return { turn: text(s.turn) }
-}
 
 const route = getRouteApi('/admin/assistant')
 
-const STOP = new Set(['what', 'when', 'where', 'which', 'does', 'have', 'need', 'with', 'from', 'that', 'this', 'they', 'them', 'their', 'there', 'about', 'will', 'would', 'could', 'should', 'happens', 'happen', 'much', 'many', 'long', 'your', 'mine', 'into', 'than', 'then', 'been', 'being', 'charge', 'landlord', 'tenant'])
+const STOP = new Set([
+  'what',
+  'when',
+  'where',
+  'which',
+  'does',
+  'have',
+  'need',
+  'with',
+  'from',
+  'that',
+  'this',
+  'they',
+  'them',
+  'their',
+  'there',
+  'about',
+  'will',
+  'would',
+  'could',
+  'should',
+  'happens',
+  'happen',
+  'much',
+  'many',
+  'long',
+  'your',
+  'mine',
+  'into',
+  'than',
+  'then',
+  'been',
+  'being',
+  'charge',
+  'landlord',
+  'tenant',
+])
 
 /** A first guess at keywords: the distinctive words of the question. The reviewer edits them. */
 function suggestKeywords(question: string): string {
@@ -57,13 +98,22 @@ function suggestKeywords(question: string): string {
 
 const intentLabel = (intent: string | undefined, kb: KbEntry[]) => {
   if (!intent) return 'Nothing matched'
-  if (intent.startsWith('kb:')) return `Taught: ${kb.find((k) => `kb:${k.id}` === intent)?.question ?? 'a removed answer'}`
+  if (intent.startsWith('kb:'))
+    return `Taught: ${kb.find((k) => `kb:${k.id}` === intent)?.question ?? 'a removed answer'}`
   return initialCap(intent.replace(/_/g, ' '))
 }
 
 /* ───────────────────────────────── teaching ─────────────────────────────── */
 
-export function TeachForm({ turn, done, onTaught }: { turn?: CopilotTurn; done: () => void; onTaught: (question: string, portal: Portal) => void }) {
+export function TeachForm({
+  turn,
+  done,
+  onTaught,
+}: {
+  turn?: CopilotTurn
+  done: () => void
+  onTaught: (question: string, portal: Portal) => void
+}) {
   const me = useMe()
   const pack = usePack()
   const [question, setQuestion] = useState(turn?.question ?? '')
@@ -73,7 +123,15 @@ export function TeachForm({ turn, done, onTaught }: { turn?: CopilotTurn; done: 
   const [sourceUrl, setSourceUrl] = useState('')
   const [portal, setPortal] = useState<KbEntry['portal']>(turn ? (turn.portal === 'pool' ? 'pool' : 'loop') : 'both')
   const [refusal, setRefusal] = useState<Verdict | null>(null)
-  const teaching: Teaching = { turnId: turn?.id, question, keywords: keywords.split(','), answer, citation, sourceUrl, portal }
+  const teaching: Teaching = {
+    turnId: turn?.id,
+    question,
+    keywords: keywords.split(','),
+    answer,
+    citation,
+    sourceUrl,
+    portal,
+  }
   const sentences = answer.trim().split('. ')
   const ready = checkTeaching(teaching)
   /** Typing in any field clears the last refusal: it described the form as it was. */
@@ -96,22 +154,67 @@ export function TeachForm({ turn, done, onTaught }: { turn?: CopilotTurn; done: 
     >
       {turn && (
         <p className="rounded-md bg-sunken px-3 py-2.5 text-[13px] leading-relaxed text-ink-2">
-          {turn.answered ? 'The assistant answered this from the rule pack and the answer was marked unhelpful. A taught answer on the same keywords replaces it.' : 'The assistant found nothing verified for this, said so, and sent it here.'}
+          {turn.answered
+            ? 'The assistant answered this from the rule pack and the answer was marked unhelpful. A taught answer on the same keywords replaces it.'
+            : 'The assistant found nothing verified for this, said so, and sent it here.'}
         </p>
       )}
-      <Field label="The question">{(p) => <Input {...p} value={question} onChange={bind(setQuestion)} placeholder="For example: can I ban smoking?" />}</Field>
-      <Field label="Keywords" hint="Separated by commas. The assistant gives this answer when a question contains any one of them, so choose words that only this topic uses.">
-        {(p) => <Input {...p} value={keywords} onChange={bind(setKeywords)} placeholder="For example: garage remote, remote control, fob" autoComplete="off" />}
+      <Field label="The question">
+        {(p) => (
+          <Input {...p} value={question} onChange={bind(setQuestion)} placeholder="For example: can I ban smoking?" />
+        )}
       </Field>
-      <Field label="The answer" hint="Lead with the answer. The first sentence is shown as the headline; the rest follows as the explanation.">
-        {(p) => <Textarea {...p} value={answer} onChange={bind(setAnswer)} placeholder="Write it as you would say it to a first-time landlord, and only what the source supports." className="min-h-32" />}
+      <Field
+        label="Keywords"
+        hint="Separated by commas. The assistant gives this answer when a question contains any one of them, so choose words that only this topic uses."
+      >
+        {(p) => (
+          <Input
+            {...p}
+            value={keywords}
+            onChange={bind(setKeywords)}
+            placeholder="For example: garage remote, remote control, fob"
+            autoComplete="off"
+          />
+        )}
+      </Field>
+      <Field
+        label="The answer"
+        hint="Lead with the answer. The first sentence is shown as the headline; the rest follows as the explanation."
+      >
+        {(p) => (
+          <Textarea
+            {...p}
+            value={answer}
+            onChange={bind(setAnswer)}
+            placeholder="Write it as you would say it to a first-time landlord, and only what the source supports."
+            className="min-h-32"
+          />
+        )}
       </Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Citation" optional hint="The provision, as the source names it.">
-          {(p) => <Input {...p} value={citation} onChange={bind(setCitation)} placeholder={`For example: ${pack.rules['bond.max_weeks'].citation}`} />}
+          {(p) => (
+            <Input
+              {...p}
+              value={citation}
+              onChange={bind(setCitation)}
+              placeholder={`For example: ${pack.rules['bond.max_weeks'].citation}`}
+            />
+          )}
         </Field>
         <Field label="Source link" optional hint="The page a customer can open to read it.">
-          {(p) => <Input {...p} type="url" inputMode="url" value={sourceUrl} onChange={bind(setSourceUrl)} placeholder="https://" autoComplete="off" />}
+          {(p) => (
+            <Input
+              {...p}
+              type="url"
+              inputMode="url"
+              value={sourceUrl}
+              onChange={bind(setSourceUrl)}
+              placeholder="https://"
+              autoComplete="off"
+            />
+          )}
         </Field>
       </div>
       <div>
@@ -132,14 +235,20 @@ export function TeachForm({ turn, done, onTaught }: { turn?: CopilotTurn; done: 
         <div className="rounded-lg bg-sunken p-3.5">
           <p className="eyebrow mb-1.5">How it will read</p>
           <p className="text-[14px] leading-snug font-semibold text-ink">{sentences[0].replace(/\.$/, '')}.</p>
-          {sentences.length > 1 && <p className="mt-1.5 text-[13px] leading-relaxed text-ink-2">{sentences.slice(1).join('. ')}</p>}
+          {sentences.length > 1 && (
+            <p className="mt-1.5 text-[13px] leading-relaxed text-ink-2">{sentences.slice(1).join('. ')}</p>
+          )}
           <p className="mt-2 flex items-center gap-1.5 text-xs text-ink-3">
             <UserCircle className="size-4" aria-hidden /> Answered by {me.fullName} on the Loop &amp; Pool team.
           </p>
         </div>
       )}
 
-      {refusal ? <Refusal verdict={refusal} /> : !ready.ok && answer.trim().length > 0 ? <p className="text-xs text-ink-3">Not ready to save yet. {ready.reason}</p> : null}
+      {refusal ? (
+        <Refusal verdict={refusal} />
+      ) : !ready.ok && answer.trim().length > 0 ? (
+        <p className="text-xs text-ink-3">Not ready to save yet. {ready.reason}</p>
+      ) : null}
       <div className="flex flex-wrap gap-2">
         <Button type="submit" intent="primary" icon={<GraduationCap weight="fill" className="size-4" />}>
           Teach this answer
@@ -163,7 +272,18 @@ interface Trial {
 function runTrial(question: string, portal: Portal, day: string): Trial {
   const state = db.get()
   const persona = portal === 'pool' ? PERSONAS.tenant : PERSONAS.landlord
-  return { question, portal, answer: ask(question, { db: state, pack: resolvePack('NZ', state.packVersions), portal, userId: persona.userId, orgId: persona.orgId, today: day }) }
+  return {
+    question,
+    portal,
+    answer: ask(question, {
+      db: state,
+      pack: resolvePack('NZ', state.packVersions),
+      portal,
+      userId: persona.userId,
+      orgId: persona.orgId,
+      today: day,
+    }),
+  }
 }
 
 function Bench({ trial, onRun }: { trial: Trial | null; onRun: (question: string, portal: Portal) => void }) {
@@ -178,12 +298,17 @@ function Bench({ trial, onRun }: { trial: Trial | null; onRun: (question: string
   }
   const a = trial?.answer
   return (
-    <section aria-labelledby="bench-title" className="min-w-0 overflow-hidden rounded-lg bg-nav text-nav-ink shadow-card">
+    <section
+      aria-labelledby="bench-title"
+      className="min-w-0 overflow-hidden rounded-lg bg-nav text-nav-ink shadow-card"
+    >
       <div className="px-4 pt-3.5">
         <h2 id="bench-title" className="text-[13px] font-semibold">
           Try it
         </h2>
-        <p className="mt-0.5 text-xs text-nav-ink-2">Asks the real assistant, as a customer would. Nothing you ask here is logged as a customer question.</p>
+        <p className="mt-0.5 text-xs text-nav-ink-2">
+          Asks the real assistant, as a customer would. Nothing you ask here is logged as a customer question.
+        </p>
         <form onSubmit={submit} className="mt-3 grid gap-2">
           <label htmlFor="bench-q" className="sr-only">
             A question to try
@@ -195,32 +320,43 @@ function Bench({ trial, onRun }: { trial: Trial | null; onRun: (question: string
               onChange={(e) => setAsked(e.target.value)}
               placeholder="Ask what a customer would ask"
               autoComplete="off"
+              required
               className="h-9 min-w-0 flex-1 rounded-md bg-nav-2 px-3 text-[13px] text-nav-ink outline-none placeholder:text-nav-ink-2 focus:shadow-[inset_0_0_0_2px_var(--glow)] coarse:h-11"
             />
-            <Button type="submit" intent="primary" size="sm" className="h-9 coarse:h-11" icon={<Play weight="fill" className="size-3.5" />}>
+            <Button
+              type="submit"
+              intent="primary"
+              size="sm"
+              className="h-9 coarse:h-11"
+              icon={<Play weight="fill" className="size-3.5" />}
+            >
               Ask
             </Button>
           </div>
-          <div role="radiogroup" aria-label="Ask as" className="flex gap-1.5 text-xs">
+          <Choices label="Ask as" value={portal} onChange={setPortal} className="flex gap-1.5 text-xs">
             {(['loop', 'pool'] as const).map((p) => (
-              <button
+              <Choice
                 key={p}
-                type="button"
-                role="radio"
-                aria-checked={portal === p}
-                onClick={() => setPortal(p)}
-                className={cn('h-7 rounded-md px-2.5 font-medium transition-colors coarse:h-10', portal === p ? 'bg-nav-ink text-nav' : 'bg-nav-2 text-nav-ink-2 hoverable:hover:text-nav-ink')}
+                value={p}
+                className={cn(
+                  'inline-flex h-7 cursor-pointer items-center rounded-md px-2.5 font-medium transition-colors coarse:h-10',
+                  portal === p ? 'bg-nav-ink text-nav' : 'bg-nav-2 text-nav-ink-2 hoverable:hover:text-nav-ink',
+                )}
               >
-                {p === 'loop' ? `As a landlord${landlord ? ` (${landlord.split(' ')[0]})` : ''}` : `As a renter${renter ? ` (${renter.split(' ')[0]})` : ''}`}
-              </button>
+                {p === 'loop'
+                  ? `As a landlord${landlord ? ` (${landlord.split(' ')[0]})` : ''}`
+                  : `As a renter${renter ? ` (${renter.split(' ')[0]})` : ''}`}
+              </Choice>
             ))}
-          </div>
+          </Choices>
         </form>
       </div>
 
       <div className="mt-3.5 border-t border-nav-line p-4" aria-live="polite">
         {!trial ? (
-          <p className="text-[13px] leading-relaxed text-nav-ink-2">Ask a question to see exactly what a customer would be told, and where the answer came from.</p>
+          <p className="text-[13px] leading-relaxed text-nav-ink-2">
+            Ask a question to see exactly what a customer would be told, and where the answer came from.
+          </p>
         ) : (
           <div className="rounded-md bg-surface p-3.5 text-ink">
             <p className="mb-2.5 flex flex-wrap items-center justify-between gap-2 text-xs text-ink-3">
@@ -232,7 +368,9 @@ function Bench({ trial, onRun }: { trial: Trial | null; onRun: (question: string
                 <Flag tone="warn" icon={Warning}>
                   No verified answer
                 </Flag>
-                <p className="mt-2 text-[13px] leading-relaxed text-ink">It would say it does not know, rather than guess, and send the question to this screen.</p>
+                <p className="mt-2 text-[13px] leading-relaxed text-ink">
+                  It would say it does not know, rather than guess, and send the question to this screen.
+                </p>
               </>
             ) : (
               <>
@@ -301,19 +439,33 @@ export function Assistant() {
   }
 
   const userOf = useMemo(() => new Map(users.map((u) => [u.id, u])), [users])
-  const queue = useMemo(() => turns.filter((t) => t.review === 'queued').sort((a, b) => b.at.localeCompare(a.at)), [turns])
+  const queue = useMemo(
+    () => turns.filter((t) => t.review === 'queued').sort((a, b) => b.at.localeCompare(a.at)),
+    [turns],
+  )
   const stats = useMemo(() => {
     const rated = turns.filter((t) => t.rating)
-    return { total: turns.length, answered: turns.filter((t) => t.answered).length, rated: rated.length, up: rated.filter((t) => t.rating === 'up').length }
+    return {
+      total: turns.length,
+      answered: turns.filter((t) => t.answered).length,
+      rated: rated.length,
+      up: rated.filter((t) => t.rating === 'up').length,
+    }
   }, [turns])
   const intents = useMemo(() => {
     const by = new Map<string, { asked: number; up: number; down: number }>()
     for (const t of turns) {
-      const key = t.answered ? t.intent ?? 'unknown' : ''
+      const key = t.answered ? (t.intent ?? 'unknown') : ''
       const row = by.get(key) ?? { asked: 0, up: 0, down: 0 }
-      by.set(key, { asked: row.asked + 1, up: row.up + (t.rating === 'up' ? 1 : 0), down: row.down + (t.rating === 'down' ? 1 : 0) })
+      by.set(key, {
+        asked: row.asked + 1,
+        up: row.up + (t.rating === 'up' ? 1 : 0),
+        down: row.down + (t.rating === 'down' ? 1 : 0),
+      })
     }
-    return [...by.entries()].map(([intent, v]) => ({ intent: intent || undefined, ...v })).sort((a, b) => b.asked - a.asked || (a.intent ?? '').localeCompare(b.intent ?? ''))
+    return [...by.entries()]
+      .map(([intent, v]) => ({ intent: intent || undefined, ...v }))
+      .sort((a, b) => b.asked - a.asked || (a.intent ?? '').localeCompare(b.intent ?? ''))
   }, [turns])
   const most = intents[0]?.asked ?? 0
 
@@ -336,15 +488,33 @@ export function Assistant() {
 
       <dl className="mb-5 grid grid-cols-2 gap-px overflow-hidden rounded-lg bg-line shadow-card lg:grid-cols-4">
         {[
-          { label: 'Answered', value: share(stats.answered, stats.total), sub: `${stats.answered} of ${stats.total} questions` },
-          { label: 'Marked helpful', value: share(stats.up, stats.rated), sub: stats.rated ? `${stats.up} of ${stats.rated} rated answers` : 'No answer has been rated yet' },
-          { label: 'Waiting for review', value: String(queue.length), sub: `${queue.filter((t) => !t.answered).length} unanswered · ${queue.filter((t) => t.rating === 'down').length} marked unhelpful` },
-          { label: 'Taught by the team', value: String(kb.length), sub: `${turns.filter((t) => t.review === 'taught').length} from customers’ questions` },
+          {
+            label: 'Answered',
+            value: share(stats.answered, stats.total),
+            sub: `${stats.answered} of ${stats.total} questions`,
+          },
+          {
+            label: 'Marked helpful',
+            value: share(stats.up, stats.rated),
+            sub: stats.rated ? `${stats.up} of ${stats.rated} rated answers` : 'No answer has been rated yet',
+          },
+          {
+            label: 'Waiting for review',
+            value: String(queue.length),
+            sub: `${queue.filter((t) => !t.answered).length} unanswered · ${queue.filter((t) => t.rating === 'down').length} marked unhelpful`,
+          },
+          {
+            label: 'Taught by the team',
+            value: String(kb.length),
+            sub: `${turns.filter((t) => t.review === 'taught').length} from customers’ questions`,
+          },
         ].map((f) => (
           <div key={f.label} className="min-w-0 bg-surface px-4 py-3">
             <dt className="eyebrow truncate">{f.label}</dt>
             <dd>
-              <span className="num mt-1 block text-[20px] leading-tight font-semibold tracking-[-0.02em] text-ink">{f.value}</span>
+              <span className="num mt-1 block text-[20px] leading-tight font-semibold tracking-[-0.02em] text-ink">
+                {f.value}
+              </span>
               <span className="block truncate text-xs text-ink-3">{f.sub}</span>
             </dd>
           </div>
@@ -359,7 +529,11 @@ export function Assistant() {
             </h2>
             {queue.length === 0 ? (
               <div className="rounded-lg bg-surface shadow-card">
-                <Empty icon={<CheckCircle weight="fill" />} title="No question is waiting" body="When the assistant cannot answer a customer, or an answer is marked unhelpful, the question arrives here for a person to answer." />
+                <Empty
+                  icon={<CheckCircle weight="fill" />}
+                  title="No question is waiting"
+                  body="When the assistant cannot answer a customer, or an answer is marked unhelpful, the question arrives here for a person to answer."
+                />
               </div>
             ) : (
               <ul className="grid gap-2.5">
@@ -378,16 +552,32 @@ export function Assistant() {
                           </Flag>
                         )}
                         <span className="text-xs text-ink-3">
-                          {who ? `${who.fullName}, ${roleLabel(who.role).toLowerCase()}` : 'A customer'} · {t.portal === 'pool' ? 'Pool' : 'Loop'} · {whenInline(t.at, day)}
+                          {who ? `${who.fullName}, ${roleLabel(who.role).toLowerCase()}` : 'A customer'} ·{' '}
+                          {t.portal === 'pool' ? 'Pool' : 'Loop'} · {whenInline(t.at, day)}
                         </span>
                       </div>
                       <p className="mt-2 text-[15px] leading-snug font-medium text-ink">“{t.question}”</p>
-                      {t.answered && <p className="mt-1 text-xs text-ink-3">It answered under “{intentLabel(t.intent, kb)}”. Try it on the test bench to read what it said.</p>}
+                      {t.answered && (
+                        <p className="mt-1 text-xs text-ink-3">
+                          It answered under “{intentLabel(t.intent, kb)}”. Try it on the test bench to read what it
+                          said.
+                        </p>
+                      )}
                       <div className="mt-3 flex flex-wrap gap-2">
-                        <Button intent="primary" size="sm" icon={<GraduationCap weight="fill" className="size-4" />} onClick={() => teach(t.id)}>
+                        <Button
+                          intent="primary"
+                          size="sm"
+                          icon={<GraduationCap weight="fill" className="size-4" />}
+                          onClick={() => teach(t.id)}
+                        >
                           Teach an answer
                         </Button>
-                        <Button intent="secondary" size="sm" icon={<Play className="size-3.5" />} onClick={() => run(t.question, t.portal === 'pool' ? 'pool' : 'loop')}>
+                        <Button
+                          intent="secondary"
+                          size="sm"
+                          icon={<Play className="size-3.5" />}
+                          onClick={() => run(t.question, t.portal === 'pool' ? 'pool' : 'loop')}
+                        >
                           Try it
                         </Button>
                         <Button
@@ -396,7 +586,9 @@ export function Assistant() {
                           icon={<XCircle className="size-4" />}
                           onClick={() => {
                             dismissTurn(t.id, me.fullName)
-                            toast('Dismissed', { description: 'The question stays in the history; nothing was taught.' })
+                            toast('Dismissed', {
+                              description: 'The question stays in the history; nothing was taught.',
+                            })
                           }}
                         >
                           Nothing to teach
@@ -415,10 +607,18 @@ export function Assistant() {
             ) : (
               <ul className="grid gap-x-8 gap-y-1 md:grid-cols-2">
                 {intents.map((i) => (
-                  <li key={i.intent ?? 'none'} className="grid min-w-0 grid-cols-[minmax(0,1fr)_3.5rem_auto] items-center gap-2.5 py-1 text-[13px]">
-                    <span className={cn('truncate', i.intent ? 'text-ink' : 'text-warn-text')}>{intentLabel(i.intent, kb)}</span>
+                  <li
+                    key={i.intent ?? 'none'}
+                    className="grid min-w-0 grid-cols-[minmax(0,1fr)_3.5rem_auto] items-center gap-2.5 py-1 text-[13px]"
+                  >
+                    <span className={cn('truncate', i.intent ? 'text-ink' : 'text-warn-text')}>
+                      {intentLabel(i.intent, kb)}
+                    </span>
                     <span aria-hidden className="h-1 overflow-hidden rounded-full bg-sunken">
-                      <span className={cn('block h-full rounded-full', i.intent ? 'bg-accent' : 'bg-warn')} style={{ width: `${(i.asked / most) * 100}%` }} />
+                      <span
+                        className={cn('block h-full rounded-full', i.intent ? 'bg-accent' : 'bg-warn')}
+                        style={{ width: `${(i.asked / most) * 100}%` }}
+                      />
                     </span>
                     <span className="num w-16 text-right text-xs text-ink-3">
                       <span className="font-semibold text-ink">{i.asked}</span>
@@ -436,7 +636,13 @@ export function Assistant() {
 
           <Panel title="Taught answers" note="What the team has added to what the rule pack knows.">
             {kb.length === 0 ? (
-              <Empty icon={<Robot />} title="Nothing taught yet" body="Answers the team writes appear here, each with its keywords and its source." action={<Button onClick={() => teach('new')}>Teach the first one</Button>} className="py-6" />
+              <Empty
+                icon={<Robot />}
+                title="Nothing taught yet"
+                body="Answers the team writes appear here, each with its keywords and its source."
+                action={<Button onClick={() => teach('new')}>Teach the first one</Button>}
+                className="py-6"
+              />
             ) : (
               <ul className="-my-1 divide-y divide-line">
                 {kb.map((k) => (
@@ -444,7 +650,12 @@ export function Assistant() {
                     <div className="flex items-start justify-between gap-3">
                       <p className="min-w-0 text-[13px] font-medium text-ink">{k.question}</p>
                       <div className="-mt-1 flex shrink-0 items-center">
-                        <Button size="iconSm" intent="ghost" aria-label={`Try “${k.question}”`} onClick={() => run(k.question, k.portal === 'pool' ? 'pool' : 'loop')}>
+                        <Button
+                          size="iconSm"
+                          intent="ghost"
+                          aria-label={`Try “${k.question}”`}
+                          onClick={() => run(k.question, k.portal === 'pool' ? 'pool' : 'loop')}
+                        >
                           <Play className="size-3.5" />
                         </Button>
                         <Button
@@ -470,7 +681,8 @@ export function Assistant() {
                     </p>
                     <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-ink-3">
                       <span>
-                        {k.taughtBy} · {fmtDate(dateOf(k.taughtAt), { weekday: false })} · {k.portal === 'both' ? 'owners and renters' : k.portal === 'pool' ? 'renters' : 'owners'}
+                        {k.taughtBy} · {fmtDate(dateOf(k.taughtAt), { weekday: false })} ·{' '}
+                        {k.portal === 'both' ? 'owners and renters' : k.portal === 'pool' ? 'renters' : 'owners'}
                       </span>
                       {k.citation && k.sourceUrl ? (
                         <Out href={k.sourceUrl}>{k.citation}</Out>
@@ -497,7 +709,8 @@ export function Assistant() {
         description="Your answer is given to customers under your name, with its source. Write only what the source supports."
         footer={
           <span className="mr-auto flex items-center gap-1.5 text-xs text-ink-3">
-            <ArrowRight className="size-3.5" aria-hidden /> After saving, the test bench asks the question again so you can read the result.
+            <ArrowRight className="size-3.5" aria-hidden /> After saving, the test bench asks the question again so you
+            can read the result.
           </span>
         }
       >

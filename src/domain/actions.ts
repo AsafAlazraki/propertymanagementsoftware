@@ -11,7 +11,7 @@ import type { Db } from './db'
 import type { JurisdictionPack, RuleKey } from './jurisdictions/types'
 import { regionOf } from './jurisdictions'
 import { addMonths, dateOf, diffDays, fmtDate } from './rules/calendar'
-import { calendarFor } from './rules/core'
+import { aDuration, calendarFor, durationText } from './rules/core'
 import { complianceReport } from './rules/compliance'
 import { arrearsState, bondLodgement, fixedTermWindow } from './rules/tenancy'
 import { money, plural } from './rules/format'
@@ -60,6 +60,9 @@ export function landlordActions(db: Db, orgId: ID, pack: JurisdictionPack, today
   const prop = (id: ID) => properties.find((p) => p.id === id)
   const where = (id: ID) => prop(id)?.address.line1 ?? 'a property'
   const cal = (propertyId: ID) => calendarFor(pack, regionOf(prop(propertyId)?.address.city ?? ''))
+  const lodgeWithin = pack.rules['bond.lodgement_deadline'].value
+  const remedyNotice = pack.rules['arrears.remedy_notice'].value
+  const tribunalThreshold = pack.rules['arrears.tribunal_threshold'].value
 
   for (const t of tenancies) {
     if (t.status !== 'active' && t.status !== 'notice_given') continue
@@ -77,8 +80,8 @@ export function landlordActions(db: Db, orgId: ID, pack: JurisdictionPack, today
         refId: t.id,
         title: `Lodge the bond for ${where(t.propertyId)}`,
         body: overdue
-          ? `${money(t.bond.amount)} was received on ${fmtDate(t.bond.receivedOn)} and the 23 working days ran out on ${fmtDate(b.deadline)}. Lodge it today — every day late adds to the risk.`
-          : `${money(t.bond.amount)} from ${first(t.tenantIds[0])} has been in your account since ${fmtDate(t.bond.receivedOn)}. It has to reach Tenancy Services by ${fmtDate(b.deadline)}.`,
+          ? `${money(t.bond.amount)} was received on ${fmtDate(t.bond.receivedOn)} and the ${durationText(lodgeWithin)} ran out on ${fmtDate(b.deadline)}. Lodge it today — every day late adds to the risk.`
+          : `${money(t.bond.amount)} from ${first(t.tenantIds[0])} has been in your account since ${fmtDate(t.bond.receivedOn)}. It has to reach ${pack.bondAuthority.name} by ${fmtDate(b.deadline)}.`,
         due: b.deadline,
         clock: overdue
           ? `${plural(-b.workingDaysLeft, 'working day')} overdue`
@@ -86,7 +89,7 @@ export function landlordActions(db: Db, orgId: ID, pack: JurisdictionPack, today
         rule: 'bond.lodgement_deadline',
         tone: b.status === 'on_track' ? 'info' : overdue || b.status === 'urgent' ? 'danger' : 'warn',
         amount: t.bond.amount,
-        cta: 'Lodge with Bond Hub',
+        cta: 'Lodge the bond',
       })
     }
 
@@ -107,7 +110,7 @@ export function landlordActions(db: Db, orgId: ID, pack: JurisdictionPack, today
           propertyId: t.propertyId,
           refId: t.id,
           title: `${who} is ${a.daysLate} days behind — you can apply to the Tribunal`,
-          body: `${money(a.owed)} is owing on ${where(t.propertyId)}. At 21 days in arrears the Tribunal must end the tenancy unless the rent is caught up. The evidence pack is ready.`,
+          body: `${money(a.owed)} is owing on ${where(t.propertyId)}. At ${durationText(tribunalThreshold)} in arrears the Tribunal must end the tenancy unless the rent is caught up. The evidence pack is ready.`,
           clock: `${a.daysLate} days late`,
           rule: 'arrears.tribunal_threshold',
           tone: 'danger',
@@ -121,8 +124,8 @@ export function landlordActions(db: Db, orgId: ID, pack: JurisdictionPack, today
           priority: 1,
           propertyId: t.propertyId,
           refId: t.id,
-          title: `Send ${who} a 14-day notice to remedy`,
-          body: `${money(a.owed)} is ${a.daysLate} days late on ${where(t.propertyId)}. The notice starts a 14-day clock; it is drafted and waiting for you.`,
+          title: `Send ${who} ${aDuration(remedyNotice)} notice to remedy`,
+          body: `${money(a.owed)} is ${a.daysLate} days late on ${where(t.propertyId)}. The notice starts ${aDuration(remedyNotice)} clock; it is drafted and waiting for you.`,
           clock: `${a.daysLate} days late`,
           rule: 'arrears.remedy_notice',
           tone: 'danger',
@@ -194,17 +197,21 @@ export function landlordActions(db: Db, orgId: ID, pack: JurisdictionPack, today
     if (tk.orgId !== orgId) continue
     if (tk.status === 'quote_ready' && tk.quote) {
       const limit = prop(tk.propertyId)?.sinkingFund.autoApproveLimit ?? 0
+      const trade = db.providers.find((p) => p.id === tk.providerId)?.name
+      const first = tk.quote.firstApproval
       out.push({
         id: `quote:${tk.id}`,
         kind: 'quote',
         priority: tk.triage.urgency === 'routine' ? 2 : 1,
         propertyId: tk.propertyId,
         refId: tk.id,
-        title: `Approve a ${money(tk.quote.amount)} quote: ${tk.title.toLowerCase()}`,
-        body: `${db.providers.find((p) => p.id === tk.providerId)?.name ?? 'The tradesperson'} has quoted for ${where(tk.propertyId)}. It is over your ${money(limit)} automatic limit, so nothing happens until you say so.`,
+        title: first ? `A ${money(tk.quote.amount)} quote is waiting for a second approval` : `Approve a ${money(tk.quote.amount)} quote: ${tk.title.toLowerCase()}`,
+        body: first
+          ? `${first.by} approved the quote from ${trade ?? 'the tradesperson'} for ${where(tk.propertyId)} on ${fmtDate(dateOf(first.at))}. A quote this size needs a second owner, so nobody is booked yet.`
+          : `${trade ?? 'The tradesperson'} has quoted for ${where(tk.propertyId)}. It is over your ${money(limit)} automatic limit, so nothing happens until you say so.`,
         tone: 'info',
         amount: tk.quote.amount,
-        cta: 'Review the quote',
+        cta: first ? 'See where it stands' : 'Review the quote',
       })
     }
     if (tk.status === 'submitted') {

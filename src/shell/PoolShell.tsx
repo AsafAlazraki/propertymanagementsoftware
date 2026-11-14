@@ -6,7 +6,7 @@ import { useBrand, useThemeColor } from '@/app/theme'
 import { PoolMark } from '@/ui/Brand'
 import { useViewport } from '@/ui/hooks'
 import { cn } from '@/ui/cn'
-import { AccountMenu, SkipLink, TabLink, type NavItem } from './common'
+import { AccountMenu, CountWords, SkipLink, StorageWatch, TabLink, type NavItem } from './common'
 import { Assistant } from './Assistant'
 
 function useNav(): NavItem[] {
@@ -20,7 +20,14 @@ function useNav(): NavItem[] {
   return [
     { to: '/pool', label: 'Home', icon: House, exact: true, primary: true },
     { to: '/pool/search', label: 'Search', icon: MagnifyingGlass, primary: true },
-    { to: '/pool/repairs', label: 'Repairs', icon: Wrench, count: waiting, primary: true },
+    {
+      to: '/pool/repairs',
+      label: 'Repairs',
+      icon: Wrench,
+      count: waiting,
+      countLabel: 'waiting for you',
+      primary: true,
+    },
     { to: '/pool/passport', label: 'Passport', icon: IdentificationCard, primary: true },
     { to: '/pool/me', label: 'Me', icon: UserCircle, primary: true },
   ]
@@ -42,7 +49,13 @@ export function PoolShell() {
   return (
     <div className="min-h-dvh bg-bg text-[15px] text-ink">
       <SkipLink />
-      <header className={cn('sticky top-0 z-30 border-b border-line bg-surface/90 backdrop-blur-xl pt-safe', vp.short && 'static')}>
+      <StorageWatch />
+      <header
+        className={cn(
+          'sticky top-0 z-30 border-b border-line bg-surface/90 backdrop-blur-xl pt-safe',
+          vp.short && 'static',
+        )}
+      >
         <div className="mx-auto flex h-14 max-w-[1600px] items-center gap-2 px-4 sm:px-6 lg:h-16 lg:px-8">
           <Link to="/pool" className="mr-2 flex items-center gap-2.5 rounded-md" aria-label="Pool — home">
             <PoolMark size={30} />
@@ -64,7 +77,12 @@ export function PoolShell() {
                       <>
                         <Icon weight={isActive ? 'fill' : 'regular'} className="size-[18px]" aria-hidden />
                         {item.label}
-                        {item.count ? <span className="num grid h-[18px] min-w-[18px] place-items-center rounded-full bg-accent px-1 text-[11px] leading-none font-semibold text-accent-ink">{item.count}</span> : null}
+                        {item.count ? (
+                          <span className="num grid h-[18px] min-w-[18px] place-items-center rounded-full bg-accent px-1 text-[11px] leading-none font-semibold text-accent-ink">
+                            {item.count}
+                            <CountWords item={item} />
+                          </span>
+                        ) : null}
                       </>
                     )}
                   </Link>
@@ -73,7 +91,11 @@ export function PoolShell() {
             </nav>
           )}
           <span className="flex-1" />
-          <button type="button" onClick={() => setAsk(true)} className="pressable flex h-10 shrink-0 items-center gap-2 rounded-full whitespace-nowrap bg-sunken px-3.5 text-[14px] font-medium text-ink-2 hoverable:hover:text-ink">
+          <button
+            type="button"
+            onClick={() => setAsk(true)}
+            className="pressable flex h-10 shrink-0 items-center gap-2 rounded-full whitespace-nowrap bg-sunken px-3.5 text-[14px] font-medium text-ink-2 hoverable:hover:text-ink"
+          >
             <ChatCircleDots className="size-[18px]" aria-hidden />
             <span className="hidden sm:inline">Ask Pool</span>
             <span className="sm:hidden">Ask</span>
@@ -87,7 +109,10 @@ export function PoolShell() {
       </main>
 
       {vp.phone && (
-        <nav aria-label="Pool" className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-surface/92 backdrop-blur-xl pb-safe">
+        <nav
+          aria-label="Pool"
+          className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-surface/92 backdrop-blur-xl pb-safe"
+        >
           {nav.map((item) => (
             <TabLink key={item.to} item={item} idleClass="text-ink-3" activeClass="!text-accent-text" />
           ))}

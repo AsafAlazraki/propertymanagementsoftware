@@ -7,7 +7,8 @@ import { ArrowsLeftRight, Certificate, ClipboardText, FileText, Key, LockKey, Re
 import type { Doc, KeySet, Property } from '@/domain/types'
 import { dateOf, fmtDate, fmtRelative } from '@/domain/rules/calendar'
 import { useStore } from '@/data/store'
-import { useToday } from '@/data/hooks'
+import { durationText } from '@/domain/rules/core'
+import { usePack, useToday } from '@/data/hooks'
 import { Badge } from '@/ui/Badge'
 import { Empty, Timeline } from '@/ui/display'
 import { Why } from '@/ui/Law'
@@ -36,6 +37,7 @@ const DOC_ICON: Record<Doc['kind'], typeof FileText> = {
 const KEY_ACTION = { deposited: 'Returned to the depot', code_issued: 'One-time code issued', collected: 'Collected', returned: 'Returned', code_expired: 'Code expired unused' } as const
 
 export function Records({ property }: { property: Property }) {
+  const pack = usePack()
   const day = useToday()
   const allEvents = useStore((s) => s.db.keyEvents)
   const allDocs = useStore((s) => s.db.docs)
@@ -81,7 +83,7 @@ export function Records({ property }: { property: Property }) {
             <Why rule="entry.repairs_notice_min" label="when a code unlocks" />
           </div>
           {events.length === 0 ? (
-            <p className="text-[13px] text-ink-2">No key has moved yet. A code for a tradesperson is released only once the tenant has had their notice — 24 hours for repairs, 48 for an inspection — or straight away in a real emergency.</p>
+            <p className="text-[13px] text-ink-2">No key has moved yet. A code for a tradesperson is released only once the tenant has had their notice — {durationText(pack.rules['entry.repairs_notice_min'].value)} for repairs, {durationText(pack.rules['entry.inspection_notice_min'].value)} for an inspection — or straight away in a real emergency.</p>
           ) : (
             <Timeline
               items={events.map((e) => ({

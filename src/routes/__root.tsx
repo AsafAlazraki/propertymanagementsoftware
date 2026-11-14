@@ -1,4 +1,5 @@
-import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
+import { useEffect } from 'react'
+import { createRootRoute, Link, Outlet, useRouterState } from '@tanstack/react-router'
 import { Toaster } from 'sonner'
 import { TipProvider } from '@/ui/overlays'
 import { useThemeBinding } from '@/app/theme'
@@ -12,8 +13,44 @@ export const Route = createRootRoute({
   errorComponent: Broke,
 })
 
+const TITLES: [RegExp, string][] = [
+  [/^\/loop\/properties\/.+/, 'A home · Loop'],
+  [/^\/loop\/properties/, 'Properties · Loop'],
+  [/^\/loop\/money/, 'Money · Loop'],
+  [/^\/loop\/repairs/, 'Repairs · Loop'],
+  [/^\/loop\/inspections\/.+/, 'Inspection studio · Loop'],
+  [/^\/loop\/inspections/, 'Inspections · Loop'],
+  [/^\/loop\/tenancies/, 'Tenancies · Loop'],
+  [/^\/loop\/services/, 'Services · Loop'],
+  [/^\/loop\/rulebook/, 'Rulebook · Loop'],
+  [/^\/loop\/settings/, 'Settings · Loop'],
+  [/^\/loop/, 'Command centre · Loop'],
+  [/^\/pool\/search/, 'Find a home · Pool'],
+  [/^\/pool\/listing/, 'A home to rent · Pool'],
+  [/^\/pool\/repairs/, 'Repairs · Pool'],
+  [/^\/pool\/passport/, 'Rent Passport · Pool'],
+  [/^\/pool\/me/, 'Me · Pool'],
+  [/^\/pool/, 'Home · Pool'],
+  [/^\/admin\/queue/, 'Action queue · Team console'],
+  [/^\/admin\/orgs/, 'Organisations · Team console'],
+  [/^\/admin\/people/, 'People · Team console'],
+  [/^\/admin\/feedback/, 'Feedback · Team console'],
+  [/^\/admin\/rules/, 'Rulewatch · Team console'],
+  [/^\/admin\/healing/, 'Self-healing · Team console'],
+  [/^\/admin\/assistant/, 'Assistant · Team console'],
+  [/^\/admin\/network/, 'Field network · Team console'],
+  [/^\/admin\/migration/, 'Migration · Team console'],
+  [/^\/admin\/audit/, 'Audit log · Team console'],
+  [/^\/admin/, 'Overview · Team console'],
+]
+
 function Root() {
   useThemeBinding()
+  const path = useRouterState({ select: (s) => s.location.pathname })
+  useEffect(() => {
+    const at = path.replace(/^\/propertymanagementsoftware/, '')
+    document.title = TITLES.find(([re]) => re.test(at))?.[1] ?? 'Loop & Pool'
+  }, [path])
   return (
     <TipProvider delay={350} closeDelay={0}>
       <Outlet />

@@ -1,4 +1,10 @@
-import { useId, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react'
+import {
+  useId,
+  type InputHTMLAttributes,
+  type ReactNode,
+  type SelectHTMLAttributes,
+  type TextareaHTMLAttributes,
+} from 'react'
 import { Switch as BaseSwitch } from '@base-ui/react/switch'
 import { Checkbox as BaseCheckbox } from '@base-ui/react/checkbox'
 import { Radio } from '@base-ui/react/radio'
@@ -7,8 +13,9 @@ import { Tabs as BaseTabs } from '@base-ui/react/tabs'
 import { CaretDown, Check } from '@phosphor-icons/react'
 import { cn } from './cn'
 
+/** The edge of every field is --field-line: 3:1 against the surfaces a field sits on. */
 const fieldBase =
-  'w-full rounded-md bg-surface text-ink shadow-[inset_0_0_0_1px_var(--line-strong)] outline-none transition-shadow duration-150 placeholder:text-ink-3 focus:shadow-[inset_0_0_0_2px_var(--focus)] disabled:bg-sunken disabled:text-ink-3 aria-invalid:shadow-[inset_0_0_0_2px_var(--danger)]'
+  'w-full rounded-md bg-surface text-ink shadow-[inset_0_0_0_1px_var(--field-line)] outline-none transition-shadow duration-150 placeholder:text-ink-3 focus:shadow-[inset_0_0_0_2px_var(--focus)] disabled:bg-sunken disabled:text-ink-3 aria-invalid:shadow-[inset_0_0_0_2px_var(--danger)]'
 
 /** Label, control, hint and error in one unit, wired together for assistive tech. */
 export function Field({
@@ -37,7 +44,11 @@ export function Field({
       </label>
       {children({ id, 'aria-describedby': describedBy, 'aria-invalid': error ? true : undefined })}
       {(error || hint) && (
-        <p id={describedBy} role={error ? 'alert' : undefined} className={cn('mt-1.5 text-xs', error ? 'text-danger-text' : 'text-ink-3')}>
+        <p
+          id={describedBy}
+          role={error ? 'alert' : undefined}
+          className={cn('mt-1.5 text-xs', error ? 'text-danger-text' : 'text-ink-3')}
+        >
           {error || hint}
         </p>
       )}
@@ -45,19 +56,41 @@ export function Field({
   )
 }
 
-export function Input({ className, prefix, suffix, ...rest }: Omit<InputHTMLAttributes<HTMLInputElement>, 'prefix'> & { prefix?: ReactNode; suffix?: ReactNode }) {
+export function Input({
+  className,
+  prefix,
+  suffix,
+  ...rest
+}: Omit<InputHTMLAttributes<HTMLInputElement>, 'prefix'> & { prefix?: ReactNode; suffix?: ReactNode }) {
   if (!prefix && !suffix) return <input {...rest} className={cn(fieldBase, 'h-10 px-3 coarse:h-11', className)} />
   return (
     <div className="relative">
-      {prefix && <span className="pointer-events-none absolute inset-y-0 left-3 grid place-items-center text-ink-3">{prefix}</span>}
-      <input {...rest} className={cn(fieldBase, 'h-10 px-3 coarse:h-11', prefix && 'pl-8', suffix && 'pr-12', className)} />
-      {suffix && <span className="pointer-events-none absolute inset-y-0 right-3 grid place-items-center text-xs text-ink-3">{suffix}</span>}
+      {prefix && (
+        <span className="pointer-events-none absolute inset-y-0 left-3 grid place-items-center text-ink-3">
+          {prefix}
+        </span>
+      )}
+      <input
+        {...rest}
+        className={cn(fieldBase, 'h-10 px-3 coarse:h-11', prefix && 'pl-8', suffix && 'pr-12', className)}
+      />
+      {suffix && (
+        <span className="pointer-events-none absolute inset-y-0 right-3 grid place-items-center text-xs text-ink-3">
+          {suffix}
+        </span>
+      )}
     </div>
   )
 }
 
 export function Textarea({ className, ...rest }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea rows={4} {...rest} className={cn(fieldBase, 'min-h-24 px-3 py-2.5 leading-relaxed [field-sizing:content]', className)} />
+  return (
+    <textarea
+      rows={4}
+      {...rest}
+      className={cn(fieldBase, 'min-h-24 px-3 py-2.5 leading-relaxed [field-sizing:content]', className)}
+    />
+  )
 }
 
 /** The platform's own picker: the best select on a phone is the one the phone ships. */
@@ -67,7 +100,11 @@ export function Select({ className, children, ...rest }: SelectHTMLAttributes<HT
       <select {...rest} className={cn(fieldBase, 'h-10 appearance-none pr-9 pl-3 coarse:h-11', className)}>
         {children}
       </select>
-      <CaretDown aria-hidden weight="bold" className="pointer-events-none absolute top-1/2 right-3 size-3.5 -translate-y-1/2 text-ink-3" />
+      <CaretDown
+        aria-hidden
+        weight="bold"
+        className="pointer-events-none absolute top-1/2 right-3 size-3.5 -translate-y-1/2 text-ink-3"
+      />
     </div>
   )
 }
@@ -97,9 +134,9 @@ export function Switch({
         checked={checked}
         onCheckedChange={onCheckedChange}
         disabled={disabled}
-        className="relative mt-0.5 flex h-6 w-10 shrink-0 rounded-full bg-line-strong p-0.5 transition-colors duration-200 ease-out data-checked:bg-accent data-disabled:opacity-50"
+        className="relative mt-0.5 flex h-6 w-10 shrink-0 rounded-full bg-ink-3 p-0.5 transition-colors duration-200 ease-out data-checked:bg-accent data-disabled:opacity-50"
       >
-        <BaseSwitch.Thumb className="size-5 rounded-full bg-white shadow-[0_1px_2px_oklch(0_0_0/0.3)] transition-transform duration-200 ease-out data-checked:translate-x-4" />
+        <BaseSwitch.Thumb className="size-5 rounded-full bg-surface shadow-[0_1px_2px_oklch(0_0_0/0.3)] transition-[translate,background-color] duration-200 ease-out data-checked:translate-x-4 data-checked:bg-accent-ink" />
       </BaseSwitch.Root>
     </div>
   )
@@ -117,12 +154,17 @@ export function Checkbox({
   disabled?: boolean
 }) {
   return (
-    <label className={cn('flex min-h-6 cursor-pointer items-start gap-2.5 text-sm text-ink coarse:min-h-11 coarse:items-center', disabled && 'opacity-50')}>
+    <label
+      className={cn(
+        'flex min-h-6 cursor-pointer items-start gap-2.5 text-sm text-ink coarse:min-h-11 coarse:items-center',
+        disabled && 'opacity-50',
+      )}
+    >
       <BaseCheckbox.Root
         checked={checked}
         onCheckedChange={onCheckedChange}
         disabled={disabled}
-        className="mt-0.5 grid size-[18px] shrink-0 place-items-center rounded-[5px] bg-surface shadow-[inset_0_0_0_1.5px_var(--line-strong)] transition-colors duration-150 data-checked:bg-accent data-checked:shadow-none coarse:mt-0"
+        className="mt-0.5 grid size-[18px] shrink-0 place-items-center rounded-[5px] bg-surface shadow-[inset_0_0_0_1.5px_var(--field-line)] transition-colors duration-150 data-checked:bg-accent data-checked:shadow-none coarse:mt-0"
       >
         <BaseCheckbox.Indicator className="text-accent-ink transition-transform duration-150 ease-out data-starting-style:scale-50">
           <Check weight="bold" className="size-3" />
@@ -175,6 +217,36 @@ export function Segmented<T extends string>({
   )
 }
 
+/**
+ * Mutually exclusive choices that a screen draws its own way: cards, pills, a
+ * list. The group is one tab stop and the arrow keys move and choose, which is
+ * what a screen reader tells people a radio group does. Pass `''` as the value
+ * while nothing is chosen.
+ */
+export function Choices<T extends string>({
+  label,
+  value,
+  onChange,
+  className,
+  children,
+}: {
+  /** Read to assistive tech; the group has no visible label of its own. */
+  label: string
+  value: T | ''
+  onChange: (value: T) => void
+  className?: string
+  children: ReactNode
+}) {
+  return (
+    <RadioGroup aria-label={label} value={value} onValueChange={(v) => onChange(v as T)} className={className}>
+      {children}
+    </RadioGroup>
+  )
+}
+
+/** One of the `Choices`. Style the chosen state with `data-checked:`. */
+export const Choice = Radio.Root
+
 /** Sections of one screen. The underline slides between tabs rather than jumping. */
 export function Tabs<T extends string>({
   value,
@@ -201,7 +273,9 @@ export function Tabs<T extends string>({
             >
               {t.label}
               {t.count !== undefined && t.count > 0 && (
-                <span className="num rounded-full bg-sunken px-1.5 text-[11px] leading-[18px] text-ink-2">{t.count}</span>
+                <span className="num rounded-full bg-sunken px-1.5 text-[11px] leading-[18px] text-ink-2">
+                  {t.count}
+                </span>
               )}
             </BaseTabs.Tab>
           ))}

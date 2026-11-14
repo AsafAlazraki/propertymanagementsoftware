@@ -11,14 +11,31 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { getRouteApi, Link } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import { ArrowRight, ArrowsClockwise, CheckCircle, FirstAid, HandPalm, Lightning, MagnifyingGlass, Sparkle, XCircle } from '@phosphor-icons/react'
+import {
+  ArrowRight,
+  ArrowsClockwise,
+  CheckCircle,
+  FirstAid,
+  HandPalm,
+  Lightning,
+  MagnifyingGlass,
+  Sparkle,
+  XCircle,
+} from '@phosphor-icons/react'
 import type { Incident, Playbook } from '@/domain/types'
 import type { Verdict } from '@/domain/rules/core'
 import { PROMOTE_AFTER_APPROVALS, approvalRate } from '@/domain/healing'
 import { plural } from '@/domain/rules/format'
 import { useMe, useStore } from '@/data/store'
 import { useToday } from '@/data/hooks'
-import { approveFix, demotePlaybook, keepPlaybookManual, promotePlaybook, rejectFix, runSweep } from '@/data/admin-mutations'
+import {
+  approveFix,
+  demotePlaybook,
+  keepPlaybookManual,
+  promotePlaybook,
+  rejectFix,
+  runSweep,
+} from '@/data/admin-mutations'
 import { Page } from '@/shell/common'
 import { Button } from '@/ui/Button'
 import { Field, Segmented, Textarea } from '@/ui/controls'
@@ -27,23 +44,20 @@ import { Refusal } from '@/ui/Law'
 import { cn } from '@/ui/cn'
 import { Flag, Head, Panel, Status, Tally } from './kit'
 import { INCIDENT_STATUS, PLAYBOOK_MODE, SEVERITY } from './labels'
-import { oneOf, text, whenExact, whenInline } from './format'
+import { type HealingSearch, type HealingShow as Show } from './search'
+import { whenExact, whenInline } from './format'
 
-const SHOWS = ['awaiting', 'automatic', 'decided', 'all'] as const
-type Show = (typeof SHOWS)[number]
-
-export interface HealingSearch {
-  incident?: string
-  show?: Show
-}
-
-export function healingSearch(s: Record<string, unknown>): HealingSearch {
-  return { incident: text(s.incident), show: oneOf(s.show, SHOWS) }
-}
 
 const route = getRouteApi('/admin/healing')
 
-const matchesShow = (i: Incident, show: Show) => (show === 'all' ? true : show === 'awaiting' ? i.status === 'awaiting_approval' : show === 'automatic' ? i.status === 'auto_healed' : i.status === 'approved' || i.status === 'rejected')
+const matchesShow = (i: Incident, show: Show) =>
+  show === 'all'
+    ? true
+    : show === 'awaiting'
+      ? i.status === 'awaiting_approval'
+      : show === 'automatic'
+        ? i.status === 'auto_healed'
+        : i.status === 'approved' || i.status === 'rejected'
 
 /* ───────────────────────────────── an incident ──────────────────────────── */
 
@@ -60,7 +74,17 @@ function Step({ n, label, children, last }: { n: number; label: string; children
   )
 }
 
-function IncidentCard({ incident, playbook, orgName, focused }: { incident: Incident; playbook?: Playbook; orgName?: string; focused: boolean }) {
+function IncidentCard({
+  incident,
+  playbook,
+  orgName,
+  focused,
+}: {
+  incident: Incident
+  playbook?: Playbook
+  orgName?: string
+  focused: boolean
+}) {
   const me = useMe()
   const day = useToday()
   const ref = useRef<HTMLElement>(null)
@@ -72,11 +96,23 @@ function IncidentCard({ incident, playbook, orgName, focused }: { incident: Inci
   const severity = SEVERITY[incident.severity]
 
   useEffect(() => {
-    if (focused) ref.current?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    // A scripted smooth scroll overrides the CSS reduced-motion rule, so the setting is read here.
+    if (focused)
+      ref.current?.scrollIntoView({
+        block: 'center',
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      })
   }, [focused])
 
   return (
-    <article ref={ref} aria-labelledby={`inc-${incident.id}`} className={cn('scroll-mt-20 rounded-lg bg-surface shadow-card', focused && 'outline-2 outline-offset-2 outline-accent')}>
+    <article
+      ref={ref}
+      aria-labelledby={`inc-${incident.id}`}
+      className={cn(
+        'scroll-mt-20 rounded-lg bg-surface shadow-card',
+        focused && 'outline-2 outline-offset-2 outline-accent',
+      )}
+    >
       <header className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1.5 px-4 pt-3.5">
         <div className="min-w-0">
           <h3 id={`inc-${incident.id}`} className="text-[14px] leading-snug font-semibold text-ink">
@@ -87,7 +123,11 @@ function IncidentCard({ incident, playbook, orgName, focused }: { incident: Inci
               {severity.label} severity
             </Flag>
             {incident.orgId && orgName && (
-              <Link to="/admin/orgs" search={{ org: incident.orgId }} className="rounded-sm underline decoration-line-strong underline-offset-2">
+              <Link
+                to="/admin/orgs"
+                search={{ org: incident.orgId }}
+                className="rounded-sm underline decoration-line-strong underline-offset-2"
+              >
                 {orgName}
               </Link>
             )}
@@ -160,10 +200,17 @@ function IncidentCard({ incident, playbook, orgName, focused }: { incident: Inci
                 >
                   Approve and apply
                 </Button>
-                <Button intent="ghost" size="sm" icon={<XCircle className="size-4" />} onClick={() => setRejecting(true)}>
+                <Button
+                  intent="ghost"
+                  size="sm"
+                  icon={<XCircle className="size-4" />}
+                  onClick={() => setRejecting(true)}
+                >
                   Reject
                 </Button>
-                {playbook && <span className="ml-auto text-xs text-ink-3">Raised by “{playbook.name}”, which asks first</span>}
+                {playbook && (
+                  <span className="ml-auto text-xs text-ink-3">Raised by “{playbook.name}”, which asks first</span>
+                )}
               </div>
             )}
           </footer>
@@ -177,7 +224,10 @@ function IncidentCard({ incident, playbook, orgName, focused }: { incident: Inci
           </p>
           {incident.resolvedAt && (
             <p className="mt-1 text-xs text-ink-3" title={whenExact(incident.resolvedAt)}>
-              {incident.resolvedBy === 'Playbook' ? `By the “${playbook?.name ?? 'playbook'}” playbook, with nobody asked` : `Decided by ${incident.resolvedBy ?? 'the team'}`} · {whenInline(incident.resolvedAt, day)}
+              {incident.resolvedBy === 'Playbook'
+                ? `By the “${playbook?.name ?? 'playbook'}” playbook, with nobody asked`
+                : `Decided by ${incident.resolvedBy ?? 'the team'}`}{' '}
+              · {whenInline(incident.resolvedAt, day)}
             </p>
           )}
         </div>
@@ -222,17 +272,27 @@ function PlaybookRow({ p }: { p: Playbook }) {
         ))}
         <div>
           <dt className="text-ink-3">Approval rate</dt>
-          <dd className="num text-[13px] font-semibold text-ink">{rate === null ? '–' : `${Math.round(rate * 100)}%`}</dd>
+          <dd className="num text-[13px] font-semibold text-ink">
+            {rate === null ? '–' : `${Math.round(rate * 100)}%`}
+          </dd>
         </div>
       </dl>
       {rate !== null && (
-        <div role="img" aria-label={`${p.approvals} of ${decided} decisions were approvals`} className="mt-1.5 flex h-1 gap-0.5 overflow-hidden rounded-full">
+        <div
+          role="img"
+          aria-label={`${p.approvals} of ${decided} decisions were approvals`}
+          className="mt-1.5 flex h-1 gap-0.5 overflow-hidden rounded-full"
+        >
           <span className="h-full rounded-full bg-ok" style={{ width: `${rate * 100}%` }} />
           {p.rejections > 0 && <span className="h-full flex-1 rounded-full bg-danger" />}
         </div>
       )}
       <p className="mt-1.5 text-[11px] text-ink-3">
-        {rate === null ? (p.mode === 'auto' ? 'Runs without asking, so there are no decisions to count.' : 'No decision has been made on it yet.') : `${plural(decided, 'decision')} by people so far.`}
+        {rate === null
+          ? p.mode === 'auto'
+            ? 'Runs without asking, so there are no decisions to count.'
+            : 'No decision has been made on it yet.'
+          : `${plural(decided, 'decision')} by people so far.`}
         {p.lastRunAt && <span title={whenExact(p.lastRunAt)}> Last ran {whenInline(p.lastRunAt, day)}.</span>}
       </p>
 
@@ -242,14 +302,19 @@ function PlaybookRow({ p }: { p: Playbook }) {
             <Sparkle weight="fill" className="mt-0.5 size-4 shrink-0" aria-hidden />
             Approved {p.approvals} times with no rejection. Make this automatic?
           </p>
-          <p className="mt-1 pl-6 text-xs leading-relaxed text-ink">It would then apply this fix without asking, and record each one here. You can put it back on approval at any time.</p>
+          <p className="mt-1 pl-6 text-xs leading-relaxed text-ink">
+            It would then apply this fix without asking, and record each one here. You can put it back on approval at
+            any time.
+          </p>
           <div className="mt-2.5 flex flex-wrap gap-2 pl-6">
             <Button
               intent="primary"
               size="sm"
               onClick={() => {
                 promotePlaybook(p.id, me.fullName)
-                toast.success(`“${p.name}” now runs automatically`, { description: 'Your decision is in the audit log.' })
+                toast.success(`“${p.name}” now runs automatically`, {
+                  description: 'Your decision is in the audit log.',
+                })
               }}
             >
               Make it automatic
@@ -259,7 +324,9 @@ function PlaybookRow({ p }: { p: Playbook }) {
               size="sm"
               onClick={() => {
                 keepPlaybookManual(p.id, me.fullName)
-                toast('Kept on approval', { description: `It will ask again after ${PROMOTE_AFTER_APPROVALS} more clean approvals.` })
+                toast('Kept on approval', {
+                  description: `It will ask again after ${PROMOTE_AFTER_APPROVALS} more clean approvals.`,
+                })
               }}
             >
               Keep asking
@@ -298,7 +365,8 @@ export function Healing() {
   const [lastSweep, setLastSweep] = useState<{ found: number; healed: number; awaiting: number } | null>(null)
   const awaiting = incidents.filter((i) => i.status === 'awaiting_approval').length
   const show: Show = search.show ?? (awaiting > 0 ? 'awaiting' : 'all')
-  const set = (patch: Partial<HealingSearch>) => void navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true })
+  const set = (patch: Partial<HealingSearch>) =>
+    void navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true })
 
   const orgName = useMemo(() => new Map(orgs.map((o) => [o.id, o.name])), [orgs])
   const playbookOf = useMemo(() => new Map(playbooks.map((p) => [p.id, p])), [playbooks])
@@ -307,10 +375,23 @@ export function Healing() {
       incidents
         // A deep link always shows its incident, whatever the filter says.
         .filter((i) => matchesShow(i, show) || i.id === search.incident)
-        .sort((a, b) => Number(b.status === 'awaiting_approval') - Number(a.status === 'awaiting_approval') || b.detectedAt.localeCompare(a.detectedAt)),
+        .sort(
+          (a, b) =>
+            Number(b.status === 'awaiting_approval') - Number(a.status === 'awaiting_approval') ||
+            b.detectedAt.localeCompare(a.detectedAt),
+        ),
     [incidents, show, search.incident],
   )
-  const ordered = useMemo(() => [...playbooks].sort((a, b) => Number(b.promotionSuggested) - Number(a.promotionSuggested) || Number(a.mode === 'auto') - Number(b.mode === 'auto') || a.name.localeCompare(b.name)), [playbooks])
+  const ordered = useMemo(
+    () =>
+      [...playbooks].sort(
+        (a, b) =>
+          Number(b.promotionSuggested) - Number(a.promotionSuggested) ||
+          Number(a.mode === 'auto') - Number(b.mode === 'auto') ||
+          a.name.localeCompare(b.name),
+      ),
+    [playbooks],
+  )
   const count = (s: Show) => incidents.filter((i) => matchesShow(i, s)).length
 
   const sweep = () => {
@@ -320,8 +401,12 @@ export function Healing() {
       const result = runSweep(me.fullName)
       setLastSweep(result)
       setSweeping(false)
-      if (result.found === 0) toast('Sweep finished: nothing new', { description: 'Every check ran. No fault that is not already listed.' })
-      else toast.success(`Sweep finished: ${plural(result.found, 'new fault')}`, { description: `${result.healed} fixed automatically, ${result.awaiting} waiting for you.` })
+      if (result.found === 0)
+        toast('Sweep finished: nothing new', { description: 'Every check ran. No fault that is not already listed.' })
+      else
+        toast.success(`Sweep finished: ${plural(result.found, 'new fault')}`, {
+          description: `${result.healed} fixed automatically, ${result.awaiting} waiting for you.`,
+        })
     }, 350)
   }
 
@@ -331,11 +416,19 @@ export function Healing() {
         title="Self-healing"
         lede={
           <>
-            The engine checks every record for faults it knows how to mend. Its learning is a tally, and it is all on this page: each approval and rejection is counted on the playbook that proposed the fix, and after {PROMOTE_AFTER_APPROVALS} approvals with no rejection it suggests running that fix without asking. A person accepts or declines the suggestion; nothing promotes itself.
+            The engine checks every record for faults it knows how to mend. Its learning is a tally, and it is all on
+            this page: each approval and rejection is counted on the playbook that proposed the fix, and after{' '}
+            {PROMOTE_AFTER_APPROVALS} approvals with no rejection it suggests running that fix without asking. A person
+            accepts or declines the suggestion; nothing promotes itself.
           </>
         }
         actions={
-          <Button intent="primary" loading={sweeping} icon={<MagnifyingGlass weight="bold" className="size-4" />} onClick={sweep}>
+          <Button
+            intent="primary"
+            loading={sweeping}
+            icon={<MagnifyingGlass weight="bold" className="size-4" />}
+            onClick={sweep}
+          >
             Run a sweep now
           </Button>
         }
@@ -344,7 +437,9 @@ export function Healing() {
       {lastSweep && (
         <p role="status" className="mb-4 flex items-center gap-2 rounded-md bg-sunken px-3 py-2 text-[13px] text-ink-2">
           <ArrowsClockwise className="size-4 shrink-0 text-ink-3" aria-hidden />
-          {lastSweep.found === 0 ? 'The sweep you just ran found nothing that was not already listed.' : `The sweep you just ran found ${plural(lastSweep.found, 'new fault')}: ${lastSweep.healed} fixed automatically, ${lastSweep.awaiting} waiting for approval.`}
+          {lastSweep.found === 0
+            ? 'The sweep you just ran found nothing that was not already listed.'
+            : `The sweep you just ran found ${plural(lastSweep.found, 'new fault')}: ${lastSweep.healed} fixed automatically, ${lastSweep.awaiting} waiting for approval.`}
         </p>
       )}
 
@@ -370,26 +465,56 @@ export function Healing() {
           {rows.length === 0 ? (
             <div className="rounded-lg bg-surface shadow-card">
               {incidents.length === 0 ? (
-                <Empty icon={<FirstAid />} title="No faults found yet" body="When a sweep finds something wrong in the records, it appears here with what it saw and what it did or wants to do." action={<Button onClick={sweep}>Run a sweep now</Button>} />
+                <Empty
+                  icon={<FirstAid />}
+                  title="No faults found yet"
+                  body="When a sweep finds something wrong in the records, it appears here with what it saw and what it did or wants to do."
+                  action={<Button onClick={sweep}>Run a sweep now</Button>}
+                />
               ) : show === 'awaiting' ? (
-                <Empty icon={<CheckCircle weight="fill" />} title="Nothing is waiting for approval" body="Every fix the engine proposed has been decided. Run a sweep to check the records again." action={<Button onClick={() => set({ show: 'all' })}>Show every incident</Button>} />
+                <Empty
+                  icon={<CheckCircle weight="fill" />}
+                  title="Nothing is waiting for approval"
+                  body="Every fix the engine proposed has been decided. Run a sweep to check the records again."
+                  action={<Button onClick={() => set({ show: 'all' })}>Show every incident</Button>}
+                />
               ) : (
-                <Empty icon={<FirstAid />} title="No incident of this kind" body="Nothing in the history fits this filter." action={<Button onClick={() => set({ show: 'all' })}>Show every incident</Button>} />
+                <Empty
+                  icon={<FirstAid />}
+                  title="No incident of this kind"
+                  body="Nothing in the history fits this filter."
+                  action={<Button onClick={() => set({ show: 'all' })}>Show every incident</Button>}
+                />
               )}
             </div>
           ) : (
             <div className="grid gap-3">
               {rows.map((i) => (
-                <IncidentCard key={i.id} incident={i} playbook={playbookOf.get(i.playbookId)} orgName={i.orgId ? orgName.get(i.orgId) : undefined} focused={i.id === search.incident} />
+                <IncidentCard
+                  key={i.id}
+                  incident={i}
+                  playbook={playbookOf.get(i.playbookId)}
+                  orgName={i.orgId ? orgName.get(i.orgId) : undefined}
+                  focused={i.id === search.incident}
+                />
               ))}
             </div>
           )}
           <Tally shown={rows.length} total={incidents.length} noun="incident" />
         </section>
 
-        <Panel title="Playbooks" note={`${playbooks.filter((p) => p.mode === 'auto').length} run automatically; ${playbooks.filter((p) => p.mode === 'approval').length} ask a person first.`} bodyClassName="" className="xl:sticky xl:top-6">
+        <Panel
+          title="Playbooks"
+          note={`${playbooks.filter((p) => p.mode === 'auto').length} run automatically; ${playbooks.filter((p) => p.mode === 'approval').length} ask a person first.`}
+          bodyClassName=""
+          className="xl:sticky xl:top-6"
+        >
           {ordered.length === 0 ? (
-            <Empty icon={<FirstAid />} title="No playbooks" body="A playbook pairs one kind of fault with the fix for it. None is installed." />
+            <Empty
+              icon={<FirstAid />}
+              title="No playbooks"
+              body="A playbook pairs one kind of fault with the fix for it. None is installed."
+            />
           ) : (
             <ul className="divide-y divide-line xl:max-h-[calc(100dvh-8rem)] xl:overflow-y-auto xl:overscroll-contain">
               {ordered.map((p) => (

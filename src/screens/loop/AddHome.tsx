@@ -20,8 +20,8 @@ import { bondCaps, bondLodgement, checkBond } from '@/domain/rules/tenancy'
 import { SUBURBS } from '@/domain/seed/world'
 import { useMe, useOrgRows } from '@/data/store'
 import { usePack, useToday } from '@/data/hooks'
-import { calendarFor } from '@/domain/rules/core'
-import { regionOf } from '@/domain/jurisdictions'
+import { calendarFor, type Verdict } from '@/domain/rules/core'
+import { regionOf, regionalHolidaysLoaded } from '@/domain/jurisdictions'
 import { addHome } from '@/data/home-mutations'
 import { Button } from '@/ui/Button'
 import { Field, Input, Segmented, Select } from '@/ui/controls'
@@ -71,7 +71,7 @@ export function AddHome({ open, onClose }: { open: boolean; onClose: () => void 
   const fileRef = useRef<HTMLInputElement>(null)
   const [step, setStep] = useState(0)
   const [tried, setTried] = useState(false)
-  const [reading, setReading] = useState<'idle' | 'busy' | 'none' | 'failed'>('idle')
+  const [reading, setReading] = useState<'idle' | 'busy' | 'none' | 'failed' | 'offline'>('idle')
   const [facts, setFacts] = useState<AgreementFacts>({})
 
   const [line1, setLine1] = useState('')
@@ -105,6 +105,11 @@ export function AddHome({ open, onClose }: { open: boolean; onClose: () => void 
     .filter(Boolean)
   const bondCheck = weeklyRent > 0 ? checkBond(pack, weeklyRent, bondAmount) : { ok: true as const }
   const cal = calendarFor(pack, regionOf(city))
+  // Only one region's anniversary day is loaded. A town outside it is still accepted, and told so.
+  const noLocalDay = city.trim() !== '' && !regionalHolidaysLoaded(pack, city)
+  const localDaysHeld = Object.values(pack.regionalHolidays)
+    .map((r) => r.label)
+    .join(', ')
   const lodgement =
     let_ === 'let' && bondAmount > 0 && start && !bondRef.trim()
       ? bondLodgement(pack, cal, start, undefined, day)
@@ -153,7 +158,9 @@ export function AddHome({ open, onClose }: { open: boolean; onClose: () => void 
       setLet('let')
       setReading('idle')
     } catch {
-      setReading('failed')
+      // The PDF reader is fetched the first time it is used. With no connection that fetch
+      // is what fails, so the file is not blamed for it.
+      setReading(navigator.onLine ? 'failed' : 'offline')
     }
   }
 
@@ -164,6 +171,17 @@ export function AddHome({ open, onClose }: { open: boolean; onClose: () => void 
     setTried(false)
     setStep((s) => s + 1)
   }
+
+  // A home is held by a legal owner. Without one the home cannot be saved, and the sheet says so
+  // at the first step and beside the button that would otherwise do nothing.
+  const noOwner: Verdict | null =
+    me.orgId && owner
+      ? null
+      : {
+          ok: false,
+          reason: 'This organisation has no legal owner on record, and every home has to be held by one.',
+          fix: 'This prototype cannot add an owner yet, so a home cannot be added here. Tell the Loop team from Settings, under Feedback.',
+        }
 
   const add = () => {
     if (!me.orgId || !owner) return
@@ -214,6 +232,10 @@ export function AddHome({ open, onClose }: { open: boolean; onClose: () => void 
       title={step === 0 ? 'Add a home' : STEPS[step]}
     >
       <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
+        {/* Moving between steps changes the heading without moving focus, so it is also said aloud. */}
+        <p aria-live="polite" className="sr-only">
+          Step {step + 1} of {STEPS.length}: {STEPS[step]}
+        </p>
         <ol aria-label="Steps" className="grid grid-cols-3 gap-1.5">
           {STEPS.map((s, i) => (
             <li key={s} aria-current={i === step ? 'step' : undefined}>
@@ -227,6 +249,7 @@ export function AddHome({ open, onClose }: { open: boolean; onClose: () => void 
 
         {step === 0 && (
           <>
+            {noOwner && <Refusal verdict={noOwner} />}
             <div className="rounded-lg border border-dashed border-line-strong p-4">
               <div className="flex flex-wrap items-center gap-3">
                 <span className="grid size-10 shrink-0 place-items-center rounded-full bg-accent-soft text-accent-text">
@@ -268,6 +291,12 @@ export function AddHome({ open, onClose }: { open: boolean; onClose: () => void 
                 {reading === 'failed' && (
                   <span className="text-danger-text">
                     That file could not be opened as a PDF. Try another, or fill it in by hand.
+                  </span>
+                )}
+                {reading === 'offline' && (
+                  <span className="text-danger-text">
+                    That file could not be read. This device is offline, and reading a PDF needs a connection the first
+                    time. Fill it in by hand below, or choose the file again when you are back online.
                   </span>
                 )}
               </p>
@@ -313,8 +342,25 @@ export function AddHome({ open, onClose }: { open: boolean; onClose: () => void 
                 ))}
               </datalist>
               <Field label="Town or city">
-                {(p) => <Input {...p} value={city} onChange={(e) => setCity(e.target.value)} />}
+                {(p) => (
+                  <Input
+                    {...p}
+                    aria-describedby={noLocalDay ? 'add-home-local-day' : undefined}
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                  />
+                )}
               </Field>
+              {noLocalDay && (
+                <p
+                  id="add-home-local-day"
+                  className="-mt-1.5 text-xs leading-relaxed text-ink-3 sm:order-last sm:col-span-3"
+                >
+                  Loop does not hold the local anniversary day for this town yet
+                  {localDaysHeld ? ` (so far: ${localDaysHeld})` : ''}. Working-day deadlines for this home will be
+                  counted without it, so check them with {pack.regulator.name}.
+                </p>
+              )}
               <Field label="Postcode" optional>
                 {(p) => (
                   <Input
@@ -528,6 +574,8 @@ export function AddHome({ open, onClose }: { open: boolean; onClose: () => void 
                     {lodgement.status === 'overdue'
                       ? 'It should have been lodged already. Lodge it today; Loop will put it at the top of your list.'
                       : `${lodgement.workingDaysLeft} working days left, counted from the day the tenancy began. Loop will keep count.`}
+                    {noLocalDay &&
+                      ' The count is on the national calendar only: Loop does not hold this town’s anniversary day yet.'}
                     <span className="mt-2 block">
                       <Why rule="bond.lodgement_deadline" />
                     </span>
@@ -596,6 +644,7 @@ export function AddHome({ open, onClose }: { open: boolean; onClose: () => void 
           </>
         )}
 
+        {step === 2 && noOwner && <Refusal verdict={noOwner} />}
         <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
           {step > 0 ? (
             <Button intent="ghost" icon={<ArrowLeft className="size-4" />} onClick={() => setStep((s) => s - 1)}>

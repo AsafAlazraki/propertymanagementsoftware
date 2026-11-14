@@ -10,8 +10,9 @@
  * the right palette. `[data-brand]` on any element also works, for the welcome
  * screen that shows two brands side by side.
  *
- * Every text/background pair below is checked for WCAG AA by
- * `src/styles/tokens.test.ts`.
+ * `src/styles/tokens.test.ts` resolves these blocks for each brand and theme and
+ * checks the pairs the kit puts together: text at 4.5:1, control boundaries and
+ * focus rings at 3:1. The few pairs known to fall short are named in that file.
  */
 
 /*
@@ -50,6 +51,8 @@
   --surface-2: oklch(0.984 0.004 250);
   --line: oklch(0.915 0.008 250);
   --line-strong: oklch(0.84 0.014 250);
+  /* The edge of a field, checkbox or radio. 3:1 against every surface it sits on (WCAG 1.4.11). */
+  --field-line: oklch(0.6 0.02 250);
   --ink: oklch(0.225 0.035 258);
   --ink-2: oklch(0.43 0.03 258);
   --ink-3: oklch(0.52 0.026 258);
@@ -69,9 +72,13 @@
   --warn: oklch(0.74 0.15 75);
   --warn-soft: oklch(0.96 0.05 88);
   --warn-text: oklch(0.45 0.1 62);
+  /* Text on a solid --warn fill. Amber is light in both themes, so this is dark in both. */
+  --warn-ink: oklch(0.25 0.06 70);
   --danger: oklch(0.55 0.2 25);
   --danger-soft: oklch(0.955 0.03 20);
   --danger-text: oklch(0.47 0.18 25);
+  /* Text on a solid --danger fill. */
+  --danger-ink: oklch(1 0 0);
   --info: oklch(0.55 0.15 250);
   --info-soft: oklch(0.955 0.025 250);
   --info-text: oklch(0.45 0.14 255);
@@ -97,6 +104,7 @@
   --surface-2: oklch(0.238 0.03 260);
   --line: oklch(0.285 0.03 260);
   --line-strong: oklch(0.37 0.03 260);
+  --field-line: oklch(0.58 0.03 260);
   --ink: oklch(0.96 0.006 250);
   --ink-2: oklch(0.79 0.02 255);
   --ink-3: oklch(0.68 0.025 255);
@@ -119,6 +127,7 @@
   --danger: oklch(0.68 0.19 25);
   --danger-soft: oklch(0.29 0.075 25);
   --danger-text: oklch(0.8 0.13 25);
+  --danger-ink: oklch(0.2 0.06 25);
   --info: oklch(0.7 0.14 250);
   --info-soft: oklch(0.28 0.055 255);
   --info-text: oklch(0.8 0.11 250);
@@ -150,6 +159,7 @@
   --surface-2: oklch(0.974 0.015 82);
   --line: oklch(0.905 0.022 78);
   --line-strong: oklch(0.83 0.032 72);
+  --field-line: oklch(0.6 0.032 72);
   --ink: oklch(0.24 0.045 268);
   --ink-2: oklch(0.43 0.036 268);
   --ink-3: oklch(0.52 0.03 268);
@@ -187,6 +197,7 @@
   --surface-2: oklch(0.262 0.028 285);
   --line: oklch(0.31 0.03 285);
   --line-strong: oklch(0.4 0.032 285);
+  --field-line: oklch(0.58 0.032 285);
   --ink: oklch(0.965 0.012 82);
   --ink-2: oklch(0.8 0.02 285);
   --ink-3: oklch(0.69 0.025 285);
@@ -203,6 +214,13 @@
   --ok: oklch(0.74 0.15 158);
   --ok-soft: oklch(0.28 0.055 158);
   --ok-text: oklch(0.83 0.14 158);
+
+  /* Repeated from the light block: the dark root rule is more specific and would give Pool Loop's navy. */
+  --nav: var(--surface);
+  --nav-2: var(--surface-2);
+  --nav-line: var(--line);
+  --nav-ink: var(--ink);
+  --nav-ink-2: var(--ink-3);
 
   --scrim: oklch(0.08 0.02 285 / 0.62);
   --sh-card: 0 1px 2px oklch(0 0 0 / 0.3), 0 0 0 1px oklch(1 0 0 / 0.04);
@@ -223,6 +241,7 @@
   --surface-2: oklch(0.982 0.003 285);
   --line: oklch(0.912 0.005 285);
   --line-strong: oklch(0.83 0.008 285);
+  --field-line: oklch(0.6 0.008 285);
   --ink: oklch(0.2 0.012 285);
   --ink-2: oklch(0.42 0.014 285);
   --ink-3: oklch(0.52 0.014 285);
@@ -251,6 +270,7 @@
   --surface-2: oklch(0.222 0.011 285);
   --line: oklch(0.27 0.012 285);
   --line-strong: oklch(0.36 0.014 285);
+  --field-line: oklch(0.58 0.014 285);
   --ink: oklch(0.96 0.004 285);
   --ink-2: oklch(0.79 0.01 285);
   --ink-3: oklch(0.68 0.012 285);

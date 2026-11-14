@@ -15,7 +15,7 @@ import type { RuleChange, User } from '@/domain/types'
 import type { RuleKey } from '@/domain/jurisdictions/types'
 import type { Verdict } from '@/domain/rules/core'
 import { PACKS, resolvePack } from '@/domain/jurisdictions'
-import { approversOf, canApprove, canPublish, formatRuleValue, guardrails, impactAnalysis, inForce, isCalendarDate, latestOverriding, needsTwoReviewers, nextVersion, sameValue, sourceState, type FeedEvent, type ReviewVerdict } from '@/domain/regwatch'
+import { approversOf, canApprove, canPublish, comesIntoForce, formatRuleValue, guardrails, impactAnalysis, inForce, isCalendarDate, latestOverriding, needsTwoReviewers, nextVersion, sameValue, sourceState, type FeedEvent, type ReviewVerdict } from '@/domain/regwatch'
 import { fmtDate } from '@/domain/rules/calendar'
 import { plural } from '@/domain/rules/format'
 import { useMe, useStore } from '@/data/store'
@@ -53,6 +53,15 @@ export function Review({ change, event, back }: { change: RuleChange; event?: Fe
   const approve = canApprove(change, rails, reviewer.fullName)
   const publish = canPublish(change, rails)
   const live = inForce(change, pack)
+  const waitingUntil = comesIntoForce(change, pack)
+  // Publishing ahead of a commencement date holds the value until that day.
+  const commencesLater = change.patches
+    .map((p) => p.effectiveFrom)
+    .filter((d) => isCalendarDate(d) && d > day)
+    .sort()
+    .pop()
+  const longDate = (d: string) => fmtDate(d, { weekday: false, year: 'always' })
+  const one = change.patches.length === 1
   const drill = isPracticeDrill(change)
   const open = change.status === 'pending_review' || change.status === 'needs_second_review'
   const status = CHANGE_STATUS[change.status]
@@ -315,7 +324,7 @@ export function Review({ change, event, back }: { change: RuleChange; event?: Fe
               ))}
               {impact.scenarios > 0 && impact.changed === 0 && <Callout tone="warn">The patch changes no calculator answer. If the summary says it should, the proposal is wrong somewhere: check the rule key and the value.</Callout>}
               <p className="text-xs leading-relaxed text-ink-3">
-                Fixture dates are chosen where date arithmetic most often goes wrong: after the email cut-off, by post, across Christmas and at a month end. The prototype applies a published value at once; in production a value with a future commencement date ships ahead and switches on that day.
+                Fixture dates are chosen where date arithmetic most often goes wrong: after the email cut-off, by post, across Christmas and at a month end. The answers on the right are what the calculators return once the value is in force. A value published ahead of its commencement date is held until that day, then switches by itself.
               </p>
             </Panel>
           )}
@@ -454,8 +463,16 @@ export function Review({ change, event, back }: { change: RuleChange; event?: Fe
                 {publish.ok ? (
                   <>
                     <div className="rounded-md bg-accent-soft p-3 text-[13px] leading-relaxed text-ink">
-                      Publishing creates <span className="font-mono text-[12px] font-medium">{code} {next}</span>, a new pack version whose overrides carry this patch. From that moment every calculator in Loop and Pool that reads {change.patches.length === 1 ? 'this rule' : 'these rules'} returns the new {change.patches.length === 1 ? 'value' : 'values'}, with no deploy.
-                      {drill && <span className="mt-1.5 block font-medium text-warn-text">This is the practice drill. Publishing it really does change the tenant notice period across this demo, which is the point of the rehearsal. Roll it back afterwards.</span>}
+                      Publishing creates <span className="font-mono text-[12px] font-medium">{code} {next}</span>, a new pack version whose overrides carry this patch. {commencesLater
+                        ? `The new ${one ? 'value is' : 'values are'} held until ${longDate(commencesLater)}, the commencement date. Until that day every calculator in Loop and Pool keeps the law as it is, and ${one ? 'the rule shows' : 'the rules show'} what is coming. On the day ${one ? 'it switches' : 'they switch'} by ${one ? 'itself' : 'themselves'}, with no deploy.`
+                        : `From that moment every calculator in Loop and Pool that reads ${one ? 'this rule' : 'these rules'} returns the new ${one ? 'value' : 'values'}, with no deploy.`}
+                      {drill && (
+                        <span className="mt-1.5 block font-medium text-warn-text">
+                          {commencesLater
+                            ? 'This is the practice drill. Publishing it really does schedule a change to the tenant notice period across this demo. Roll it back afterwards.'
+                            : 'This is the practice drill. Publishing it really does change the tenant notice period across this demo, which is the point of the rehearsal. Roll it back afterwards.'}
+                        </span>
+                      )}
                     </div>
                     <Button
                       intent="primary"
@@ -464,7 +481,11 @@ export function Review({ change, event, back }: { change: RuleChange; event?: Fe
                       onClick={() => {
                         const v = publishChange(change.id, reviewer.fullName)
                         if (!v.ok) return setRefusal(v)
-                        toast.success(`Published as ${code} ${v.version}`, { description: 'Every calculator that reads this rule now returns the new value. Open any notice builder in Loop to see it.' })
+                        toast.success(`Published as ${code} ${v.version}`, {
+                          description: commencesLater
+                            ? `Held until ${longDate(commencesLater)}. Until then the calculators keep today’s value, and the rule says what is coming.`
+                            : 'Every calculator that reads this rule now returns the new value. Open any notice builder in Loop to see it.',
+                        })
                       }}
                     >
                       Publish as {next}
@@ -483,6 +504,10 @@ export function Review({ change, event, back }: { change: RuleChange; event?: Fe
                   <Callout tone="ok" icon={<CheckCircle weight="fill" />} title={`In force since ${code} ${change.publishedInVersion ?? pack.version}`}>
                     Every calculator that reads {change.patches.length === 1 ? 'this rule' : 'these rules'} returns the new {change.patches.length === 1 ? 'value' : 'values'}.
                     {drill && <span className="mt-1 block text-warn-text">This was the practice drill: the live tenant notice period in this demo is now the practice value. Roll it back when the rehearsal is over.</span>}
+                  </Callout>
+                ) : waitingUntil ? (
+                  <Callout tone="accent" title={`Published in ${code} ${change.publishedInVersion ?? pack.version}. In force from ${longDate(waitingUntil)}`}>
+                    Until that day every calculator keeps the law as it is, and {one ? 'the rule shows' : 'the rules show'} what is coming. Nothing more needs pressing: {one ? 'it switches' : 'they switch'} on the day.
                   </Callout>
                 ) : (
                   <Callout tone="neutral" title={`Published in ${code} ${change.publishedInVersion ?? 'an earlier version'}`}>

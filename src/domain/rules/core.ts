@@ -71,6 +71,62 @@ export function durationText(d: Duration): string {
   return `${d.n} ${unit}`
 }
 
+/**
+ * A hyphen followed by a word joiner (U+2060), which has no width and no glyph.
+ * A browser may break a line after a plain hyphen, and on a phone that left
+ * "14-" at the end of one line and "day notice" at the start of the next.
+ */
+const HYPHEN = '-\u2060'
+
+/** `14-day`, `23-working-day`, `48-hour`: a duration standing in front of a noun, kept in one piece. */
+export function durationAdjective(d: Duration): string {
+  return `${d.n}${HYPHEN}${d.unit === 'working_days' ? `working${HYPHEN}day` : d.unit.slice(0, -1)}`
+}
+
+/** `a 14-day`, `an 80-day`: the same, with the article its number takes when said aloud. */
+export function aDuration(d: Duration): string {
+  const vowel = d.n === 11 || d.n === 18 || String(d.n).startsWith('8')
+  return `${vowel ? 'an' : 'a'} ${durationAdjective(d)}`
+}
+
+function isDuration(v: unknown): v is Duration {
+  return typeof v === 'object' && v !== null && typeof (v as Duration).n === 'number' && typeof (v as Duration).unit === 'string'
+}
+
+/** Any rule value as words: for a diff line, a comparison cell, or a note that a value has changed. */
+export function ruleValueText(ruleKey: string, value: unknown): string {
+  if (value === null || value === undefined) return 'No rule'
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No'
+  if (typeof value === 'number') {
+    if (ruleKey.endsWith('_weeks')) return `${value} ${value === 1 ? 'week' : 'weeks'} of rent`
+    if (ruleKey.endsWith('_months')) return `${value} ${value === 1 ? 'month' : 'months'}`
+    return String(value)
+  }
+  if (isDuration(value)) return durationText(value)
+  if (typeof value === 'object') {
+    const v = value as Record<string, unknown>
+    if (isDuration(v.earliest) && isDuration(v.latest)) return `${durationText(v.earliest)} to ${durationText(v.latest)} before the end`
+    if (typeof v.occasions === 'number' && isDuration(v.lateBy) && isDuration(v.within)) return `${v.occasions} times, each ${durationText(v.lateBy)} late, within ${durationText(v.within)}`
+    if (typeof v.from === 'number' && typeof v.to === 'number') return `${String(v.from).padStart(2, '0')}:00 to ${String(v.to).padStart(2, '0')}:00`
+  }
+  return JSON.stringify(value)
+}
+
+function stable(value: unknown): string {
+  if (typeof value !== 'object' || value === null) return JSON.stringify(value ?? null)
+  if (Array.isArray(value)) return `[${value.map(stable).join(',')}]`
+  const o = value as Record<string, unknown>
+  return `{${Object.keys(o)
+    .sort()
+    .map((k) => `${k}:${stable(o[k])}`)
+    .join(',')}}`
+}
+
+/** Deep equality for rule values, which are plain data. */
+export function sameValue(a: unknown, b: unknown): boolean {
+  return stable(a) === stable(b)
+}
+
 export interface Served {
   /** The day the law treats the notice as received. Notice periods start the day after. */
   received: ISODate

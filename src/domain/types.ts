@@ -319,7 +319,13 @@ export interface Ticket {
   status: TicketStatus
   mode: 'auto_dispatch' | 'quote_first'
   providerId?: ID
-  quote?: { amount: number; lines: { label: string; amount: number }[]; submittedAt: ISODateTime }
+  quote?: {
+    amount: number
+    lines: { label: string; amount: number }[]
+    submittedAt: ISODateTime
+    /** Set when the quote is over the owner's second-approval line and one owner has said yes. */
+    firstApproval?: { by: string; at: ISODateTime }
+  }
   scheduledFor?: ISODateTime
   entryNoticeServedAt?: ISODateTime
   keyCode?: { code: string; validFrom: ISODateTime; validTo: ISODateTime; depot: string }
@@ -621,6 +627,12 @@ export interface RulePackVersion {
   note: string
   /** ruleKey → value overrides applied on top of the shipped pack. */
   overrides: Record<string, unknown>
+  /**
+   * ruleKey → the date its new value comes into force. A value published ahead
+   * of that date is held until then: the calculators keep returning the old
+   * value, and the rule shows what is coming. No entry means "from publication".
+   */
+  commences?: Record<string, ISODate>
   changeIds: ID[]
 }
 

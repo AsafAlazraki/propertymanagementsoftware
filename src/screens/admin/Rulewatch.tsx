@@ -12,7 +12,6 @@
  */
 import { useMemo } from 'react'
 import { getRouteApi } from '@tanstack/react-router'
-import type { JurisdictionCode } from '@/domain/types'
 import { PACKS, PACK_ORDER, resolvePack } from '@/domain/jurisdictions'
 import { watchSummary } from '@/domain/regwatch'
 import { plural } from '@/domain/rules/format'
@@ -23,31 +22,15 @@ import { Button } from '@/ui/Button'
 import { TabPanel, Tabs } from '@/ui/controls'
 import { Callout } from '@/ui/display'
 import { Head, Simulated } from './kit'
-import { oneOf, text, whenInline } from './format'
+import { whenInline } from './format'
 import { Changes } from './rules/Changes'
-import { Packs, PACK_VIEWS, type PackView } from './rules/Packs'
+import { Packs } from './rules/Packs'
 import { Review } from './rules/Review'
-import { Sources, SOURCE_STATES, type SourceFilter } from './rules/Sources'
+import { Sources } from './rules/Sources'
 import { Versions } from './rules/Versions'
 import { useRegwatchFeed } from './rules/feed'
+import { type RulesSearch, type Tab } from './search'
 
-const TABS = ['changes', 'sources', 'packs', 'versions'] as const
-type Tab = (typeof TABS)[number]
-
-export interface RulesSearch {
-  tab?: Tab
-  /** The change under review. While set, the review replaces the tabs. */
-  change?: string
-  /** A jurisdiction: the pack being browsed, or the filter on the sources. */
-  j?: JurisdictionCode
-  view?: PackView
-  src?: SourceFilter
-  q?: string
-}
-
-export function rulesSearch(s: Record<string, unknown>): RulesSearch {
-  return { tab: oneOf(s.tab, TABS), change: text(s.change), j: oneOf(s.j, PACK_ORDER), view: oneOf(s.view, PACK_VIEWS), src: oneOf(s.src, SOURCE_STATES), q: text(s.q) }
-}
 
 const route = getRouteApi('/admin/rules')
 

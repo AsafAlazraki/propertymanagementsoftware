@@ -58,7 +58,7 @@ export const ORG_STATUS: Record<OrgStatus, Lamp> = {
   suspended: { label: 'Suspended', tone: 'danger', icon: Prohibit },
   churned: { label: 'Left', tone: 'neutral', icon: MinusCircle },
 }
-export const ORG_STATUS_ORDER: OrgStatus[] = ['active', 'trialing', 'past_due', 'suspended', 'churned']
+export { ORG_STATUS_ORDER, TASK_KINDS } from './search'
 
 export const ORG_SOURCE: Record<OrgSource, string> = {
   founding_migration: 'Founding migration',
@@ -89,7 +89,6 @@ export const TASK_KIND: Record<AdminTaskKind, { label: string; icon: Icon }> = {
   feedback_followup: { label: 'Follow-up', icon: ChatCircleDots },
   billing_issue: { label: 'Billing', icon: CreditCard },
 }
-export const TASK_KINDS = Object.keys(TASK_KIND) as AdminTaskKind[]
 
 export const PRIORITY: Record<AdminTask['priority'], Lamp & { word: string }> = {
   p1: { label: 'P1', word: 'Today', tone: 'danger', icon: CaretDoubleUp },

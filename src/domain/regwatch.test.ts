@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { RuleChange, RulePatch } from './types'
 import { buildSeed } from './seed'
-import { resolvePack } from './jurisdictions'
+import { PACKS, resolvePack } from './jurisdictions'
 import { calendarFor } from './rules/core'
 import { diffDays } from './rules/calendar'
 import { bondCaps, planTermination } from './rules/tenancy'
@@ -10,6 +10,7 @@ import {
   approversOf,
   buildRollback,
   buildVersion,
+  comesIntoForce,
   canApprove,
   canPublish,
   dateAppears,
@@ -184,7 +185,7 @@ describe('publishing through the pack registry', () => {
     expect(version.overrides).toEqual({ 'termination.tenant_periodic_notice': { n: 28, unit: 'days' } })
 
     const published = [...db.packVersions, version]
-    const after = resolvePack('NZ', published)
+    const after = resolvePack('NZ', published, TODAY)
     expect(after.version).toBe('2026.11.1')
     expect(after.rules['termination.tenant_periodic_notice'].value).toEqual({ n: 28, unit: 'days' })
     expect(diffDays(before, tenantNotice(after))).toBe(7)
@@ -195,7 +196,7 @@ describe('publishing through the pack registry', () => {
     expect(latestOverriding(published, 'NZ')?.id).toBe(version.id)
     const rollback = buildRollback(version, published, 'Riley Chen', '2026-11-14T05:00:00.000Z', TODAY)!
     expect(rollback.version).toBe('2026.11.2')
-    const restored = resolvePack('NZ', [...published, rollback])
+    const restored = resolvePack('NZ', [...published, rollback], TODAY)
     expect(restored.rules['termination.tenant_periodic_notice'].value).toEqual({ n: 21, unit: 'days' })
     expect(tenantNotice(restored)).toBe(before)
     expect(inForce(drill, restored)).toBe(false)
@@ -210,6 +211,47 @@ describe('publishing through the pack registry', () => {
     expect(nextVersion(db.packVersions, 'NZ', '2026-11-14')).toBe('2026.11.1')
     expect(nextVersion(db.packVersions, 'NZ', '2026-12-02')).toBe('2026.12.0')
     expect(nextVersion([], 'AU-WA', '2027-01-09')).toBe('2027.01.0')
+  })
+
+  it('holds a value published ahead of its commencement date, and says what is coming', () => {
+    const key = 'termination.tenant_periodic_notice'
+    const early = withPatch({ effectiveFrom: '2027-07-01' }, { id: 'rc_early' })
+    const version = buildVersion(early, db.packVersions, 'Mere Parata', '2026-11-14T04:00:00.000Z', TODAY)
+    expect(version.commences).toEqual({ [key]: '2027-07-01' })
+    const published = [...db.packVersions, version]
+
+    // The day before: the law is what it was, and the rule knows what is coming.
+    const before = resolvePack('NZ', published, '2027-06-30')
+    expect(before.rules[key].value).toEqual({ n: 21, unit: 'days' })
+    expect(before.rules[key].upcoming).toEqual({ value: { n: 28, unit: 'days' }, from: '2027-07-01', version: version.version })
+    expect(before.rules[key].revised).toBeUndefined()
+    expect(tenantNotice(before)).toBe(tenantNotice())
+    expect(inForce(early, before)).toBe(false)
+    expect(comesIntoForce(early, before)).toBe('2027-07-01')
+
+    // The day itself: the calculators move, with no second publish.
+    const onTheDay = resolvePack('NZ', published, '2027-07-01')
+    expect(onTheDay.rules[key].value).toEqual({ n: 28, unit: 'days' })
+    expect(onTheDay.rules[key].upcoming).toBeUndefined()
+    expect(onTheDay.rules[key].effectiveFrom).toBe('2027-07-01')
+    expect(diffDays(tenantNotice(), tenantNotice(onTheDay))).toBe(7)
+    expect(inForce(early, onTheDay)).toBe(true)
+    expect(comesIntoForce(early, onTheDay)).toBeUndefined()
+    // The plain words were written for 21 days, so the rule carries what it replaced.
+    expect(onTheDay.rules[key].revised).toEqual({ was: { n: 21, unit: 'days' }, on: '2026-11-14', version: version.version })
+  })
+
+  it('withdraws what was coming when a version is rolled back before it commences', () => {
+    const key = 'termination.tenant_periodic_notice'
+    const early = withPatch({ effectiveFrom: '2027-07-01' }, { id: 'rc_early' })
+    const version = buildVersion(early, db.packVersions, 'Mere Parata', '2026-11-14T04:00:00.000Z', TODAY)
+    const published = [...db.packVersions, version]
+    const rollback = buildRollback(version, published, 'Riley Chen', '2026-11-15T05:00:00.000Z', '2026-11-15')!
+    for (const day of ['2026-11-16', '2027-08-01']) {
+      const pack = resolvePack('NZ', [...published, rollback], day)
+      // Not a copy with a new date on it: the shipped rule itself, as if nothing had been published.
+      expect(pack.rules[key]).toBe(PACKS.NZ.rules[key])
+    }
   })
 
   it('applies a draft through the same path as a publish', () => {

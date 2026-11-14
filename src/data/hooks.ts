@@ -12,7 +12,8 @@ import { useStore } from './store'
 /** The live rule pack: the shipped values with anything published through Rulewatch laid over them. */
 export function usePack(): JurisdictionPack {
   const versions = useStore((s) => s.db.packVersions)
-  return useMemo(() => resolvePack('NZ', versions), [versions])
+  const day = today()
+  return useMemo(() => resolvePack('NZ', versions, day), [versions, day])
 }
 
 /** Today's date. One call per render keeps every calculation on a screen on the same day. */

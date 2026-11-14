@@ -35,9 +35,23 @@ export const TONE_SOFT: Record<Tone, string> = {
 }
 
 /** A state, as an icon and a word. Colour only ever repeats what the two already say. */
-export function Status({ tone = 'neutral', icon: Glyph, children, strong, className }: { tone?: Tone; icon: Icon; children: ReactNode; strong?: boolean; className?: string }) {
+export function Status({
+  tone = 'neutral',
+  icon: Glyph,
+  children,
+  strong,
+  className,
+}: {
+  tone?: Tone
+  icon: Icon
+  children: ReactNode
+  strong?: boolean
+  className?: string
+}) {
   return (
-    <span className={cn('inline-flex max-w-full min-w-0 items-center gap-1.5 align-middle whitespace-nowrap', className)}>
+    <span
+      className={cn('inline-flex max-w-full min-w-0 items-center gap-1.5 align-middle whitespace-nowrap', className)}
+    >
       <Glyph weight="fill" className={cn('size-3.5 shrink-0', TONE_TEXT[tone])} aria-hidden />
       <span className={cn('truncate', strong ? 'font-medium text-ink' : 'text-ink-2')}>{children}</span>
     </span>
@@ -45,9 +59,25 @@ export function Status({ tone = 'neutral', icon: Glyph, children, strong, classN
 }
 
 /** The same, boxed: for the one or two states on a screen that must not be missed. */
-export function Flag({ tone = 'neutral', icon: Glyph, children, className }: { tone?: Tone; icon: Icon; children: ReactNode; className?: string }) {
+export function Flag({
+  tone = 'neutral',
+  icon: Glyph,
+  children,
+  className,
+}: {
+  tone?: Tone
+  icon: Icon
+  children: ReactNode
+  className?: string
+}) {
   return (
-    <span className={cn('inline-flex h-5 max-w-full items-center gap-1 rounded-sm px-1.5 text-[11px] font-medium whitespace-nowrap', TONE_SOFT[tone], className)}>
+    <span
+      className={cn(
+        'inline-flex h-5 max-w-full items-center gap-1 rounded-sm px-1.5 text-[11px] font-medium whitespace-nowrap',
+        TONE_SOFT[tone],
+        className,
+      )}
+    >
       <Glyph weight="fill" className="size-3 shrink-0" aria-hidden />
       <span className="truncate">{children}</span>
     </span>
@@ -57,7 +87,12 @@ export function Flag({ tone = 'neutral', icon: Glyph, children, className }: { t
 /** Marks anything in the console that is acted out rather than real: payouts, invites, a model's draft. */
 export function Simulated({ children = 'Simulated', className }: { children?: ReactNode; className?: string }) {
   return (
-    <span className={cn('inline-flex h-5 items-center gap-1 rounded-sm border border-dashed border-line-strong px-1.5 font-mono text-[10px] tracking-wide whitespace-nowrap text-ink-2 uppercase', className)}>
+    <span
+      className={cn(
+        'inline-flex h-5 items-center gap-1 rounded-sm border border-dashed border-line-strong px-1.5 font-mono text-[10px] tracking-wide whitespace-nowrap text-ink-2 uppercase',
+        className,
+      )}
+    >
       <Flask className="size-3 shrink-0" aria-hidden />
       {children}
     </span>
@@ -65,13 +100,25 @@ export function Simulated({ children = 'Simulated', className }: { children?: Re
 }
 
 export function Kbd({ children }: { children: ReactNode }) {
-  return <kbd className="rounded-[3px] border border-line-strong bg-surface px-1 font-mono text-[10px] leading-4 text-ink-2">{children}</kbd>
+  return (
+    <kbd className="rounded-[3px] border border-line-strong bg-surface px-1 font-mono text-[10px] leading-4 text-ink-2">
+      {children}
+    </kbd>
+  )
 }
 
 /** A link that leaves the console, and says so. */
 export function Out({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
   return (
-    <a href={href} target="_blank" rel="noreferrer" className={cn('inline-flex max-w-full items-center gap-1 rounded-sm text-accent-text underline decoration-accent-line underline-offset-2 hoverable:hover:decoration-accent-text', className)}>
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className={cn(
+        'inline-flex max-w-full items-center gap-1 rounded-sm text-accent-text underline decoration-accent-line underline-offset-2 hoverable:hover:decoration-accent-text',
+        className,
+      )}
+    >
       <span className="truncate">{children}</span>
       <ArrowSquareOut className="size-3 shrink-0" aria-hidden />
       <span className="sr-only">(opens in a new tab)</span>
@@ -82,7 +129,17 @@ export function Out({ href, children, className }: { href: string; children: Rea
 /* ───────────────────────────────── page chrome ──────────────────────────── */
 
 /** The top of a console screen: smaller and tighter than the customer portals' headers. */
-export function Head({ eyebrow, title, lede, actions }: { eyebrow?: ReactNode; title: ReactNode; lede?: ReactNode; actions?: ReactNode }) {
+export function Head({
+  eyebrow,
+  title,
+  lede,
+  actions,
+}: {
+  eyebrow?: ReactNode
+  title: ReactNode
+  lede?: ReactNode
+  actions?: ReactNode
+}) {
   return (
     <header className="mb-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-3 sm:mb-5">
       <div className="max-w-3xl min-w-0">
@@ -135,7 +192,19 @@ export function Toolbar({ children, className }: { children: ReactNode; classNam
 }
 
 /** A search field. `/` puts the cursor in it from anywhere on the screen. */
-export function SearchBox({ value, onChange, label, placeholder, className }: { value: string; onChange: (value: string) => void; label: string; placeholder?: string; className?: string }) {
+export function SearchBox({
+  value,
+  onChange,
+  label,
+  placeholder,
+  className,
+}: {
+  value: string
+  onChange: (value: string) => void
+  label: string
+  placeholder?: string
+  className?: string
+}) {
   const ref = useRef<HTMLInputElement>(null)
   const focus = useCallback((e: globalThis.KeyboardEvent) => {
     e.preventDefault()
@@ -144,7 +213,10 @@ export function SearchBox({ value, onChange, label, placeholder, className }: { 
   useHotkey('/', focus)
   return (
     <div className={cn('relative min-w-0 flex-1 basis-48 sm:max-w-xs', className)}>
-      <MagnifyingGlass className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-ink-3" aria-hidden />
+      <MagnifyingGlass
+        className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-ink-3"
+        aria-hidden
+      />
       <input
         ref={ref}
         type="search"
@@ -153,7 +225,7 @@ export function SearchBox({ value, onChange, label, placeholder, className }: { 
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder ?? label}
         autoComplete="off"
-        className="h-8 w-full rounded-md bg-surface pr-8 pl-8 text-[13px] text-ink shadow-[inset_0_0_0_1px_var(--line-strong)] outline-none placeholder:text-ink-3 focus:shadow-[inset_0_0_0_2px_var(--focus)] coarse:h-11"
+        className="h-8 w-full rounded-md bg-surface pr-8 pl-8 text-[13px] text-ink shadow-[inset_0_0_0_1px_var(--field-line)] outline-none placeholder:text-ink-3 focus:shadow-[inset_0_0_0_2px_var(--focus)] coarse:h-11"
       />
       <span className="pointer-events-none absolute top-1/2 right-2 hidden -translate-y-1/2 hoverable:block">
         <Kbd>/</Kbd>
@@ -163,7 +235,19 @@ export function SearchBox({ value, onChange, label, placeholder, className }: { 
 }
 
 /** A compact labelled picker for a filter row. */
-export function Filter<T extends string>({ label, value, onChange, options, className }: { label: string; value: T; onChange: (value: T) => void; options: { value: T; label: string }[]; className?: string }) {
+export function Filter<T extends string>({
+  label,
+  value,
+  onChange,
+  options,
+  className,
+}: {
+  label: string
+  value: T
+  onChange: (value: T) => void
+  options: { value: T; label: string }[]
+  className?: string
+}) {
   return (
     <label className={cn('flex min-w-0 items-center gap-1.5', className)}>
       <span className="eyebrow shrink-0">{label}</span>
@@ -171,7 +255,7 @@ export function Filter<T extends string>({ label, value, onChange, options, clas
         <select
           value={value}
           onChange={(e) => onChange(e.target.value as T)}
-          className="h-8 max-w-full appearance-none truncate rounded-md bg-surface pr-7 pl-2.5 text-[13px] text-ink shadow-[inset_0_0_0_1px_var(--line-strong)] outline-none focus:shadow-[inset_0_0_0_2px_var(--focus)] coarse:h-11"
+          className="h-8 max-w-full appearance-none truncate rounded-md bg-surface pr-7 pl-2.5 text-[13px] text-ink shadow-[inset_0_0_0_1px_var(--field-line)] outline-none focus:shadow-[inset_0_0_0_2px_var(--focus)] coarse:h-11"
         >
           {options.map((o) => (
             <option key={o.value} value={o.value}>
@@ -179,7 +263,11 @@ export function Filter<T extends string>({ label, value, onChange, options, clas
             </option>
           ))}
         </select>
-        <CaretDown aria-hidden weight="bold" className="pointer-events-none absolute top-1/2 right-2 size-3 -translate-y-1/2 text-ink-3" />
+        <CaretDown
+          aria-hidden
+          weight="bold"
+          className="pointer-events-none absolute top-1/2 right-2 size-3 -translate-y-1/2 text-ink-3"
+        />
       </span>
     </label>
   )
@@ -256,7 +344,12 @@ export function DataTable<T>({
     const at = openers.indexOf(document.activeElement as HTMLButtonElement)
     if (at < 0) return
     e.preventDefault()
-    const next = e.key === 'Home' ? 0 : e.key === 'End' ? openers.length - 1 : Math.max(0, Math.min(openers.length - 1, at + (e.key === 'ArrowDown' ? 1 : -1)))
+    const next =
+      e.key === 'Home'
+        ? 0
+        : e.key === 'End'
+          ? openers.length - 1
+          : Math.max(0, Math.min(openers.length - 1, at + (e.key === 'ArrowDown' ? 1 : -1)))
     openers[next]?.focus()
   }
 
@@ -284,9 +377,24 @@ export function DataTable<T>({
                     )}
                   >
                     {c.sort && onSort ? (
-                      <button type="button" onClick={() => onSort(c.sort!)} className={cn('inline-flex max-w-full items-center gap-1 rounded-sm uppercase hoverable:hover:text-ink', active && 'text-ink')}>
+                      <button
+                        type="button"
+                        onClick={() => onSort(c.sort!)}
+                        className={cn(
+                          'inline-flex max-w-full items-center gap-1 rounded-sm uppercase hoverable:hover:text-ink',
+                          active && 'text-ink',
+                        )}
+                      >
                         <span className="truncate">{c.header}</span>
-                        {active ? sort.dir === 'asc' ? <CaretUp weight="bold" className="size-3 shrink-0" aria-hidden /> : <CaretDown weight="bold" className="size-3 shrink-0" aria-hidden /> : <CaretUpDown className="size-3 shrink-0 opacity-60" aria-hidden />}
+                        {active ? (
+                          sort.dir === 'asc' ? (
+                            <CaretUp weight="bold" className="size-3 shrink-0" aria-hidden />
+                          ) : (
+                            <CaretDown weight="bold" className="size-3 shrink-0" aria-hidden />
+                          )
+                        ) : (
+                          <CaretUpDown className="size-3 shrink-0 opacity-60" aria-hidden />
+                        )}
                       </button>
                     ) : (
                       c.header
@@ -304,12 +412,21 @@ export function DataTable<T>({
                 <tr
                   key={key}
                   onClick={onOpen ? () => onOpen(row) : undefined}
-                  className={cn('transition-colors duration-100 focus-within:bg-surface-2', onOpen && 'cursor-pointer hoverable:hover:bg-surface-2', isSelected && 'bg-accent-soft/60 hoverable:hover:bg-accent-soft/60')}
+                  className={cn(
+                    'transition-colors duration-100 focus-within:bg-surface-2',
+                    onOpen && 'cursor-pointer hoverable:hover:bg-surface-2',
+                    isSelected && 'bg-accent-soft/60 hoverable:hover:bg-accent-soft/60',
+                  )}
                 >
                   {columns.map((c, i) => (
                     <td
                       key={c.id}
-                      className={cn('overflow-hidden border-b border-line px-3 py-2 align-middle', c.align === 'right' && 'num text-right', c.from && FROM[c.from], isSelected && i === 0 && 'shadow-[inset_2px_0_0_var(--accent)]')}
+                      className={cn(
+                        'overflow-hidden border-b border-line px-3 py-2 align-middle',
+                        c.align === 'right' && 'num text-right',
+                        c.from && FROM[c.from],
+                        isSelected && i === 0 && 'shadow-[inset_2px_0_0_var(--accent)]',
+                      )}
                     >
                       {c.primary && onOpen ? (
                         <button
@@ -342,7 +459,15 @@ export function DataTable<T>({
           return (
             <li key={key}>
               {onOpen ? (
-                <button type="button" onClick={() => onOpen(row)} aria-label={openLabel?.(row)} className={cn('pressable block w-full rounded-lg bg-surface p-3.5 text-left shadow-card', selected === key && 'shadow-[inset_3px_0_0_var(--accent),var(--sh-card)]')}>
+                // No aria-label here: the card's own words are its name, so a screen reader hears the status and figures too.
+                <button
+                  type="button"
+                  onClick={() => onOpen(row)}
+                  className={cn(
+                    'pressable block w-full rounded-lg bg-surface p-3.5 text-left shadow-card',
+                    selected === key && 'shadow-[inset_3px_0_0_var(--accent),var(--sh-card)]',
+                  )}
+                >
                   {card(row)}
                 </button>
               ) : (
@@ -383,7 +508,19 @@ export function TwoLine({ title, sub, mono }: { title: ReactNode; sub?: ReactNod
 }
 
 /** A figure with a thin bar beside it. The number is the value; the bar is the picture of it. */
-export function Gauge({ value, max = 100, tone, label, className }: { value: number; max?: number; tone: 'ok' | 'warn' | 'danger' | 'accent'; label: string; className?: string }) {
+export function Gauge({
+  value,
+  max = 100,
+  tone,
+  label,
+  className,
+}: {
+  value: number
+  max?: number
+  tone: 'ok' | 'warn' | 'danger' | 'accent'
+  label: string
+  className?: string
+}) {
   return (
     <div className={cn('flex w-full min-w-0 items-center justify-end gap-2', className)}>
       <Bar value={value} max={max} tone={tone} label={label} className="h-1 min-w-6 flex-1" />

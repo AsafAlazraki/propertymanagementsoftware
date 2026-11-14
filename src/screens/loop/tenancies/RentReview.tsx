@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { ArrowLeft, Minus, Plus } from '@phosphor-icons/react'
 import type { ID } from '@/domain/types'
 import type { ServiceMethod } from '@/domain/jurisdictions/types'
+import { OK, type Verdict } from '@/domain/rules/core'
 import { rentIncreaseNotice } from '@/domain/notices'
 import { fmtDate } from '@/domain/rules/calendar'
 import { money } from '@/domain/rules/format'
@@ -27,6 +28,7 @@ export function RentReview({ tenancyId, done }: { tenancyId: ID; done: () => voi
   const day = useToday()
   const me = useMe()
   const nameOf = useNameOf()
+  const users = useStore((s) => s.db.users)
   const t = useStore((s) => s.db.tenancies.find((x) => x.id === tenancyId))
   const property = useStore((s) => s.db.properties.find((p) => p.id === t?.propertyId))
   const [rent, setRent] = useState('')
@@ -48,6 +50,15 @@ export function RentReview({ tenancyId, done }: { tenancyId: ID; done: () => voi
   const lost = emptyWeeks * t.weeklyRent
   const suburb = Object.values(SUBURBS).find((s) => s.name === property.address.suburb)
   const how = pack.service.find((s) => s.id === method)
+  // Email only counts as service when there is an address to send it to.
+  const without =
+    method === 'email'
+      ? t.tenantIds.flatMap((id) => {
+          const u = users.find((x) => x.id === id)
+          return u && !u.email ? [u.fullName.split(' ')[0]] : []
+        })
+      : []
+  const address: Verdict = without.length ? { ok: false, reason: `There is no email address for service on file for ${without.join(' and ')}.`, fix: 'Choose another way to give the notice.' } : OK
   const draft = rentIncreaseNotice(
     pack,
     {
@@ -82,14 +93,19 @@ export function RentReview({ tenancyId, done }: { tenancyId: ID; done: () => voi
           block
           onClick={() => {
             serveNotice(t.id, draft, { servedOn: day, method, receivedOn: plan.received, effectiveOn: effective }, pack)
-            toast.success(method === 'email' ? 'Notice served by email' : 'Notice recorded as given', {
+            toast.success(method === 'email' ? 'Notice recorded as served by email' : 'Notice recorded as given', {
               description: `The rent becomes ${money(newRent)} a week on ${fmtDate(effective, { year: 'always' })}. A copy is in the property’s documents.`,
             })
             done()
           }}
         >
-          {method === 'email' ? 'Serve it by email now' : `Record it as given today — ${how?.label.toLowerCase()}`}
+          {method === 'email' ? 'Serve it by email' : `Record it as given today — ${how?.label.toLowerCase()}`}
         </Button>
+        {method === 'email' && (
+          <p className="text-xs leading-relaxed text-ink-3">
+            Email is simulated in this prototype. The notice is recorded with today’s date and shown to the tenant in Pool; nothing is actually sent.
+          </p>
+        )}
         {method !== 'email' && (
           <p className="text-xs text-ink-3">
             Loop cannot hand over or post a letter for you. Download the copy, deliver it today, and this record will
@@ -213,6 +229,7 @@ export function RentReview({ tenancyId, done }: { tenancyId: ID; done: () => voi
             </div>
             <Working steps={plan.steps} />
             <Refusal verdict={verdict} className="mt-3" />
+            <Refusal verdict={address} className="mt-3" />
           </section>
 
           <Button
@@ -221,7 +238,7 @@ export function RentReview({ tenancyId, done }: { tenancyId: ID; done: () => voi
             block
             onClick={() => {
               setTried(true)
-              if (valid && verdict.ok) setPreview(true)
+              if (valid && verdict.ok && address.ok) setPreview(true)
             }}
           >
             Read the notice before it goes

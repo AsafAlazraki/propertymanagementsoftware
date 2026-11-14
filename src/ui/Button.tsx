@@ -21,7 +21,7 @@ export const buttonClass = cva(
         secondary: 'bg-surface text-ink shadow-card hoverable:hover:bg-surface-2',
         soft: 'bg-accent-soft text-accent-text hoverable:hover:brightness-[0.97] dark:hoverable:hover:brightness-110',
         ghost: 'text-ink-2 hoverable:hover:bg-sunken hoverable:hover:text-ink',
-        danger: 'bg-danger text-white shadow-[inset_0_1px_0_oklch(1_0_0/0.2)] hoverable:hover:brightness-95',
+        danger: 'bg-danger text-danger-ink shadow-[inset_0_1px_0_oklch(1_0_0/0.2)] hoverable:hover:brightness-95',
         dangerSoft: 'bg-danger-soft text-danger-text hoverable:hover:brightness-[0.97]',
         /** On the navy navigation surface. */
         nav: 'text-nav-ink-2 hoverable:hover:bg-nav-2 hoverable:hover:text-nav-ink',
@@ -46,7 +46,19 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, Va
   ref?: Ref<HTMLButtonElement>
 }
 
-export function Button({ intent, size, block, loading, icon, trailing, className, children, disabled, ref, ...rest }: ButtonProps) {
+export function Button({
+  intent,
+  size,
+  block,
+  loading,
+  icon,
+  trailing,
+  className,
+  children,
+  disabled,
+  ref,
+  ...rest
+}: ButtonProps) {
   return (
     <button
       ref={ref}

@@ -13,6 +13,7 @@ import { ArrowLeft, ArrowRight, Bed, CalendarBlank, Car, CheckCircle, EnvelopeSi
 import type { ActionItem } from '@/domain/actions'
 import { propertyFinance } from '@/domain/finance'
 import { addDays, addMonths, addWeeks, dateOf, diffDays, fmtDate, fmtRelative } from '@/domain/rules/calendar'
+import { durationText } from '@/domain/rules/core'
 import { bondLodgement, fixedTermWindow } from '@/domain/rules/tenancy'
 import { money } from '@/domain/rules/format'
 import { useStore } from '@/data/store'
@@ -61,13 +62,13 @@ export function PropertyScreen({ id, tab }: { id: string; tab: PropertyTab }) {
     const cal = calendarOf(pack, property)
     if (tenancy) {
       out.push({ date: addDays(tenancy.rentPaidTo, 1), label: `Rent of ${money(tenancy.weeklyRent)} due` })
-      if (tenancy.bond.receivedOn && !tenancy.bond.lodgedOn) out.push({ date: bondLodgement(pack, cal, tenancy.bond.receivedOn, undefined, day).deadline, label: 'Bond must be lodged', detail: '23 working days from receipt' })
+      if (tenancy.bond.receivedOn && !tenancy.bond.lodgedOn) out.push({ date: bondLodgement(pack, cal, tenancy.bond.receivedOn, undefined, day).deadline, label: 'Bond must be lodged', detail: `${durationText(pack.rules['bond.lodgement_deadline'].value)} from receipt` })
       if (tenancy.type === 'fixed' && tenancy.endDate) {
         const w = fixedTermWindow(pack, cal, tenancy.endDate, day)
         if (w) out.push({ date: w.closes, label: 'Last day for notice about the fixed term', detail: `The term ends ${fmtDate(tenancy.endDate, { year: 'always' })}` })
         out.push({ date: tenancy.endDate, label: 'Fixed term ends' })
       }
-      if (tenancy.type === 'periodic') out.push({ date: addMonths(tenancy.lastRentIncrease ?? tenancy.startDate, pack.rules['rent_increase.min_interval_months'].value), label: 'Rent can next be reviewed', detail: 'Twelve months after it was last set' })
+      if (tenancy.type === 'periodic') out.push({ date: addMonths(tenancy.lastRentIncrease ?? tenancy.startDate, pack.rules['rent_increase.min_interval_months'].value), label: 'Rent can next be reviewed', detail: `${pack.rules['rent_increase.min_interval_months'].value} months after it was last set` })
       const last = inspections.filter((i) => i.propertyId === property.id && i.status === 'completed').sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? ''))[0]
       if (last?.completedAt) out.push({ date: addWeeks(dateOf(last.completedAt), property.insurance.inspectionIntervalWeeks ?? 13), label: 'Next inspection due', detail: `${property.insurance.insurer ?? 'Your insurer'} expects one every ${property.insurance.inspectionIntervalWeeks ?? 13} weeks` })
     }

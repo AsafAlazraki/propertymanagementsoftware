@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactNode, RefObject } from 'react'
 import { Drawer } from '@base-ui/react/drawer'
 import { Dialog } from '@base-ui/react/dialog'
 import { X } from '@phosphor-icons/react'
@@ -33,7 +33,12 @@ export function Sheet({
   size?: 'md' | 'lg' | 'xl'
 }) {
   const side = useMediaQuery('(min-width: 768px)')
-  const width = size === 'xl' ? 'md:w-[min(56rem,calc(100vw-4rem))]' : size === 'lg' ? 'md:w-[min(44rem,calc(100vw-4rem))]' : 'md:w-[min(32rem,calc(100vw-4rem))]'
+  const width =
+    size === 'xl'
+      ? 'md:w-[min(56rem,calc(100vw-4rem))]'
+      : size === 'lg'
+        ? 'md:w-[min(44rem,calc(100vw-4rem))]'
+        : 'md:w-[min(32rem,calc(100vw-4rem))]'
 
   return (
     <Drawer.Root open={open} onOpenChange={onOpenChange} swipeDirection={side ? 'right' : 'down'}>
@@ -45,7 +50,9 @@ export function Sheet({
             'data-starting-style:opacity-0 data-ending-style:opacity-0',
           )}
         />
-        <Drawer.Viewport className={cn('fixed inset-0 z-40 flex', side ? 'items-stretch justify-end' : 'items-end justify-center')}>
+        <Drawer.Viewport
+          className={cn('fixed inset-0 z-40 flex', side ? 'items-stretch justify-end' : 'items-end justify-center')}
+        >
           <Drawer.Popup
             className={cn(
               'flex min-h-0 flex-col bg-surface text-ink shadow-sheet outline-none',
@@ -68,8 +75,12 @@ export function Sheet({
             <header className="flex shrink-0 items-start gap-3 border-b border-line px-5 pt-4 pb-3.5 md:px-6 md:pt-5">
               <div className="min-w-0 flex-1">
                 {eyebrow && <div className="eyebrow mb-1">{eyebrow}</div>}
-                <Drawer.Title className="text-[17px] leading-snug font-semibold tracking-[-0.015em] text-balance">{title}</Drawer.Title>
-                {description && <Drawer.Description className="mt-1 text-[13px] text-ink-2">{description}</Drawer.Description>}
+                <Drawer.Title className="text-[17px] leading-snug font-semibold tracking-[-0.015em] text-balance">
+                  {title}
+                </Drawer.Title>
+                {description && (
+                  <Drawer.Description className="mt-1 text-[13px] text-ink-2">{description}</Drawer.Description>
+                )}
               </div>
               <Drawer.Close
                 aria-label="Close"
@@ -78,7 +89,9 @@ export function Sheet({
                 <X className="size-[18px]" weight="bold" />
               </Drawer.Close>
             </header>
-            <Drawer.Content className="min-h-0 min-w-0 flex-1 touch-auto overflow-x-hidden overflow-y-auto overscroll-contain px-5 py-5 md:px-6">{children}</Drawer.Content>
+            <Drawer.Content className="min-h-0 min-w-0 flex-1 touch-auto overflow-x-hidden overflow-y-auto overscroll-contain px-5 py-5 md:px-6">
+              {children}
+            </Drawer.Content>
             {footer && (
               <footer className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-line bg-surface px-5 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] md:px-6">
                 {footer}
@@ -104,6 +117,7 @@ export function Modal({
   children,
   footer,
   size = 'md',
+  finalFocus,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -112,6 +126,11 @@ export function Modal({
   children?: ReactNode
   footer?: ReactNode
   size?: 'sm' | 'md' | 'lg' | 'doc'
+  /**
+   * Where focus goes when the modal closes. Needed when it was opened from a
+   * menu item: the item is gone by then, so focus would otherwise fall to the page.
+   */
+  finalFocus?: RefObject<HTMLElement | null>
 }) {
   const width = { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl', doc: 'max-w-[52rem]' }[size]
   return (
@@ -120,6 +139,7 @@ export function Modal({
         <Dialog.Backdrop className="fixed inset-0 z-50 min-h-dvh bg-scrim transition-opacity duration-200 data-starting-style:opacity-0 data-ending-style:opacity-0" />
         <Dialog.Viewport className="fixed inset-0 z-50 grid place-items-center overflow-y-auto p-3 sm:p-6">
           <Dialog.Popup
+            finalFocus={finalFocus}
             className={cn(
               'flex max-h-[calc(100dvh-1.5rem)] w-full flex-col rounded-xl bg-surface text-ink shadow-sheet outline-none',
               'transition-[transform,opacity] duration-200 ease-out',
@@ -129,8 +149,12 @@ export function Modal({
           >
             <header className="flex shrink-0 items-start gap-3 px-5 pt-5 pb-1 sm:px-6">
               <div className="min-w-0 flex-1">
-                <Dialog.Title className="text-[17px] leading-snug font-semibold tracking-[-0.015em] text-balance">{title}</Dialog.Title>
-                {description && <Dialog.Description className="mt-1.5 text-sm text-ink-2">{description}</Dialog.Description>}
+                <Dialog.Title className="text-[17px] leading-snug font-semibold tracking-[-0.015em] text-balance">
+                  {title}
+                </Dialog.Title>
+                {description && (
+                  <Dialog.Description className="mt-1.5 text-sm text-ink-2">{description}</Dialog.Description>
+                )}
               </div>
               <Dialog.Close
                 aria-label="Close"
@@ -139,9 +163,13 @@ export function Modal({
                 <X className="size-[18px]" weight="bold" />
               </Dialog.Close>
             </header>
-            {children && <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4 sm:px-6">{children}</div>}
+            {children && (
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4 sm:px-6">{children}</div>
+            )}
             {footer && (
-              <footer className="no-print flex shrink-0 flex-wrap items-center justify-end gap-2 px-5 pt-2 pb-5 sm:px-6">{footer}</footer>
+              <footer className="no-print flex shrink-0 flex-wrap items-center justify-end gap-2 px-5 pt-2 pb-5 sm:px-6">
+                {footer}
+              </footer>
             )}
           </Dialog.Popup>
         </Dialog.Viewport>

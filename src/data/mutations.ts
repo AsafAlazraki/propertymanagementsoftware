@@ -27,11 +27,11 @@ function name(userId: ID): string {
 
 /* ─────────────────────────────────── bond ───────────────────────────────── */
 
-export function recordBondLodged(tenancyId: ID, bondRef: string, lodgedOn: ISODate = today()): void {
+export function recordBondLodged(tenancyId: ID, bondRef: string, pack: JurisdictionPack, lodgedOn: ISODate = today()): void {
   const t = db.get().tenancies.find((x) => x.id === tenancyId)
   if (!t) return
   db.update('tenancies', tenancyId, { bond: { ...t.bond, lodgedOn, bondRef: bondRef.trim() } })
-  db.insert('ledger', { id: newId('led'), orgId: t.orgId, propertyId: t.propertyId, tenancyId, date: lodgedOn, kind: 'bond_lodged', amount: -t.bond.amount, category: 'private', description: `Bond lodged with Tenancy Services · ${bondRef.trim()}`, match: 'manual' })
+  db.insert('ledger', { id: newId('led'), orgId: t.orgId, propertyId: t.propertyId, tenancyId, date: lodgedOn, kind: 'bond_lodged', amount: -t.bond.amount, category: 'private', description: `Bond lodged with ${pack.bondAuthority.name} · ${bondRef.trim()}`, match: 'manual' })
   db.insert('docs', { id: newId('doc'), orgId: t.orgId, propertyId: t.propertyId, tenancyId, name: `Bond lodgement receipt ${bondRef.trim()}.pdf`, kind: 'bond_receipt', addedAt: nowIso(), sizeKb: 52, source: 'generated' })
 }
 
@@ -89,10 +89,27 @@ export function sendRemedyNotice(tenancyId: ID, deadline: ISODate, owed: number,
 
 /* ─────────────────────────────── maintenance ────────────────────────────── */
 
-export function approveQuote(ticketId: ID): void {
+/**
+ * Approves a quote. A quote above the owner's second-approval line is not
+ * booked on one person's word: the first yes is recorded and the job waits
+ * for a different owner. Returns what happened.
+ */
+export function approveQuote(ticketId: ID, by: string): 'booked' | 'waiting' | 'same_person' | 'nothing' {
   const state = db.get()
   const tk = state.tickets.find((t) => t.id === ticketId)
-  if (!tk?.quote) return
+  if (!tk?.quote) return 'nothing'
+  const property = state.properties.find((p) => p.id === tk.propertyId)
+  const line = state.entities.find((e) => e.id === property?.entityId)?.dualApprovalThreshold
+  if (line !== undefined && tk.quote.amount > line) {
+    if (!tk.quote.firstApproval) {
+      db.update('tickets', ticketId, {
+        quote: { ...tk.quote, firstApproval: { by, at: nowIso() } },
+        events: [...tk.events, { at: nowIso(), by: 'landlord', text: `${by} approved the ${money(tk.quote.amount)} quote. It is over the ${money(line)} second-approval line, so nothing is booked until another owner approves too.` }],
+      })
+      return 'waiting'
+    }
+    if (tk.quote.firstApproval.by === by) return 'same_person'
+  }
   const provider = state.providers.find((p) => p.id === tk.providerId)
   const when = at(addDays(today(), 2), 10)
   db.update('tickets', ticketId, {
@@ -101,11 +118,12 @@ export function approveQuote(ticketId: ID): void {
     entryNoticeServedAt: nowIso(),
     events: [
       ...tk.events,
-      { at: nowIso(), by: 'landlord', text: `Quote of ${money(tk.quote.amount)} approved.` },
+      { at: nowIso(), by: 'landlord', text: tk.quote.firstApproval ? `${by} gave the second approval for the ${money(tk.quote.amount)} quote.` : `Quote of ${money(tk.quote.amount)} approved.` },
       { at: nowIso(), by: 'system', text: `${provider?.name ?? 'The tradesperson'} booked for ${fmtDate(addDays(today(), 2))} at 10 am. Entry notice served; the key code stays locked until the 24 hours have run.` },
     ],
   })
   logAutopilot(tk.orgId, 'dispatch', `Booked ${provider?.name ?? 'the tradesperson'} after you approved the ${money(tk.quote.amount)} quote, and served the entry notice.`)
+  return 'booked'
 }
 
 export function declineQuote(ticketId: ID, reason: string): void {

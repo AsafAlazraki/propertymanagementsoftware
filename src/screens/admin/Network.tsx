@@ -26,21 +26,10 @@ import { Sheet } from '@/ui/Sheet'
 import { cn } from '@/ui/cn'
 import { Head, Panel, Simulated, Status, Tally, type Icon, type Tone } from './kit'
 import { VETTING } from './labels'
-import { oneOf, text } from './format'
+import { type NetworkSearch, type NetworkShow as Show } from './search'
 import { arrowNav, useLast } from './hooks'
 import { Vetting } from './network/Vetting'
 
-const SHOWS = ['all', 'vetted', 'pending', 'suspended'] as const
-type Show = (typeof SHOWS)[number]
-
-export interface NetworkSearch {
-  provider?: string
-  show?: Show
-}
-
-export function networkSearch(s: Record<string, unknown>): NetworkSearch {
-  return { provider: text(s.provider), show: oneOf(s.show, SHOWS) }
-}
 
 const route = getRouteApi('/admin/network')
 

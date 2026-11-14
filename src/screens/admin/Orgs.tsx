@@ -12,7 +12,7 @@ import { useMemo, useState } from 'react'
 import { getRouteApi, useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { Buildings, Eye, Handshake, Prohibit, Warning } from '@phosphor-icons/react'
-import type { OrgStatus, PlanTier } from '@/domain/types'
+import type { PlanTier } from '@/domain/types'
 import type { Verdict } from '@/domain/rules/core'
 import { PLAN, planMonthly } from '@/domain/finance'
 import { fmtDate, dateOf } from '@/domain/rules/calendar'
@@ -28,28 +28,13 @@ import { Sheet } from '@/ui/Sheet'
 import { cn } from '@/ui/cn'
 import { DataTable, Filter, Flag, Gauge, Head, SearchBox, Status, Tally, Toolbar, TwoLine, nextSort, scoreTone, type Column, type Sort } from './kit'
 import { IDENTITY, ORG_SOURCE, ORG_STATUS, ORG_STATUS_ORDER } from './labels'
-import { matches, oneOf, text, whenExact, whenShort } from './format'
+import { PLANS, type OrgsSearch, type SortKey } from './search'
+import { matches, whenExact, whenShort } from './format'
 import { usePlatform, type OrgRow } from './stats'
 import { useLast } from './hooks'
 
-const SORTS = ['name', 'properties', 'rentRoll', 'mrr', 'compliance', 'arrears', 'idle'] as const
-type SortKey = (typeof SORTS)[number]
 const NUMERIC: SortKey[] = ['properties', 'rentRoll', 'mrr', 'arrears']
-const PLANS: PlanTier[] = ['ledger_free', 'autopilot_pro', 'portfolio_trust']
 
-export interface OrgsSearch {
-  org?: string
-  q?: string
-  /** `attention` is past due or suspended: the accounts someone has to chase. */
-  status?: OrgStatus | 'attention'
-  plan?: PlanTier
-  sort?: SortKey
-  dir?: 'asc' | 'desc'
-}
-
-export function orgsSearch(s: Record<string, unknown>): OrgsSearch {
-  return { org: text(s.org), q: text(s.q), status: oneOf(s.status, [...ORG_STATUS_ORDER, 'attention'] as const), plan: oneOf(s.plan, PLANS), sort: oneOf(s.sort, SORTS), dir: oneOf(s.dir, ['asc', 'desc'] as const) }
-}
 
 const route = getRouteApi('/admin/orgs')
 
@@ -94,8 +79,8 @@ export function OrgDetail({ row }: { row: OrgRow }) {
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-6">
       {org.status === 'suspended' && (
-        <Callout tone="danger" icon={<Prohibit weight="fill" />} title="Suspended: the owner sees Loop read-only">
-          {org.suspendedReason ? <>The owner is shown this reason: “{org.suspendedReason}”</> : 'No reason was recorded.'}
+        <Callout tone="danger" icon={<Prohibit weight="fill" />} title="Suspended: the owner is told so in Loop">
+          {org.suspendedReason ? <>A banner across the top of their Loop shows this reason: “{org.suspendedReason}”</> : 'A banner across the top of their Loop says so. No reason was recorded.'} In this prototype that is all a suspension does: it is a mark on the account, and the owner can still change records.
         </Callout>
       )}
       {org.status === 'past_due' && (
@@ -258,7 +243,7 @@ export function OrgDetail({ row }: { row: OrgRow }) {
         </h3>
         {org.status === 'suspended' ? (
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="max-w-[46ch] text-[13px] text-ink-2">Puts the account back to active. The owner can change records again straight away.</p>
+            <p className="max-w-[46ch] text-[13px] text-ink-2">Puts the account back to active and takes the suspension banner off the owner’s Loop.</p>
             <Button
               intent="secondary"
               onClick={() => {
@@ -273,7 +258,7 @@ export function OrgDetail({ row }: { row: OrgRow }) {
           <p className="text-[13px] text-ink-2">This organisation has left, so there is no account to suspend. Its records are kept for the statutory retention period.</p>
         ) : (
           <div className="grid gap-3">
-            <Field label="Reason" hint="The owner is shown these exact words. Write it as you would say it to them.">
+            <Field label="Reason" hint="The owner is shown these exact words in a banner across Loop. Write it as you would say it to them. In this prototype a suspension is a mark: it does not stop them changing records.">
               {(p) => (
                 <Textarea
                   {...p}
@@ -296,7 +281,7 @@ export function OrgDetail({ row }: { row: OrgRow }) {
                   const v = suspendOrg(org.id, reason, me.fullName)
                   if (!v.ok) return setRefusal(v)
                   setReason('')
-                  toast('Suspended', { description: `${org.name} is read-only until the suspension is lifted.` })
+                  toast('Suspended', { description: `${org.name} is marked suspended. Its owner sees the reason in Loop until it is lifted.` })
                 }}
               >
                 Suspend {org.name}

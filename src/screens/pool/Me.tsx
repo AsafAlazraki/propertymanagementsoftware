@@ -9,7 +9,19 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { Link } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import { ChatCircleDots, Check, DownloadSimple, Eye, LockSimple, PawPrint, PencilSimple, SealCheck, UsersThree, X, type Icon } from '@phosphor-icons/react'
+import {
+  ChatCircleDots,
+  Check,
+  DownloadSimple,
+  Eye,
+  LockSimple,
+  PawPrint,
+  PencilSimple,
+  SealCheck,
+  UsersThree,
+  X,
+  type Icon,
+} from '@phosphor-icons/react'
 import type { Application, Feedback, Variation } from '@/domain/types'
 import { dateOf, fmtDate } from '@/domain/rules/calendar'
 import { durationText } from '@/domain/rules/core'
@@ -19,31 +31,52 @@ import { usePack, useToday } from '@/data/hooks'
 import { sendFeedback, updateProfile, withdrawApplication, withdrawRequest } from '@/data/pool-mutations'
 import { Page } from '@/shell/common'
 import { Button, buttonClass } from '@/ui/Button'
-import { Field, Input, Textarea } from '@/ui/controls'
+import { Choice, Choices, Field, Input, Textarea } from '@/ui/controls'
 import { Avatar } from '@/ui/display'
 import { Why } from '@/ui/Law'
 import { Modal, Sheet } from '@/ui/Sheet'
 import { cn } from '@/ui/cn'
-import { firstName, stageLine, useMyApplications, useMyHome, useMyProfile, type MyHome, type ProfileRow } from './shared'
+import {
+  firstName,
+  stageLine,
+  useMyApplications,
+  useMyHome,
+  useMyProfile,
+  type MyHome,
+  type ProfileRow,
+} from './shared'
 import { useOwnerFirstName } from './home/Applications'
 import { collectMyData, downloadJson } from './me/export'
 import { PetSheet } from './me/PetSheet'
 
 /** A titled block. The icon and the display heading give each its own start; the body decides the rest. */
-function Block({ id, icon: IconEl, title, lede, action, children }: { id: string; icon: Icon; title: string; lede?: ReactNode; action?: ReactNode; children: ReactNode }) {
+function Block({
+  id,
+  icon: IconEl,
+  title,
+  lede,
+  action,
+  children,
+}: {
+  id: string
+  icon: Icon
+  title: string
+  lede?: ReactNode
+  action?: ReactNode
+  children: ReactNode
+}) {
   return (
     <section aria-labelledby={id} className="min-w-0 rounded-xl bg-surface p-5 shadow-card sm:p-6">
-      <div className="mb-4 flex items-start gap-3.5">
-        <span className="grid size-11 shrink-0 place-items-center rounded-full bg-accent-soft text-accent-text">
+      {/* The words under the title get the full width of the card: beside a wide button they were squeezed to a few letters a line on a phone. */}
+      <div className="mb-4 grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-x-3.5">
+        <span className="row-span-2 grid size-11 shrink-0 place-items-center rounded-full bg-accent-soft text-accent-text">
           <IconEl weight="fill" className="size-5" aria-hidden />
         </span>
-        <div className="min-w-0 flex-1">
-          <h2 id={id} className="display text-[21px] text-ink">
-            {title}
-          </h2>
-          {lede && <p className="mt-1 text-[14px] leading-relaxed text-ink-2">{lede}</p>}
-        </div>
+        <h2 id={id} className={cn('display min-w-0 text-[21px] text-ink', !action && 'col-span-2')}>
+          {title}
+        </h2>
         {action && <div className="shrink-0">{action}</div>}
+        {lede && <p className="col-span-2 col-start-2 mt-1 text-[14px] leading-relaxed text-ink-2">{lede}</p>}
       </div>
       {children}
     </section>
@@ -52,7 +85,17 @@ function Block({ id, icon: IconEl, title, lede, action, children }: { id: string
 
 /* ───────────────────────────── about and household ──────────────────────── */
 
-function EditProfileSheet({ open, profile, looking, onClose }: { open: boolean; profile: ProfileRow; looking: boolean; onClose: () => void }) {
+function EditProfileSheet({
+  open,
+  profile,
+  looking,
+  onClose,
+}: {
+  open: boolean
+  profile: ProfileRow
+  looking: boolean
+  onClose: () => void
+}) {
   const me = useMe()
   const [headline, setHeadline] = useState(profile.headline)
   const [bio, setBio] = useState(profile.bio)
@@ -73,7 +116,9 @@ function EditProfileSheet({ open, profile, looking, onClose }: { open: boolean; 
     }
   }
   const people = Number(household)
-  const householdError = !(people >= 1 && people <= 12) ? 'Enter how many people live with you, including you.' : undefined
+  const householdError = !(people >= 1 && people <= 12)
+    ? 'Enter how many people live with you, including you.'
+    : undefined
   return (
     <Sheet
       open={open}
@@ -90,7 +135,13 @@ function EditProfileSheet({ open, profile, looking, onClose }: { open: boolean; 
           onClick={() => {
             setNudged(true)
             if (householdError) return
-            updateProfile(me.id, { headline: headline.trim(), bio: bio.trim(), householdSize: people, moveInFrom: moveIn || undefined, budgetWeekly: Number(budget) || undefined })
+            updateProfile(me.id, {
+              headline: headline.trim(),
+              bio: bio.trim(),
+              householdSize: people,
+              moveInFrom: moveIn || undefined,
+              budgetWeekly: Number(budget) || undefined,
+            })
             toast.success('Saved')
             onClose()
           }}
@@ -101,13 +152,36 @@ function EditProfileSheet({ open, profile, looking, onClose }: { open: boolean; 
     >
       <div className="grid grid-cols-[minmax(0,1fr)] gap-4">
         <Field label="One line about you" optional>
-          {(p) => <Input {...p} value={headline} maxLength={80} onChange={(e) => setHeadline(e.target.value)} placeholder="Looking for a quiet place near town" />}
+          {(p) => (
+            <Input
+              {...p}
+              value={headline}
+              maxLength={80}
+              onChange={(e) => setHeadline(e.target.value)}
+              placeholder="Looking for a quiet place near town"
+            />
+          )}
         </Field>
-        <Field label="A little more" optional hint="You are never required to say what you do for work, how old you are, or who is in your family — and a landlord may not choose a tenant on those.">
+        <Field
+          label="A little more"
+          optional
+          hint="You are never required to say what you do for work, how old you are, or who is in your family — and a landlord may not choose a tenant on those."
+        >
           {(p) => <Textarea {...p} value={bio} maxLength={400} onChange={(e) => setBio(e.target.value)} />}
         </Field>
-        <Field label="People in your household" hint="Including you. A landlord may ask how many people will live in a home, and nothing more about them." error={nudged ? householdError : undefined}>
-          {(p) => <Input {...p} inputMode="numeric" value={household} onChange={(e) => setHousehold(e.target.value.replace(/[^0-9]/g, '').slice(0, 2))} />}
+        <Field
+          label="People in your household"
+          hint="Including you. A landlord may ask how many people will live in a home, and nothing more about them."
+          error={nudged ? householdError : undefined}
+        >
+          {(p) => (
+            <Input
+              {...p}
+              inputMode="numeric"
+              value={household}
+              onChange={(e) => setHousehold(e.target.value.replace(/[^0-9]/g, '').slice(0, 2))}
+            />
+          )}
         </Field>
         {looking && (
           <div className="grid grid-cols-2 gap-3">
@@ -115,7 +189,15 @@ function EditProfileSheet({ open, profile, looking, onClose }: { open: boolean; 
               {(p) => <Input {...p} type="date" value={moveIn} onChange={(e) => setMoveIn(e.target.value)} />}
             </Field>
             <Field label="Weekly budget" optional>
-              {(p) => <Input {...p} inputMode="numeric" prefix="$" value={budget} onChange={(e) => setBudget(e.target.value.replace(/[^0-9]/g, ''))} />}
+              {(p) => (
+                <Input
+                  {...p}
+                  inputMode="numeric"
+                  prefix="$"
+                  value={budget}
+                  onChange={(e) => setBudget(e.target.value.replace(/[^0-9]/g, ''))}
+                />
+              )}
             </Field>
           </div>
         )}
@@ -142,7 +224,12 @@ function PetRequestRow({ v, landlord }: { v: Variation; landlord: string }) {
   const done = v.status === 'signed'
   return (
     <li className="flex flex-wrap items-center gap-x-3 gap-y-2 py-3 first:pt-0 last:pb-0">
-      <span className={cn('grid size-9 shrink-0 place-items-center rounded-full', done ? 'bg-ok-soft text-ok-text' : 'bg-sunken text-ink-2')}>
+      <span
+        className={cn(
+          'grid size-9 shrink-0 place-items-center rounded-full',
+          done ? 'bg-ok-soft text-ok-text' : 'bg-sunken text-ink-2',
+        )}
+      >
         <PawPrint weight="fill" className="size-[18px]" aria-hidden />
       </span>
       <div className="min-w-0 flex-1 basis-48">
@@ -175,14 +262,26 @@ function Pets({ home }: { home: MyHome | undefined }) {
   const variations = useStore((s) => s.db.variations)
   const [asking, setAsking] = useState(false)
   const landlord = firstName(home?.landlord?.fullName)
-  const requests = useMemo(() => (home ? variations.filter((v) => v.tenancyId === home.tenancy.id && v.type === 'pet_request').sort((a, b) => b.requestedAt.localeCompare(a.requestedAt)) : []), [variations, home])
+  const requests = useMemo(
+    () =>
+      home
+        ? variations
+            .filter((v) => v.tenancyId === home.tenancy.id && v.type === 'pet_request')
+            .sort((a, b) => b.requestedAt.localeCompare(a.requestedAt))
+        : [],
+    [variations, home],
+  )
   const pets = home?.tenancy.pets ?? []
   return (
     <Block
       id="me-pets"
       icon={PawPrint}
       title="Pets"
-      lede={home ? `You can ask ${landlord} for a pet at any time, and they have to answer.` : 'A pet request goes to your landlord through your tenancy.'}
+      lede={
+        home
+          ? `You can ask ${landlord} for a pet at any time, and they have to answer.`
+          : 'A pet request goes to your landlord through your tenancy.'
+      }
       action={
         home && (
           <Button intent="soft" className="rounded-full" onClick={() => setAsking(true)}>
@@ -194,7 +293,9 @@ function Pets({ home }: { home: MyHome | undefined }) {
       {!home ? (
         <div className="rounded-lg bg-sunken p-4 text-[14px] leading-relaxed text-ink-2">
           <p>
-            <strong className="font-semibold text-ink">There is nothing to ask yet</strong> — you do not have a tenancy on Pool. When you search, switch on “Pets considered” to see homes whose listing says a pet will be looked at.
+            <strong className="font-semibold text-ink">There is nothing to ask yet</strong> — you do not have a tenancy
+            on Pool. When you search, switch on “Pets considered” to see homes whose listing says a pet will be looked
+            at.
           </p>
           <div className="mt-2.5 flex flex-wrap gap-2">
             <Why rule="pets.refusal_needs_grounds" label="When a landlord can say no" />
@@ -206,16 +307,27 @@ function Pets({ home }: { home: MyHome | undefined }) {
           {pets.length > 0 && (
             <ul className="mb-4 flex flex-wrap gap-2">
               {pets.map((p) => (
-                <li key={p.name} className="inline-flex items-center gap-2 rounded-full bg-ok-soft py-1.5 pr-3.5 pl-2.5 text-[13px] font-medium text-ok-text">
+                <li
+                  key={p.name}
+                  className="inline-flex items-center gap-2 rounded-full bg-ok-soft py-1.5 pr-3.5 pl-2.5 text-[13px] font-medium text-ok-text"
+                >
                   <SealCheck weight="fill" className="size-4" aria-hidden />
                   {p.name}, {p.kind.toLowerCase()}
-                  {p.approvedAt && <span className="font-normal opacity-80">· on the tenancy since {fmtDate(p.approvedAt, { weekday: false, year: 'always' })}</span>}
+                  {p.approvedAt && (
+                    <span className="font-normal opacity-80">
+                      · on the tenancy since {fmtDate(p.approvedAt, { weekday: false, year: 'always' })}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>
           )}
           {requests.length === 0 ? (
-            <p className="rounded-lg bg-sunken p-4 text-[14px] leading-relaxed text-ink-2">{pets.length > 0 ? 'No requests in progress.' : 'No pets on your tenancy, and nothing asked for. A request takes a minute, and the reply has a legal deadline.'}</p>
+            <p className="rounded-lg bg-sunken p-4 text-[14px] leading-relaxed text-ink-2">
+              {pets.length > 0
+                ? 'No requests in progress.'
+                : 'No pets on your tenancy, and nothing asked for. A request takes a minute, and the reply has a legal deadline.'}
+            </p>
           ) : (
             <ul className="divide-y divide-line">
               {requests.map((v) => (
@@ -236,17 +348,28 @@ function Pets({ home }: { home: MyHome | undefined }) {
 
 /* ───────────────────────── what is shared, and when ─────────────────────── */
 
-const WHEN_FOR_RENTERS = ['When you book a time to see a home', 'When you apply', 'Only if the landlord wants to offer you the home']
+const WHEN_FOR_RENTERS = [
+  'When you book a time to see a home',
+  'When you apply',
+  'Only if the landlord wants to offer you the home',
+]
 
 function Shared() {
   const pack = usePack()
   const keep = durationText(pack.rules['privacy.unsuccessful_applicant_retention'].value)
   return (
-    <Block id="me-shared" icon={Eye} title="What a landlord can learn, and when" lede="Three stages, in order. A landlord on Loop cannot ask for more, or ask sooner — the form simply does not have the fields.">
+    <Block
+      id="me-shared"
+      icon={Eye}
+      title="What a landlord can learn, and when"
+      lede="Three stages, in order. A landlord on Loop cannot ask for more, or ask sooner — the form simply does not have the fields."
+    >
       <ol className="grid gap-3">
         {pack.privacyStages.map((s, i) => (
           <li key={s.stage} className="relative rounded-lg bg-sunken p-4 pl-14">
-            <span className="display num absolute top-4 left-4 grid size-7 place-items-center rounded-full bg-accent text-[13px] text-accent-ink">{i + 1}</span>
+            <span className="display num absolute top-4 left-4 grid size-7 place-items-center rounded-full bg-accent text-[13px] text-accent-ink">
+              {i + 1}
+            </span>
             <p className="text-[15px] font-semibold text-ink">{s.stage}</p>
             <p className="text-[13px] text-ink-2">{WHEN_FOR_RENTERS[i] ?? s.when}</p>
             <ul className="mt-3 grid gap-1.5">
@@ -271,7 +394,9 @@ function Shared() {
       </ol>
       <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-[13px] leading-relaxed text-ink-2">
         <LockSimple weight="fill" className="size-4 shrink-0 text-ink-3" aria-hidden />
-        <span className="min-w-0 flex-1 basis-56">If you miss out on a home, your details are deleted from that landlord’s records after {keep}.</span>
+        <span className="min-w-0 flex-1 basis-56">
+          If you miss out on a home, your details are deleted from that landlord’s records after {keep}.
+        </span>
         <Why rule="privacy.unsuccessful_applicant_retention" label="Why that long" />
       </div>
     </Block>
@@ -290,9 +415,17 @@ function MyData({ applications }: { applications: Application[] }) {
   const target = withdrawing ? properties.find((p) => p.id === withdrawing.propertyId) : undefined
 
   return (
-    <Block id="me-data" icon={DownloadSimple} title="Your data" lede="It is yours. Take a copy whenever you like, and pull an application back whenever you change your mind.">
+    <Block
+      id="me-data"
+      icon={DownloadSimple}
+      title="Your data"
+      lede="It is yours. Take a copy whenever you like, and pull an application back whenever you change your mind."
+    >
       <div className="flex flex-wrap items-center gap-3 rounded-lg bg-sunken p-4">
-        <p className="min-w-0 flex-1 basis-56 text-[14px] leading-relaxed text-ink-2">One file with everything Pool holds about you: your profile, Passport history, applications, repairs, requests and feedback.</p>
+        <p className="min-w-0 flex-1 basis-56 text-[14px] leading-relaxed text-ink-2">
+          One file with everything Pool holds about you: your profile, Passport history, applications, repairs, requests
+          and feedback.
+        </p>
         <Button
           className="rounded-full"
           icon={<DownloadSimple weight="bold" className="size-4" />}
@@ -307,7 +440,10 @@ function MyData({ applications }: { applications: Application[] }) {
 
       <h3 className="mt-5 mb-1 text-[14px] font-semibold text-ink">Applications you can withdraw</h3>
       {open.length === 0 ? (
-        <p className="text-[14px] leading-relaxed text-ink-2">None open. When you apply for a home it appears here, and withdrawing it removes your details from that landlord’s view straight away.</p>
+        <p className="text-[14px] leading-relaxed text-ink-2">
+          None open. When you apply for a home it appears here, and withdrawing it removes your details from that
+          landlord’s view straight away.
+        </p>
       ) : (
         <ul className="divide-y divide-line">
           {open.map((a) => {
@@ -368,27 +504,65 @@ const KINDS: { value: Feedback['kind']; label: string }[] = [
   { value: 'complaint', label: 'A complaint' },
 ]
 
-const STATUS: Record<Feedback['status'], string> = { new: 'Received', triaged: 'Being looked at', planned: 'Planned', shipped: 'Done', declined: 'Not going ahead' }
+const STATUS: Record<Feedback['status'], string> = {
+  new: 'Received',
+  triaged: 'Being looked at',
+  planned: 'Planned',
+  shipped: 'Done',
+  declined: 'Not going ahead',
+}
 
 function FeedbackBlock() {
   const me = useMe()
   const all = useStore((s) => s.db.feedback)
-  const mine = useMemo(() => all.filter((f) => f.userId === me.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt)), [all, me.id])
+  const mine = useMemo(
+    () => all.filter((f) => f.userId === me.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    [all, me.id],
+  )
   const [kind, setKind] = useState<Feedback['kind']>('idea')
   const [text, setText] = useState('')
   const [nudged, setNudged] = useState(false)
   const tooShort = text.trim().length < 8
   return (
-    <Block id="me-feedback" icon={ChatCircleDots} title="Tell us what you think" lede="A person on the Pool team reads every message. Replies come back here.">
-      <div role="radiogroup" aria-label="What kind of message" className="flex flex-wrap gap-2">
+    <Block
+      id="me-feedback"
+      icon={ChatCircleDots}
+      title="Tell us what you think"
+      lede="A person on the Pool team reads every message. Replies come back here."
+    >
+      <Choices label="What kind of message" value={kind} onChange={setKind} className="flex flex-wrap gap-2">
         {KINDS.map((k) => (
-          <button key={k.value} type="button" role="radio" aria-checked={kind === k.value} onClick={() => setKind(k.value)} className={cn('pressable h-11 rounded-full px-4 text-[14px] font-medium transition-colors', kind === k.value ? 'bg-ink text-bg' : 'bg-sunken text-ink-2 hoverable:hover:text-ink')}>
+          <Choice
+            key={k.value}
+            value={k.value}
+            className={cn(
+              'pressable inline-flex h-11 cursor-pointer items-center rounded-full px-4 text-[14px] font-medium transition-colors',
+              kind === k.value ? 'bg-ink text-bg' : 'bg-sunken text-ink-2 hoverable:hover:text-ink',
+            )}
+          >
             {k.label}
-          </button>
+          </Choice>
         ))}
-      </div>
-      <Field className="mt-3" label="Your message" error={nudged && tooShort ? 'Write a sentence, so we know what you mean.' : undefined}>
-        {(p) => <Textarea {...p} value={text} onChange={(e) => setText(e.target.value)} placeholder={kind === 'bug' ? 'What were you doing, and what happened instead?' : kind === 'praise' ? 'What worked well?' : 'What is on your mind?'} />}
+      </Choices>
+      <Field
+        className="mt-3"
+        label="Your message"
+        error={nudged && tooShort ? 'Write a sentence, so we know what you mean.' : undefined}
+      >
+        {(p) => (
+          <Textarea
+            {...p}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder={
+              kind === 'bug'
+                ? 'What were you doing, and what happened instead?'
+                : kind === 'praise'
+                  ? 'What worked well?'
+                  : 'What is on your mind?'
+            }
+          />
+        )}
       </Field>
       <Button
         intent="primary"
@@ -408,7 +582,9 @@ function FeedbackBlock() {
 
       <h3 className="mt-6 mb-1 text-[14px] font-semibold text-ink">What you have sent</h3>
       {mine.length === 0 ? (
-        <p className="text-[14px] leading-relaxed text-ink-2">Nothing yet. Anything you send, or flag as wrong on your Passport, is listed here with what happened to it.</p>
+        <p className="text-[14px] leading-relaxed text-ink-2">
+          Nothing yet. Anything you send, or flag as wrong on your Passport, is listed here with what happened to it.
+        </p>
       ) : (
         <ul className="divide-y divide-line">
           {mine.map((f) => (
@@ -447,12 +623,19 @@ export function Me() {
       <header className="mb-6 flex flex-wrap items-center gap-x-5 gap-y-4 sm:mb-8">
         <Avatar name={me.fullName} hue={me.hue} size={76} className="ring-4 ring-surface" />
         <div className="min-w-0 flex-1 basis-60">
-          <p className="eyebrow">{home ? `Renting ${home.property.address.line1}` : 'Looking for a home'} · demo persona</p>
+          <p className="eyebrow">
+            {home ? `Renting ${home.property.address.line1}` : 'Looking for a home'} · demo persona
+          </p>
           <h1 className="display mt-1 text-[32px] text-ink sm:text-[42px]">{me.fullName}</h1>
           <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[14px] text-ink-2">
             <span>{me.email}</span>
             <span>{me.phone}</span>
-            <span className={cn('inline-flex items-center gap-1 font-medium', me.identityVerified ? 'text-ok-text' : 'text-ink-3')}>
+            <span
+              className={cn(
+                'inline-flex items-center gap-1 font-medium',
+                me.identityVerified ? 'text-ok-text' : 'text-ink-3',
+              )}
+            >
               {me.identityVerified && <SealCheck weight="fill" className="size-4" aria-hidden />}
               {me.identityVerified ? 'Identity verified' : 'Identity not verified yet'}
             </span>
@@ -467,12 +650,23 @@ export function Me() {
             icon={UsersThree}
             title="You and your household"
             action={
-              <Button intent="soft" className="rounded-full" icon={<PencilSimple weight="bold" className="size-4" />} onClick={() => setEditing(true)}>
+              <Button
+                intent="soft"
+                className="rounded-full"
+                icon={<PencilSimple weight="bold" className="size-4" />}
+                onClick={() => setEditing(true)}
+              >
                 Edit
               </Button>
             }
           >
-            {profile.headline ? <p className="text-[17px] leading-snug font-medium text-ink text-pretty">{profile.headline}</p> : <p className="text-[15px] text-ink-3">No introduction yet. A line or two helps a landlord picture who is applying.</p>}
+            {profile.headline ? (
+              <p className="text-[17px] leading-snug font-medium text-ink text-pretty">{profile.headline}</p>
+            ) : (
+              <p className="text-[15px] text-ink-3">
+                No introduction yet. A line or two helps a landlord picture who is applying.
+              </p>
+            )}
             {profile.bio && <p className="mt-2 text-[14px] leading-relaxed text-ink-2">{profile.bio}</p>}
             <div className="mt-4 flex items-center gap-3 border-t border-line pt-4">
               <span className="flex -space-x-2">
@@ -481,8 +675,14 @@ export function Me() {
                 ))}
               </span>
               <p className="min-w-0 flex-1 text-[14px] text-ink-2">
-                <span className="font-semibold text-ink">{plural(Math.max(profile.householdSize, everyone.length), 'person', 'people')}</span> in the household
-                {home && home.housemates.length > 0 ? ` — you and ${home.housemates.map((u) => firstName(u.fullName)).join(' and ')} are on the agreement` : ''}.
+                <span className="font-semibold text-ink">
+                  {plural(Math.max(profile.householdSize, everyone.length), 'person', 'people')}
+                </span>{' '}
+                in the household
+                {home && home.housemates.length > 0
+                  ? ` — you and ${home.housemates.map((u) => firstName(u.fullName)).join(' and ')} are on the agreement`
+                  : ''}
+                .
               </p>
             </div>
             {!home && (profile.moveInFrom || profile.budgetWeekly) && (
@@ -491,7 +691,9 @@ export function Me() {
                 {profile.budgetWeekly ? `, up to ${money(profile.budgetWeekly)} a week` : ''}.
               </p>
             )}
-            <p className="mt-3 text-xs leading-relaxed text-ink-3">A landlord sees this only when you apply to them. Your job, age and family are never asked for.</p>
+            <p className="mt-3 text-xs leading-relaxed text-ink-3">
+              A landlord sees this only when you apply to them. Your job, age and family are never asked for.
+            </p>
           </Block>
           <Pets home={home} />
           <FeedbackBlock />

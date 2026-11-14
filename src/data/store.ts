@@ -12,7 +12,7 @@
  */
 import { useMemo } from 'react'
 import { create } from 'zustand'
-import { createJSONStorage, persist } from 'zustand/middleware'
+import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware'
 import { nanoid } from 'nanoid'
 import type { ID, ISODateTime, Portal, Session, User } from '@/domain/types'
 import type { AutopilotEntry, Db } from '@/domain/db'
@@ -54,6 +54,50 @@ function freshDb(): Db {
   return { ...seeded, ...sweep(seeded, day).patch }
 }
 
+/* ───────────────────────────────── saving ───────────────────────────────── */
+
+/**
+ * Whether this browser is keeping what the store writes.
+ *
+ * Every change rewrites the whole store to localStorage, which every
+ * `<user>.github.io` project shares and which holds about 5 MB. When a write
+ * is refused the change is still in memory and the app carries on, but nothing
+ * since `failedAt` is on disk, so a reload would lose it. The shells watch this
+ * and tell the person once (`StorageWatch` in src/shell/common.tsx). Because
+ * each write is the whole store, the first write that succeeds again saves
+ * everything, and clears the flag.
+ */
+export interface SaveState {
+  /** When the first refused write happened, or null while saving works. */
+  failedAt: ISODateTime | null
+  /** `full` is the quota; `blocked` is anything else the browser refused with. */
+  reason: 'full' | 'blocked' | null
+}
+
+export const useSaveState = create<SaveState>(() => ({ failedAt: null, reason: null }))
+
+function isQuotaError(e: unknown): boolean {
+  return e instanceof DOMException && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')
+}
+
+/** Wraps a browser store so a refused write is recorded instead of thrown into the middle of a mutation. */
+export function guardedStorage(inner: Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>): StateStorage {
+  return {
+    getItem: (name) => inner.getItem(name),
+    removeItem: (name) => inner.removeItem(name),
+    setItem: (name, value) => {
+      try {
+        inner.setItem(name, value)
+        if (useSaveState.getState().failedAt) useSaveState.setState({ failedAt: null, reason: null })
+      } catch (e) {
+        if (!useSaveState.getState().failedAt) {
+          useSaveState.setState({ failedAt: new Date().toISOString(), reason: isQuotaError(e) ? 'full' : 'blocked' })
+        }
+      }
+    },
+  }
+}
+
 export const useStore = create<Store>()(
   persist(
     (set) => ({
@@ -79,11 +123,17 @@ export const useStore = create<Store>()(
     {
       name: 'loop-pool:store',
       version: SEED_VERSION,
-      storage: createJSONStorage(() => localStorage),
+      // Reading `localStorage` inside the callback keeps the old behaviour where there is none
+      // (tests, a locked-down browser): the middleware catches that and runs without persistence.
+      storage: createJSONStorage(() => guardedStorage(localStorage)),
       // A new seed shape replaces the stored demo rather than trying to migrate it.
       migrate: (persisted) => {
         const old = persisted as Partial<Store> | undefined
-        return { db: freshDb(), session: null, prefs: old?.prefs ?? { theme: 'system', toured: {}, mapStyle: 'streets' } } as Store
+        return {
+          db: freshDb(),
+          session: null,
+          prefs: old?.prefs ?? { theme: 'system', toured: {}, mapStyle: 'streets' },
+        } as Store
       },
       // The simulated bank feed catches up to today every time the app opens.
       onRehydrateStorage: () => (state) => {
@@ -169,5 +219,7 @@ export function audit(actor: string, action: string, target: string, detail?: st
 
 /** A line in the landlord's autopilot feed. */
 export function logAutopilot(orgId: ID, kind: AutopilotEntry['kind'], text: string): void {
-  db.patch((d) => ({ autopilotLog: [{ id: newId('ap'), orgId, at: nowIso(), kind, text }, ...d.autopilotLog].slice(0, 200) }))
+  db.patch((d) => ({
+    autopilotLog: [{ id: newId('ap'), orgId, at: nowIso(), kind, text }, ...d.autopilotLog].slice(0, 200),
+  }))
 }

@@ -7,6 +7,7 @@ A property-management platform built from Sam's spec (`docs/spec/`): **Loop** fo
 ## Honesty
 
 - **The law is never written from memory.** Every statutory value lives in a rule pack (`src/domain/jurisdictions/`) with its citation, source URL and the date it was checked. A new value needs a source in `docs/research/`. Screens read rules through `usePack()`; they never hard-code "21 days".
+- **Publishing is not commencement.** A value published ahead of the date it comes into force is held until then (`resolvePack(code, versions, on)`). Wherever `rule.plain` is printed, `<RuleMoves>` is printed with it. Sentences read their numbers from the pack; `no-typed-law.test.ts` checks the assistant and the action queue.
 - **Show the working.** A date comes with the steps that produced it (`<Working>`), a rule with its source (`<Why>`). Loop's own safety margin is always marked "not law".
 - **A refusal is a sentence with its reason, where it is refused** (`<Refusal>`). Never a silently disabled control.
 - **Demo data is labelled.** People are invented; simulated things (bank feed, integrations) say so on screen. Nothing fake is presented as real, and there is no password field that protects nothing.
@@ -27,7 +28,7 @@ A property-management platform built from Sam's spec (`docs/spec/`): **Loop** fo
 
 - `src/domain` is pure: no React, no DOM, no store. Rules, calculators, the demo world, the assistant, self-healing.
 - `src/data/store.ts` is the only persistence. Every tenant-owned record carries `orgId`; landlord screens read through `useOrgRows`. Screens change data through `src/data/*mutations.ts`, never by writing to the store directly.
-- `src/routes/*` are thin: each imports a screen from `src/screens/<portal>/`.
+- `src/routes/*` are thin: each imports a screen from `src/screens/<portal>/`. A route's `validateSearch` parser lives in a module that imports no component (`screens/admin/search.ts`, `screens/pool/*/params.ts`); a parser exported from a screen pulls that screen into every portal's first download.
 - A calendar date is a `YYYY-MM-DD` string. Never `.slice(0, 10)` an instant — use `dateOf()`.
 - A grid child that holds a scroller or truncated text needs `grid-cols-[minmax(0,1fr)]` or `min-w-0`. A horizontally scrolling box that contains `sr-only` text must be `relative`. Either one, missed, widens the page on a phone.
 - `src/domain/watcher.ts` has no imports on purpose: the nightly script loads it with Node directly.

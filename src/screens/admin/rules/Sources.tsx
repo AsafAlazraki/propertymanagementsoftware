@@ -19,8 +19,7 @@ import { initialCap, matches, whenExact, whenInline, whenShort } from '../format
 import type { FeedStatus } from './feed'
 import { SHORT } from './shared'
 
-export const SOURCE_STATES = ['attention', 'unreachable', 'stale', 'ok'] as const
-export type SourceFilter = (typeof SOURCE_STATES)[number]
+import { type SourceFilter } from '../search'
 
 type Row = RuleSource & { state: SourceState; daysSince: number | null }
 

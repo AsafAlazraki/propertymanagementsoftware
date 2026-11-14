@@ -27,28 +27,10 @@ import { useMediaQuery } from '@/ui/hooks'
 import { cn } from '@/ui/cn'
 import { Filter, Head, Panel, Status, TONE_TEXT, Tally, Toolbar } from './kit'
 import { FEEDBACK_FLOW, FEEDBACK_KIND, FEEDBACK_STATUS, SENTIMENT } from './labels'
-import { oneOf, text, whenExact, whenShort } from './format'
+import { whenExact, whenShort } from './format'
 import { arrowNav, useLast } from './hooks'
+import { FEEDBACK_KINDS as KINDS, MOODS, type Box, type FeedbackSearch } from './search'
 
-const BOXES = ['new', 'open', 'closed', 'all'] as const
-type Box = (typeof BOXES)[number]
-const KINDS = Object.keys(FEEDBACK_KIND) as FeedbackRow['kind'][]
-const MOODS = ['positive', 'neutral', 'negative'] as const
-const ORDERS = ['newest', 'votes'] as const
-
-export interface FeedbackSearch {
-  id?: string
-  /** `open` is triaged or planned; `closed` is shipped or declined. */
-  box?: Box
-  kind?: FeedbackRow['kind']
-  mood?: FeedbackRow['sentiment']
-  area?: string
-  order?: (typeof ORDERS)[number]
-}
-
-export function feedbackSearch(s: Record<string, unknown>): FeedbackSearch {
-  return { id: text(s.id), box: oneOf(s.box, BOXES), kind: oneOf(s.kind, KINDS), mood: oneOf(s.mood, MOODS), area: text(s.area), order: oneOf(s.order, ORDERS) }
-}
 
 const route = getRouteApi('/admin/feedback')
 

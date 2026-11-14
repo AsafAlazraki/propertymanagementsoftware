@@ -130,7 +130,7 @@ export function changeOrgPlan(orgId: ID, plan: PlanTier, by: string): void {
 export function suspendOrg(orgId: ID, reason: string, by: string): Verdict {
   const org = db.get().orgs.find((o) => o.id === orgId)
   if (!org) return refuse('That organisation can no longer be found.')
-  if (!isSentence(reason, 12)) return refuse('A suspension needs its reason, as a sentence.', 'The owner is shown these exact words when their account goes read-only.')
+  if (!isSentence(reason, 12)) return refuse('A suspension needs its reason, as a sentence.', 'The owner is shown these exact words in Loop while the account is suspended.')
   db.update('orgs', orgId, { status: 'suspended', suspendedReason: reason.trim() })
   audit(by, 'Suspended', org.name, reason.trim(), orgId)
   return OK

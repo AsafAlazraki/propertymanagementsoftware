@@ -6,10 +6,10 @@ import { toast } from 'sonner'
 import { ArrowCounterClockwise, DownloadSimple } from '@phosphor-icons/react'
 import { useMe, useOrgId, useStore } from '@/data/store'
 import { useToday } from '@/data/hooks'
-import { noteExport, resetDemoData } from '@/data/ops-mutations'
+import { noteExport } from '@/data/ops-mutations'
+import { ResetDemoModal } from '@/shell/common'
 import { Button } from '@/ui/Button'
 import { Num } from '@/ui/display'
-import { Modal } from '@/ui/Sheet'
 import { collectOrgData, downloadJson, exportContents } from './export'
 import { Section, Truth } from './shared'
 
@@ -88,32 +88,7 @@ export function DataSection() {
         </Button>
       </div>
 
-      <Modal
-        open={confirming}
-        onOpenChange={setConfirming}
-        size="sm"
-        title="Reset the demo data?"
-        description="Every change made in this browser is undone, in Loop, Pool and the team console alike: bookings, repairs, notices, inspections and their photos, feedback and settings. Your colour theme stays. This cannot be undone."
-        footer={
-          <>
-            <Button intent="ghost" onClick={() => setConfirming(false)}>
-              Keep everything
-            </Button>
-            <Button
-              intent="danger"
-              onClick={() => {
-                resetDemoData()
-                setConfirming(false)
-                toast.success('Demo reset', {
-                  description: 'Every record is back to how it started, dated from today.',
-                })
-              }}
-            >
-              Reset the demo
-            </Button>
-          </>
-        }
-      />
+      <ResetDemoModal open={confirming} onOpenChange={setConfirming} />
     </Section>
   )
 }

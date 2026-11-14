@@ -457,7 +457,7 @@ export function CommandCentre() {
                 value={figures.savings?.saved ?? 0}
                 className="text-[22px] font-semibold tracking-[-0.02em] text-ok-text sm:text-2xl"
               />
-              <p className="mt-0.5 truncate text-xs text-ink-3">a year, vs a manager at 8% + GST</p>
+              <p className="mt-0.5 text-xs text-pretty text-ink-3">a year, vs a manager at 8% + GST</p>
             </dd>
           </div>
         </dl>
