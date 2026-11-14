@@ -17,7 +17,7 @@ import type { ID, ISODate, KbEntry, Portal } from './types'
 import type { Db } from './db'
 import type { JurisdictionPack, RuleKey, Verification } from './jurisdictions/types'
 import { regionOf } from './jurisdictions'
-import { fmtDate } from './rules/calendar'
+import { dateOf, fmtDate } from './rules/calendar'
 import { calendarFor } from './rules/core'
 import { arrearsState, bondCaps, bondLodgement, fixedTermWindow, inspectionWindow, planRentIncrease, planTermination, tenantLiabilityCap } from './rules/tenancy'
 import { money, plural } from './rules/format'
@@ -148,7 +148,7 @@ const INTENTS: Intent[] = [
     answer: (ctx) => {
       const figures = myTenancies(ctx).map(({ t, property, cal }) => {
         const last = ctx.db.inspections.filter((i) => i.tenancyId === t.id && i.status === 'completed').sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? ''))[0]
-        const w = inspectionWindow(ctx.pack, cal, { sentOn: ctx.today, method: 'email' }, last?.completedAt?.slice(0, 10))
+        const w = inspectionWindow(ctx.pack, cal, { sentOn: ctx.today, method: 'email' }, last?.completedAt ? dateOf(last.completedAt) : undefined)
         return { label: property.address.line1, value: `From ${fmtDate(w.earliest)}`, note: w.latest ? `If notice is emailed today; that notice is good until ${fmtDate(w.latest)}.` : undefined }
       })
       return {
@@ -525,7 +525,7 @@ function fromKb(kb: KbEntry[], q: string, portal: Portal): Answer | null {
     headline: hit.answer.split('. ')[0] + '.',
     body: [hit.answer.split('. ').slice(1).join('. ')].filter(Boolean),
     figures: [],
-    citations: hit.citation && hit.sourceUrl ? [external(hit.question, hit.citation, hit.sourceUrl, hit.taughtAt.slice(0, 10), 'secondary')] : [],
+    citations: hit.citation && hit.sourceUrl ? [external(hit.question, hit.citation, hit.sourceUrl, dateOf(hit.taughtAt), 'secondary')] : [],
     taughtBy: hit.taughtBy,
   }
 }

@@ -10,7 +10,7 @@ import type { ID, ISODate } from './types'
 import type { Db } from './db'
 import type { JurisdictionPack, RuleKey } from './jurisdictions/types'
 import { regionOf } from './jurisdictions'
-import { addMonths, diffDays, fmtDate } from './rules/calendar'
+import { addMonths, dateOf, diffDays, fmtDate } from './rules/calendar'
 import { calendarFor } from './rules/core'
 import { complianceReport } from './rules/compliance'
 import { arrearsState, bondLodgement, fixedTermWindow } from './rules/tenancy'
@@ -90,7 +90,7 @@ export function landlordActions(db: Db, orgId: ID, pack: JurisdictionPack, today
     // Rent overdue.
     const a = arrearsState(pack, c, t, today)
     if (a.daysLate > 0) {
-      const events = db.arrearsEvents.filter((e) => e.tenancyId === t.id && e.at.slice(0, 10) >= t.rentPaidTo)
+      const events = db.arrearsEvents.filter((e) => e.tenancyId === t.id && dateOf(e.at) >= t.rentPaidTo)
       const contacted = events.some((e) => e.kind === 'landlord_called' || e.kind === 'concierge_requested' || e.kind === 'concierge_reported')
       const noticed = events.some((e) => e.kind === 'remedy_notice_sent')
       const who = first(t.tenantIds[0])

@@ -62,7 +62,7 @@ interface SourceRow {
   priority: number
 }
 
-export function buildPlatform({ T, orgs, users, tenancies }: Ctx): PlatformSlice {
+export function buildPlatform({ D, T, orgs, users, tenancies }: Ctx): PlatformSlice {
   const ownerOf = (orgId: ID) => orgs.find((o) => o.id === orgId)?.ownerUserId ?? 'u_hana'
   const tenantIn = (orgId: ID) => tenancies.find((t) => t.orgId === orgId)?.tenantIds[0] ?? 'u_mia'
 
@@ -161,7 +161,7 @@ export function buildPlatform({ T, orgs, users, tenancies }: Ctx): PlatformSlice
         'This is a practice item, not a real change to the law. It exists so the team can rehearse the review path: read the evidence, approve it twice (termination rules need two reviewers), publish, and watch every notice calculator pick up the new value. Reject it to leave the live rule at 21 days.',
       evidenceQuote: '[Practice text] “…the tenant shall give the landlord at least 28 days’ notice of termination, in any case.”',
       evidenceUrl: `${RTA}#DLM95514`,
-      patches: [{ ruleKey: 'termination.tenant_periodic_notice', from: { n: 21, unit: 'days' }, to: { n: 28, unit: 'days' }, effectiveFrom: T(30).slice(0, 10) }],
+      patches: [{ ruleKey: 'termination.tenant_periodic_notice', from: { n: 21, unit: 'days' }, to: { n: 28, unit: 'days' }, effectiveFrom: D(30) }],
       confidence: 'medium',
       impact: 'high',
       status: 'pending_review',

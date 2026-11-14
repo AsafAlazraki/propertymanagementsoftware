@@ -17,7 +17,7 @@
  */
 import type { ID, Incident, ISODate, Playbook } from './types'
 import type { Db } from './db'
-import { diffDays } from './rules/calendar'
+import { addDays, dateOf, diffDays } from './rules/calendar'
 import { money } from './rules/format'
 
 export const PROMOTE_AFTER_APPROVALS = 3
@@ -159,7 +159,7 @@ function findAll(db: Db, today: ISODate): Finding[] {
   }
 
   // Watched legal sources that have gone quiet.
-  const stale = db.ruleSources.filter((s) => s.priority === 1 && (!s.lastCheckedAt || diffDays(s.lastCheckedAt.slice(0, 10), today) > STALE_SOURCE_DAYS))
+  const stale = db.ruleSources.filter((s) => s.priority === 1 && (!s.lastCheckedAt || diffDays(dateOf(s.lastCheckedAt), today) > STALE_SOURCE_DAYS))
   if (stale.length) {
     out.push({
       playbookId: 'pb_stale_source',
@@ -196,9 +196,7 @@ function applyFix(db: Db, incident: Pick<Incident, 'playbookId' | 'refs'>, today
         const ledgerId = `led_heal_${l.id}`
         ledger.unshift({ id: ledgerId, orgId: t.orgId, propertyId: t.propertyId, tenancyId: t.id, date: l.date, kind: 'rent', amount: l.amount, category: 'rent', description: 'Rent — matched by the self-healing engine', bankRef: l.reference, match: 'auto' })
         const cycle = t.cadence === 'fortnightly' ? 14 : 7
-        const [y, m, d] = t.rentPaidTo.split('-').map(Number)
-        const next = new Date(Date.UTC(y, m - 1, d + cycle))
-        tenancies[i] = { ...t, rentPaidTo: next.toISOString().slice(0, 10) }
+        tenancies[i] = { ...t, rentPaidTo: addDays(t.rentPaidTo, cycle) }
         return { ...l, status: 'matched' as const, ledgerId }
       })
       return { bankLines, tenancies, ledger }

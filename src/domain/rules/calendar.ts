@@ -50,6 +50,15 @@ export function isoOf(d: Date): ISODate {
   return `${d.getFullYear()}-${m}-${day}`
 }
 
+/**
+ * The calendar date of an instant, where the viewer is. Never take the first ten
+ * characters of an ISO timestamp for this: that is the date in UTC, which is
+ * yesterday for anyone east of Greenwich before mid-morning.
+ */
+export function dateOf(instant: string): ISODate {
+  return isoOf(new Date(instant))
+}
+
 export function addDays(iso: ISODate, n: number): ISODate {
   return fromUTC(toUTC(iso) + n * DAY)
 }

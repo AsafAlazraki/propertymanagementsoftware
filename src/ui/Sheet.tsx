@@ -78,7 +78,7 @@ export function Sheet({
                 <X className="size-[18px]" weight="bold" />
               </Drawer.Close>
             </header>
-            <Drawer.Content className="min-h-0 flex-1 touch-auto overflow-y-auto overscroll-contain px-5 py-5 md:px-6">{children}</Drawer.Content>
+            <Drawer.Content className="min-h-0 min-w-0 flex-1 touch-auto overflow-x-hidden overflow-y-auto overscroll-contain px-5 py-5 md:px-6">{children}</Drawer.Content>
             {footer && (
               <footer className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-line bg-surface px-5 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] md:px-6">
                 {footer}

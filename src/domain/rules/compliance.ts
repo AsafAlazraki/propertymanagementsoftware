@@ -7,7 +7,7 @@
  */
 import type { Inspection, ISODate, Property, Tenancy } from '../types'
 import type { ComplianceCheckDef, JurisdictionPack } from '../jurisdictions/types'
-import { addMonths, addWeeks, diffDays, fmtDate, type CalendarConfig } from './calendar'
+import { addMonths, addWeeks, dateOf, diffDays, fmtDate, type CalendarConfig } from './calendar'
 import { bondLodgement } from './tenancy'
 
 export type CheckStatus = 'ok' | 'attention' | 'fail' | 'na'
@@ -142,7 +142,7 @@ function evaluate(
     case 'inspection_current': {
       if (!active) return na('No tenancy at the moment.')
       const weeks = p.insurance.inspectionIntervalWeeks ?? 13
-      const last = lastInspection?.completedAt?.slice(0, 10)
+      const last = lastInspection?.completedAt ? dateOf(lastInspection.completedAt) : undefined
       if (!last) return { def, status: 'attention', finding: 'No inspection has been recorded for this tenancy.', fix: 'Schedule one.', action: 'inspection' }
       const due = addWeeks(last, weeks)
       const days = diffDays(today, due)

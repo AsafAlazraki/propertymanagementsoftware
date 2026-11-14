@@ -1,0 +1,607 @@
+MASTER PRODUCT BLUEPRINT & TECHNICAL SPECIFICATION
+
+Loop & Pool: Autonomous Property & Rental
+Platform
+
+Dual-Brand Ecosystem Architecture (Loop for Landlords & Pool for Tenants/Search), Australasian
+Expansion Case, Operational SOPs, 2026 NZ Legislative Guardrails, Integrations, Relational
+Database Schema & AI Engineering Handoff
+
+   PART 1: BUSINESS CASE, DUAL-BRAND ECOSYSTEM & OPERATIONS
+
+  Why Australasia Needs Loop & Pool & Standard Operating
+  Procedures
+
+1. Executive Justification: Solving the Reluctant Investor's Dilemma
+
+Across New Zealand and Australia, everyday Kiwi and Australian property investors (owning 1 to 4
+properties) face an unfair binary choice: either surrender 7.5% to 10% + GST of gross rental income
+($2,700 to $4,500 per property annually) to traditional property management agencies, or manage
+the tenancy themselves using spreadsheets and basic DIY form tools, creating a stressful second job
+and exposing themselves to severe statutory penalties.
+
+Traditional DIY platforms (such as myRent in New Zealand, with roughly 55,000 landlords) only solve
+basic record-keeping and force landlords and tenants into a single generic interface. When a pipe
+bursts at 2:00 AM, a routine inspection falls due while the owner is out of town, or a tenant wants a
+portable renter profile across homes, both sides are left unsupported.
+
+  Core Value Proposition: "Autopilot Software + On-Demand Physical Legs + Two-Sided
+  Network"
+  90% of property management is software-automatable (rent reconciliation, arrears chasing,
+  statutory notice timing, Healthy Homes compliance, bond lodgements, and tax categorisation).
+  The remaining 10% (physical inspections, open home viewings, key handovers, and
+  Tenancy Tribunal representation) is decoupled into an on-demand marketplace fulfilled by
+  vetted local inspectors and partner agencies. This saves investors $2,500+ per year while
+  allowing them to manage every physical task remotely from their phone.
+
+1.1 The Dual-Brand Ecosystem: Loop & Pool
+
+To eliminate UX confusion and create a two-sided marketplace flywheel, the platform operates as a
+single unified backend powering two distinct user-facing brands:
+
+Loop & Pool: Information Architecture & AI Build Spec  Page 1 of 14
+Brand        Target Audience    Core Brand Promise Key Capabilities & Network Flywheel
+Pillar       Property
+Loop         investors, family  "Put your rental on      Command Center Action Queue, 2026 RTA
+(Landlord &  trusts, LTCs &     autopilot. Keep 100% of  Compliance Engine, Maintenance Sinking Fund,
+Asset OS)    partner PM         the control and          IR3R Tax Ledger, Key Custody Vault, On-
+             agencies           $2,500+/yr in fees."     Demand Gig PM Marketplace, and 1-Click
+Pool         Prospective        "One verified renter     Exit/Sale/Handover Data Rooms.
+(Tenant      renters & active   profile. Instant fixed-  Public Rental Search Engine (zero rent-
+Portal &     tenants            rent search, 1-click     bidding), Privacy Act 2020 verified renter profile,
+Rental                          applications & a         active tenancy dashboard (even if landlord is
+Search)                         portable Rent            not on Loop yet), photo/video maintenance
+                                Passport."               triage, 1-click variations, and portable Rent
+                                                         Passport.
+
+1.2 Australasian Expansion Strategy (New Zealand First, Australia Second)
+
+New Zealand serves as the ideal launchpad due to a single national Residential Tenancies Act (RTA),
+high residential investment concentration, and modern digital government infrastructure (Tenancy
+Services Online Bond Hub). Once proven in Nelson, Auckland, Wellington, and Christchurch, the
+modular jurisdiction rules engine expands into Australia (NSW, VIC, QLD, WA, SA) by swapping state
+legislative rule packs without rewriting the core product.
+
+1.3 Beachhead Launch Playbook: Nelson Rollout & Rent-Roll Migration
+
+Rather than launching into a cold market with zero listings or field coverage, Loop & Pool launches
+first in Nelson/Tasman by migrating an existing traditional rent roll onto the platform. Nelson,
+Tahunanui, Stoke, and Richmond sit within a compact 15 to 20-minute radius, creating immediate
+marketplace liquidity and real case studies before national expansion.
+
+  Founding Landlord Hybrid Conversion: Existing rent-roll landlords transition onto Autopilot Pro
+  ($25/month) plus pay-as-you-go physical tasks ($85 routine inspections, $65 open homes), saving
+  over $2,000/year compared to 7.5% to 10% + GST management fees while retaining high-margin
+  SaaS and field-service revenue with minimal admin overhead.
+
+  Office Key Safe as Key Hub #1: The existing agency office safe operates immediately as
+  Nelson's primary Key Custody Depot, issuing time-gated pickup codes to local tradespeople and
+  inspectors before third-party café/dairy depots scale across Stoke and Richmond.
+
+  90-Day Nelson Rollout Sequence:
+     Days 1 to 30 (Internal Migration): Bulk-import the existing rent roll via the Admin Migration
+     Console, activate the office Key Depot, and onboard existing tenants onto Pool to build live
+     Rent Passports.
+
+     Days 31 to 60 (Founding Landlord Conversion): Transition existing landlords onto Loop's flat
+     subscription + on-demand inspection model, creating 50 to 100+ active paying properties.
+
+Loop & Pool: Information Architecture & AI Build Spec    Page 2 of 14
+     Days 61 to 90 (Nelson Public Launch): Present verified Nelson landlord savings data to the
+     Nelson Property Investors' Association, onboard local independent inspectors, and open sign-
+     ups across Nelson/Tasman.
+
+1.4 Commercial Model & Pricing Tiers (NZD, Incl. GST)
+
+Loop & Pool combines predictable recurring SaaS subscriptions with high-margin transactional
+marketplace fees, undercutting traditional 7.5% to 10% + GST property managers by roughly 85%:
+
+Plan / Revenue     Price (NZD)           Target Customer             Included Features & Commercial
+Stream             $0 / month            Spreadsheet landlords       Value
+Ledger Free        (1 property)          Everyday Kiwi investors (1
+(Acquisition       $25 / month (1st      to 4 properties)              Open Banking rent tracking & basic
+Hook)              property)                                           expense log
+Autopilot Pro      +$15 / month (extra   Family trusts, LTCs &         Statutory date reminders &
+(Core Engine)      properties)           multi-owner portfolios        compliance checklist
+                                         First-time & re-tenanting     Natural upsell trigger when issuing
+Portfolio & Trust  $79 / month           landlords                     notices or variations
+                   (up to 5 properties)  Out-of-town & hands-off
+Tenant-Finding     $49 one-off           landlords                     Full 2026 RTA compliance engine
+Pack               (+ Trade Me fee at                                  & notice generator
+On-Demand          cost)                                               1-click digital lease variations & e-
+Field Tasks        20% platform fee                                    signing
+                   (on task price)                                     Maintenance Sinking Fund vault &
+                                                                       IR3R tax pack
+                                                                       Automatic PII redaction for Tribunal
+                                                                       evidence packs
+
+                                                                       Multi-entity ownership & separate
+                                                                       IRD reporting
+                                                                       Dual-trustee spend approval
+                                                                       thresholds
+                                                                       Dedicated accountant seat & 10%
+                                                                       off field tasks
+
+                                                                       Instant listing on Pool Search,
+                                                                       Trade Me & realestate.co.nz
+                                                                       Privacy Act 2020 two-stage
+                                                                       applicant vetting
+                                                                       Credit/Tribunal checks & Online
+                                                                       Bond Hub lodgement
+
+                                                                       Routine Inspection ($85) &
+                                                                       Viewing/Open Home ($65)
+                                                                       Entry/Exit Condition Report ($140)
+                                                                       Tenancy Tribunal Representation
+                                                                       ($250)
+
+Loop & Pool: Information Architecture & AI Build Spec                Page 3 of 14
+Plan / Revenue  Price (NZD)                            Target Customer        Included Features & Commercial
+Stream          $350 Agency                            Partner PMs, Insurers  Value
+B2B & Fintech   Handover;                              & Debt Collectors
+Commissions     15% to 20%                                                      Referral fee when landlords
+                Insurance/Debt                                                  switch to full-service PMs
+                                                                                Landlord insurance & MOJ/credit
+                                                                                debt recovery commissions
+
+2. Standard Operating Procedures (SOPs)
+
+The following SOPs govern daily platform operations so landlords, tenants, tradespeople, and
+administrators understand exact workflows clearly.
+
+SOP 1: Dual-Track Landlord Onboarding (First-Time Rental vs. Existing Tenancy)
+
+1. Path A: Renting a Property for the First Time (New-to-Market Wizard):
+     Step 1 (Address & Ownership Setup): Landlord enters the property address in Loop (auto-
+     populating council/title data) and selects ownership structure (Individual, Family Trust, LTC, or
+     Joint Partnership).
+     Step 2 (Pre-Letting Compliance Check): Guided 5-point Healthy Homes calculator (heating
+     kW size, ceiling/underfloor insulation, extractor fans, ground moisture barrier, draught
+     stopping), smoke alarm verification, and Body Corporate rules upload (if Unit Title).
+     Step 3 (Key Custody & Marketing): Landlord registers spare key access via a City Key
+     Collection Depot (KeyNest NZ) or on-site lockbox, sets a fixed weekly rent (enforcing RTA s
+     22F), and publishes directly to Pool Search, Trade Me, and realestate.co.nz.
+
+2. Path B: Switching an Existing Tenancy ("30-Second AI Magic Import"):
+     Step 1 (Document Upload): Landlord uploads their current PDF tenancy agreement and an
+     optional CSV bank statement export.
+     Step 2 (AI Reconstruction): AI extracts tenant details, weekly rent, bond lodgement ID,
+     chattels, and Healthy Homes dates, building the live ledger in 30 seconds.
+     Step 3 (Autopilot & Tenant Link): Landlord links Open Banking, sets their auto-approve
+     repair threshold, and invites the tenant to connect their Pool account.
+
+SOP 2: Automated Rent Reconciliation, Sinking Funds & Arrears Escalation
+
+1. Daily Bank Matching: Incoming rent payments are matched automatically via Open Banking
+  references and logged into the IR3R tax-categorised ledger.
+
+2. Maintenance Sinking Fund Skim: On every cleared rent payment, the configured percentage
+  (e.g., 5% to 8%) is virtually ring-fenced inside the property's Maintenance Vault toward
+  forecasted CapEx replacements (hot water cylinder, heat pump, roof).
+
+Loop & Pool: Information Architecture & AI Build Spec                         Page 4 of 14
+3. Tiered Arrears & Personal Call Protocol:
+     Day 1 Late (Friendly Check-In): Platform sends a polite SMS/email reminder to the tenant and
+     prompts the landlord: "Call Tenant Directly" (one-tap dial with script) or "Have Loop Call &
+     Report Back" (a Loop support concierge phones the tenant to check if it was an accidental
+     bank delay and logs feedback in the ledger).
+
+     Day 5 Late: Formal RTA-compliant arrears notice drafted and dispatched; landlord notified.
+
+     Day 14 / Day 21 Late: System generates a 14-Day Notice to Remedy or prepares a Tenancy
+     Tribunal termination and debt enforcement pack for one-click approval.
+
+SOP 3: Maintenance Triage, Quotes, Tenant-Fault Verification & Key Release
+
+1. Tenant Self-Help First (via Pool): Inside their Pool app, the tenant sees visual 60-second
+  troubleshooting cards (checking RCD safety switches, clearing sink hair traps, resetting heat
+  pump remotes), resolving roughly 25% of minor issues immediately.
+
+2. AI Urgency Classification & Fault Screening: If unresolved, the tenant submits photos/video. AI
+  classifies urgency (Emergency RTA s 45, Urgent, or Routine) and flags potential tenant-caused
+  damage (e.g., broken window, blocked drain from foreign objects, lost keys).
+
+3. Quote-First vs. Immediate Auto-Dispatch:
+     Urgent / Within Pre-Approved Limit: Dispatches a vetted local tradesperson immediately up to
+     the landlord's Sinking Fund limit (e.g., $350).
+
+     Non-Urgent or Over Limit (Quote Mode): Tradesperson receives a magic link to inspect and
+     upload an itemised GST quote first. The landlord reviews and approves the quote in one tap
+     before work begins.
+
+4. Gated Key Access: A time-restricted key depot code or lockbox PIN is released to the
+  tradesperson only after the statutory 24-hour entry notice window has cleared (or immediately for
+  genuine emergencies).
+
+5. Invoice Settlement & Tenant-Fault Liability Verification: When uploading the final GST invoice
+  and completion photos, the tradesperson indicates whether the root cause was Fair Wear & Tear /
+  Building Fault or Tenant Damage / Misuse. If tenant-caused, Pool requires the tenant to review
+  and verify the tradesperson's photo report before routing the invoice:
+     If confirmed (or verified via RTA liability rules), the invoice is billed directly to the tenant's Pool
+     ledger (with optional payment plan) rather than draining the landlord's Sinking Fund.
+
+     If disputed, the ticket is flagged for landlord mediation or Tenancy Tribunal evidence logging.
+
+SOP 4: Routine Inspections & On-Demand Physical Outsourcing
+
+1. Statutory Notice Lock: The system schedules routine inspections no more than once every 4
+  weeks and enforces a hard minimum of 48 hours' written notice (plus service buffers) before any
+  inspection slot can be booked.
+
+2. DIY vs. Delegate Choice: Seven days prior, the landlord receives a prompt: "Complete Inspection
+  Yourself" (using the guided room-by-room mobile photo checklist) or "Delegate to Local Pro
+  ($85)".
+
+Loop & Pool: Information Architecture & AI Build Spec  Page 5 of 14
+3. Offline-Capable Field Execution: Mobile inspection checklists run as an offline-first Progressive
+  Web App (PWA) with local photo caching so inspectors never lose data in basements, concrete
+  apartments, or rural Tasman lifestyle blocks with weak mobile reception. Once back online, photos
+  sync automatically and trigger a key-return alert.
+
+SOP 5: 1-Click Tenancy Variations & Tenant Relationship Care
+
+1. Instant Digital Amendments: For flatmate swaps, pet requests, fixed-term extensions, or mutual
+  clauses, the landlord selects the variation type in Loop. The platform blocks illegal contracting-out
+  clauses (RTA s 137), enforces the 21-day pet response deadline and 2-week Pet Bond cap, and
+  dispatches e-signature prompts (via native e-sign or DocuSign/Lumin) straight to the tenant's Pool
+  app.
+
+2. Retention & Home Care Nudges: Tenants receive winter condensation/mould prevention tips in
+  Pool. At 6-month and 12-month milestones, landlords receive prompts in Loop to send a thank-
+  you voucher alongside a Vacancy Cost Calculator before considering rent hikes.
+
+SOP 6: Lifecycle Transitions (Prepare for Sale, Re-Tenanting on Pool, or Agency
+Handover)
+
+1. Prepare for Sale Mode: Generates a secure, shareable Vendor Due Diligence Data Room for
+  real estate agents containing verified 12-month net yield, Healthy Homes and meth compliance
+  certificates, bond IDs, and an automated 42-day vacant-possession notice calculator upon
+  unconditional sale.
+
+2. Re-Tenanting Autopilot (Loop to Pool Instant Syndication): Triggered automatically when
+  periodic notice is given or within the 90-to-21-day fixed-term expiry window, orchestrating exit
+  inspection, instant fixed-price listing syndication onto Pool Search, Trade Me, and
+  realestate.co.nz, Privacy Act two-stage applicant vetting, and Online Bond Hub lodgement.
+
+3. Partner Agency Handover / Raw Export: If an investor chooses to switch to a full-service
+  agency or leave the platform, one click transfers the complete compliance and ledger bundle to an
+  accredited partner PM (earning a $350 B2B referral fee) or downloads a clean ZIP/CSV archive
+  with zero lock-in.
+
+SOP 7: Pool Tenant Onboarding, Public Search & The Pool Rent Passport Score
+
+1. Renter Profile Creation: Prospective tenants create a free Pool account, verify their identity
+  once, and build a reusable, Privacy Act 2020-compliant renter profile.
+
+2. The Pool Rent Passport Score (0 to 100 Verified Trust Rating): Tenants build a portable,
+  objective reputation score calculated from three verified pillars:
+     On-Time Rent Punctuality (50% weight): Percentage of rent payments cleared on or before due
+     date across Pool-tracked tenancies.
+
+     Inspection & Property Care Rating (30% weight): Average condition score across completed
+     routine and exit inspections, plus zero unresolved tenant-fault maintenance debts.
+
+     Tenancy Longevity & Verified References (20% weight): Completed lease terms and verified
+     prior landlord/PM sign-offs.
+
+Loop & Pool: Information Architecture & AI Build Spec  Page 6 of 14
+3. Fixed-Rent Search & 1-Click Apply: Renters browse Loop-managed properties on Pool Search
+  with guaranteed fixed weekly pricing (zero illegal rent bidding) and apply in one tap, or link an
+  existing tenancy to track rent and maintenance even if their current landlord has not yet joined
+  Loop.
+
+   PART 2: ENGINEERING, INTEGRATIONS & AI CODE GENERATION HANDOFF
+
+  System Architecture, Third-Party Integrations, Legislative Engine,
+  SQL Schema & AI Prompts
+
+3. System Architecture & Dual-Portal Navigation Sitemap
+
+Instruct the AI coding environment to scaffold a unified backend using Next.js (App Router),
+TypeScript, Tailwind CSS, Supabase (PostgreSQL, Auth, Storage, Edge Functions), and Stripe
+(Billing + Connect Escrow) serving two distinct branded portals (Loop and Pool) with an immediate
+first-visit onboarding wizard and seamless role-switcher.
+
+Loop & Pool: Information Architecture & AI Build Spec  Page 7 of 14
+ 0. First-Visit Onboarding, Dual-Brand Router & AI Magic Import
+  Immediate Role & Account Gate (Split welcome screen: "I Own Property ->
+Loop" vs. "I Rent / Search -> Pool")
+  Guided Setup Progress Bar (3-step checklist on first login + "Explore with
+Live Demo Portfolio" toggle)
+  Brand & Role Switcher (Toggle seamlessly between "Loop: Landlord OS" &
+"Pool: Tenant / Search")
+  30-Second AI Magic Import (Parses single Tenancy PDFs + CSV Bank Ledgers
+into Loop)
+  Admin Bulk Rent-Roll Migration Console (Batch CSV/PDF import + 1-click
+Founding Landlord/Tenant invites)
+
+ 1. LOOP: Landlord Command Center (Approval-Led UX)
+  Single Action Queue (Arrears call/concierge prompts, quote approvals,
+variation sign-offs, expiring fixed terms)
+  Wealth, Yield & Sinking Fund Pulse (Net yield, LVR, CapEx reserve
+progress, hours saved)
+  "Sleep-at-Night" Compliance Score (0 to 100% RTA & Insurance audit
+readiness)
+
+ 2. LOOP: Properties, Compliance & Key Custody Vault
+  Property & Entity Profile (Individual, Family Trust, LTC, Body Corp
+operational rules)
+  Healthy Homes & Meth Vault (Heating, Insulation, Ventilation, Moisture,
+Draughts, Smoke Alarms)
+  Key Custody & Depot Manager (Office Key Safe #1, KeyNest NZ API, Smart
+Lockbox PINs, Chain-of-Custody logs)
+  Offline-First Inspection Studio (PWA local photo cache + room diffs +
+"Delegate to Local Pro" button)
+
+ 3. LOOP: Tenancy Lifecycle, Variations & Legal Engine
+  Listing & Privacy-First Screening (Syndicates to Pool Search, Trade Me &
+realestate.co.nz; anti-bidding lock)
+  2026 Smart RTA Agreement & Online Bond Hub Payload Generator (4-wk general
++ 2-wk pet bond)
+  1-Click Variations Engine (Flatmate swaps, Pet Addendums, Term Extensions,
+RTA s 137 guardrails)
+  Statutory Notice & Tribunal Pack Generator (90d/42d notices + automatic
+PII redaction)
+  Post-Tribunal Enforcement (MOJ Attachment Order generator & Credit
+Bureau/Debt handoff)
+
+ 4. LOOP: Financial Engine, Sinking Fund & IR3R Tax
+  Open Banking Rent Reconciliation & Automated Arrears State Machine (with
+Day 1 Call / Loop Concierge)
+  Maintenance Sinking Fund Vault & CapEx Asset Lifecycle Forecaster
+  Quote-Approval & Tenant-Fault Invoice Router (Splits owner Sinking Fund
+vs. tenant Pool billing)
+  Double-Entry Trust Ledger & Daily 3-Way Trust Reconciliation (Bank = Trust
+Ledger = Property Sub-Ledgers)
+  IR3R Tax Pack & Accountant Portal (Categorised income/OpEx + Xero/MYOB/ZIP
+export)
+
+ 5. LOOP: On-Demand Field Services Marketplace ("Gig PM")
+  Task Dispatcher (Inspections Open Homes Entry/Exit Reports Tribunal
+
+Loop & Pool: Information Architecture & AI Build Spec  Page 8 of 14
+4. Required Third-Party Ecosystem Integrations (NZ & AU)
+
+Build modular adapter interfaces under src/integrations/ so API keys and webhook handlers plug
+in cleanly:
+
+Integration      Primary NZ / AU                       Technical Purpose & Data Flow
+Category         Providers                             One-click push of fixed-rent listings, photos, Healthy Homes
+Listing          Trade Me Property API,                badges, and viewing times directly from Loop alongside Pool
+Syndication      realestate.co.nz Feed,                Search.
+Government       (AU: Domain / REA)                    Digital lodgement, top-up (Pet Bond), and refund payloads
+Bond & Identity  Tenancy Services                      (mandatory from June 2026), plus Privacy Act-compliant ID
+                 Online Bond Hub,                      and credit/Tribunal checks.
+Open Banking &   RealMe / Cloudcheck /
+Payments         Centrix                               Real-time bank feed rent reconciliation, direct-debit rent
+E-Signatures &   Akahu, BlinkPay, Stripe               collection, SaaS subscriptions, and split escrow payouts to
+PDFs             Billing & Connect                     field pros and tradespeople.
+                                                       Binding digital signatures on RTA agreements, 1-click
+Key Custody &    Native Cryptographic                  variations, and inspection reports with full IP/timestamp audit
+Smart Locks      E-Sign,                               trails.
+Accounting &     DocuSign API, Lumin
+Tax              PDF                                   Generates time-gated 6-digit pickup codes for city key depots
+Optional         KeyNest NZ API,                       or temporary lockbox PINs strictly within legal RTA notice
+Ecosystem        Igloohome / Yale                      windows.
+Bridges          Access                                Syncs reconciled rent, Sinking Fund movements, and
+                 Xero API, MYOB, IRD                   categorised deductible expenses directly to the investor's
+                 IR3R CSV/PDF                          accountant.
+                                                       Optional webhook connectors allowing landlords migrating
+                 Renti (optional import),              from Renti or partner agencies using Tapi maintenance
+                 Tapi (optional trade                  workflows to sync tickets and applications seamlessly.
+                 network)
+
+5. Hardcoded Legislative Guardrails (2026 NZ RTA & Privacy Rules)
+
+All statutory constants must live inside src/config/jurisdictions/nz.ts and execute via server-
+side API validation so landlords cannot accidentally commit unlawful acts.
+
+Statutory     Legal Rule (2026 NZ Law)                 Server-Side System Enforcement
+Provision     Advertisements must state a fixed        Listing API rejects blank prices or ranges; application
+RTA s 22F &   rent; inviting or accepting bids above   portal hard-blocks rent offers exceeding
+22G           advertised rent is unlawful.             advertised_weekly_rent.
+(Rental
+Bidding Ban)
+
+Loop & Pool: Information Architecture & AI Build Spec  Page 9 of 14
+Statutory         Legal Rule (2026 NZ Law)                Server-Side System Enforcement
+Provision
+RTA s 18, 19 &    Max general bond is 4 weeks' rent;      Enforces general_bond <= 4 *
+2026 Bond Hub     max Pet Bond is 2 weeks' rent. Must     weekly_rent and pet_bond <= 2 *
+RTA s 42E to 42G  lodge digitally via Online Bond Hub     weekly_rent; triggers high-priority countdown
+(Pet Consent      within 23 working days.                 alerts at Day 15 and Day 20.
+Rules)            Landlords must respond to written pet   Starts a 21-day SLA timer upon pet request;
+RTA s 48 & Key    requests within 21 days and may only    offers statutory reasonable conditions (carpet
+Custody           refuse on reasonable grounds.           clean, pet bond) and blocks blanket refusals.
+(Right of Entry)  Minimum 48 hours' notice for routine    Date-picker disables slots earlier than now +
+RTA s 24          inspections (max once per 28 days);     48h (plus service buffer) and within 28 days of
+(Rent Increases)  minimum 24 hours' notice for repairs.   prior inspection. Key depot PINs stay locked
+                                                          until legal window opens.
+RTA s 51 & 60A    Maximum one increase per 12 months;     Locks increase workflow until
+(Terminations &   requires at least 60 days' written
+Rollovers)        notice.                                 last_increase_date + 365 days - 60
+RTA s 137 & Body
+Corp              90-day no-cause periodic notice; 42-    days and computes earliest valid effective
+                  day notice for owner move-in or         date.
+2026 Tribunal     unconditional vacant-possession sale.   Automated window alerts at Day 95 pre-expiry;
+Transparency &    Fixed terms convert to periodic unless  notice calculator adds statutory service days
+Privacy Act 2020  notice is served 90 to 21 days prior.   (accounting for NZ public holidays) and blocks
+                  Clauses attempting to contract out of   invalid dates.
+                  the RTA are void and attract exemplary
+                  damages. Body Corp rules must be        Variation builder scans custom text against
+                  attached to bind tenants.               prohibited clause patterns; requires Body Corp
+                                                          rules PDF upload whenever
+                  Tribunal submissions auto-share with
+                  opposing parties. Upfront applicant     property_title_type ===
+                  collection is restricted; rejected
+                  applicant data cannot be hoarded.       'unit_title'.
+                                                          Tribunal Pack PDF generator automatically
+                                                          redacts landlord DOB, personal bank numbers,
+                                                          and private address. Staged application funnel
+                                                          purges rejected data at Day 30.
+
+6. Complete Relational Database Schema (PostgreSQL / Supabase)
+
+Provide this exact schema to the AI code generator to create all database migrations, foreign keys,
+and Row-Level Security (RLS) policies.
+
+Loop & Pool: Information Architecture & AI Build Spec                                     Page 10 of 14
+-- 1. GLOBAL LOCALIZATION, ORGANIZATIONS, ONBOARDING & ENTITIES
+Jurisdiction_Configs (
+
+   country_code PRIMARY KEY, currency_code, default_rent_cadence [weekly,
+fortnightly, monthly],
+
+   sales_tax_name [GST, VAT, NONE], sales_tax_rate, tax_year_start_month,
+   max_general_bond_weeks, max_pet_bond_weeks, notice_rules_json
+);
+
+Organizations (id PRIMARY KEY, name, country_code REFERENCES Jurisdiction_Configs,
+subscription_tier);
+
+Legal_Entities (
+   id PRIMARY KEY, org_id REFERENCES Organizations, entity_name,
+   entity_type [individual, partnership, family_trust, ltc_company],
+   tax_id_number, is_gst_registered, dual_approval_threshold_amount
+
+);
+
+Users (
+   id PRIMARY KEY, org_id REFERENCES Organizations,
+   default_portal [loop, pool],
+   role [landlord, co_owner, tenant, prospective_renter, tradesperson,
+
+field_provider, advisor],
+   full_name, email, phone, verified_identity,
+   onboarding_step_completed [0_account, 1_profile, 2_property_or_search,
+
+3_complete],
+   is_demo_sandbox_active
+
+);
+
+Pool_Renter_Profiles (
+   id PRIMARY KEY, user_id REFERENCES Users, bio_summary, employment_status,
+   has_pets, pet_details_json, references_json, credit_check_verified_at,
+   rent_punctuality_score, inspection_care_score, longevity_score,
+   portable_rent_passport_score, searchable_by_landlords
+
+);
+
+Subscriptions (
+   id PRIMARY KEY, org_id REFERENCES Organizations, stripe_customer_id,
+
+stripe_subscription_id,
+   plan_tier [ledger_free, autopilot_pro, portfolio_trust], active_property_count,
+
+status, current_period_end
+);
+
+-- 2. PROPERTIES, COMPLIANCE, BODY CORP, INSURANCE & KEY CUSTODY
+Properties (
+
+   id PRIMARY KEY, org_id REFERENCES Organizations, legal_entity_id REFERENCES
+Legal_Entities,
+
+   jurisdiction_code REFERENCES Jurisdiction_Configs, address,
+   title_type [freehold, unit_title, cross_lease],
+   onboarding_mode [first_time_rental, existing_tenancy_import],
+   is_listed_on_pool, syndication_targets_json [pool, trademe, realestate_co_nz],
+   advertised_weekly_rent, listing_headline, listing_photos_json,
+   healthy_homes_status [compliant, exempt, pending], smoke_alarm_last_checked,
+meth_clearance_status
+);
+
+Loop & Pool: Information Architecture & AI Build Spec  Page 11 of 14
+To prevent AI builders from generating incomplete mock screens when building a
+large multi-sided platform, have your developer feed the database schema and rules
+above into Cursor, Lovable, Bolt, or v0 across four sequential build sprints:
+
+Loop & Pool: Information Architecture & AI Build Spec  Page 12 of 14
+   MASTER SYSTEM CONTEXT + SPRINT 1 PROMPT (Foundation, Onboarding Gate & Dual
+UI Shell):
+
+   "Act as a Principal Full-Stack Product Architect and Senior UI/UX Designer. Build a production-
+grade dual-branded SaaS and marketplace web application called using strictly implementing the
+attached Information Architecture, SOPs, Integrations, Legislative Guardrails, and Relational
+Database Schema.
+
+   - Craft an executive, ultra-tidy, modern interface inspired by Linear, Stripe, and Apple Financial
+apps--using generous whitespace, crisp 1px borders, subtle elevated surfaces, clear typographic
+hierarchy, tabular numerals for all financial/yield figures, and zero clutter.
+
+   - Give (Landlord OS) a deep slate-navy and emerald-teal aesthetic conveying wealth protection,
+compliance confidence, and autopilot calm.
+
+   - Give (Tenant Portal & Rental Search) a bright, warm, high-trust consumer aesthetic with
+interactive map/list property cards, clean progress rings for the Pool Rent Passport Score, and
+mobile-first bottom navigation.
+
+   1. Create all Supabase PostgreSQL migrations, foreign keys, and Row-Level Security policies
+from Section 6.
+
+   2. Build the mandatory first-visit split onboarding gate: vs. , followed by a 3-step setup wizard
+with a visible completion progress bar and a 1-click toggle.
+
+   3. Include a persistent top-bar switcher so users can toggle seamlessly between Loop and Pool
+under one login, plus the () to batch-import existing properties and send 1-click Founding
+Landlord/Tenant invites."
+
+   "Now implement Sprint 2 on top of our existing Loop & Pool codebase:
+   1. Build enforcing fixed-price anti-rent-bidding locks on Pool listings (s 22F/22G), 4-week general
+bond + 2-week pet bond caps, 23-working-day Online Bond Hub countdown, 21-day pet response
+SLA, 48-hour inspection notice calculator (blocking intervals under 28 days), 12-month rent increase
+lock, 90-day/42-day/90-to-21-day notice calculators, RTA s 137 anti-contracting-out clause scanner,
+mandatory Body Corp rules attachment for unit titles, and automatic PII redaction for Tribunal
+evidence packs.
+   2. Build the parser (extracting tenant details, rent, bond ID, and Healthy Homes dates from
+uploaded tenancy PDFs and CSV bank exports) and the with e-signature workflows."
+
+   "Now implement Sprint 3 on top of our existing Loop & Pool codebase:
+   1. Build the Financial Engine with Stripe subscriptions (, , ), Akahu/BlinkPay Open Banking
+reconciliation adapters, IR3R tax categorisation, and the check (verifying Bank Balance = Trust
+Ledger = Property Sub-Ledgers).
+   2. Build the (auto-skimming a configurable % of cleared rent toward CapEx asset lifecycles) and
+the offering or ()."
+
+   "Now implement Sprint 4 on top of our existing Loop & Pool codebase:
+   1. Build the Maintenance Triage & Quote-First workflow supporting both direct auto-dispatch up
+to the Sinking Fund limit and (). When a tradesperson flags an issue as , require tenant verification
+in Pool before routing the invoice to the tenant's ledger
+
+Loop & Pool: Information Architecture & AI Build Spec  Page 13 of 14
+Loop & PoolNext.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL, Auth,
+Storage, Edge Functions), and Stripe (Billing + Connect)
+
+Visual Design System & Modern UI Craft:
+
+Loop
+Pool
+
+Sprint 1 Deliverables (Build First):
+
+'I Own an Investment Property (Enter Loop)''I Want to Rent or Manage My Tenancy (Enter
+Pool)''Explore with Pre-Loaded Nelson Demo Portfolio'
+Admin Bulk Rent-Roll Migration ConsoleBulk_Migration_Batches
+
+SPRINT 2 PROMPT (2026 NZ RTA Rules Engine, AI PDF Import & Variations):
+
+src/config/jurisdictions/nz.ts
+
+30-Second AI Magic Import1-Click Tenancy Variations Engine
+
+SPRINT 3 PROMPT (Open Banking, Sinking Funds, 3-Way Trust Ledger & Arrears Concierge):
+
+Ledger Free $0Autopilot Pro $25/moPortfolio & Trust $79/moDaily 3-Way Trust Reconciliation
+Maintenance Sinking Fund VaultDay 1 Arrears Action Queue card'Call Tenant Directly''Request
+Loop Concierge Call & Feedback'Arrears_Call_Tasks
+
+SPRINT 4 PROMPT (Quote/Fault Maintenance, Key Depots, Offline PWA Inspections & Pool
+Search):
+
+Quote-First Approvalexecution_mode = 'quote_first'tenant_fault
+Key Custody VaultOn-Demand Field Services Marketplaceoffline-capable PWA mobile
+inspection checklistPool Public Rental Search
+
+Loop & Pool: Information Architecture & AI Build Spec  Page 14 of 14
+

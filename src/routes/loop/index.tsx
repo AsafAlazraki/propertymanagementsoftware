@@ -1,4 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Building } from '@/shell/Building'
+import { CommandCentre } from '@/screens/loop/CommandCentre'
 
-export const Route = createFileRoute('/loop/')({ component: () => <Building title="Command centre" /> })
+export const Route = createFileRoute('/loop/')({ component: CommandCentre })

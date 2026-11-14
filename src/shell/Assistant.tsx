@@ -113,14 +113,13 @@ function AnswerCard({ turn, onRate, onClose }: { turn: Turn; onRate: (r: 'up' | 
         </div>
       )}
 
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        {a.next && (
-          <Link to={a.next.to as LinkProps['to']} onClick={onClose} className={buttonClass({ intent: 'primary', size: 'sm' })}>
-            {a.next.label}
-            <ArrowRight weight="bold" className="size-3.5" />
-          </Link>
-        )}
-        <span className="flex-1" />
+      {a.next && (
+        <Link to={a.next.to as LinkProps['to']} onClick={onClose} className={cn(buttonClass({ intent: 'primary', size: 'sm' }), 'mt-4')}>
+          {a.next.label}
+          <ArrowRight weight="bold" className="size-3.5" />
+        </Link>
+      )}
+      <div className="mt-3 flex items-center justify-end gap-1.5">
         <span className="text-xs text-ink-3">Helpful?</span>
         <Button size="iconSm" intent={turn.rating === 'up' ? 'soft' : 'ghost'} aria-label="Yes, helpful" aria-pressed={turn.rating === 'up'} onClick={() => onRate('up')}>
           <ThumbsUp weight={turn.rating === 'up' ? 'fill' : 'regular'} className="size-4" />
@@ -183,9 +182,8 @@ export function Assistant({ open, onOpenChange, portal }: { open: boolean; onOpe
       open={open}
       onOpenChange={onOpenChange}
       size="lg"
-      eyebrow={`Ask ${name}`}
-      title="Plain answers, with the law they rest on"
-      description="General information, not legal advice. Every answer links to its source and the date it was last checked."
+      title={`Ask ${name}`}
+      description="Plain answers with their sources. General information, not legal advice."
       footer={
         <form onSubmit={onSubmit} className="flex w-full items-center gap-2">
           <label htmlFor="ask-input" className="sr-only">

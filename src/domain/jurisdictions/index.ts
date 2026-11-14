@@ -8,6 +8,7 @@
  */
 import type { JurisdictionCode, RulePackVersion } from '../types'
 import type { JurisdictionPack, RuleKey } from './types'
+import { dateOf } from '../rules/calendar'
 import { NZ } from './nz'
 import { AU_NSW, AU_QLD, AU_SA, AU_VIC, AU_WA } from './au'
 
@@ -38,7 +39,7 @@ export function resolvePack(code: JurisdictionCode, versions: RulePackVersion[] 
       if (!(k in rules)) continue
       // An override changes the value only. The citation stays with the shipped rule
       // until the pack itself is revised, and the date records when a person approved it.
-      ;(rules as Record<string, unknown>)[k] = { ...rules[k], value, lastVerified: version.publishedAt.slice(0, 10) }
+      ;(rules as Record<string, unknown>)[k] = { ...rules[k], value, lastVerified: dateOf(version.publishedAt) }
     }
   }
   return { ...base, rules, version: published[published.length - 1].version }
