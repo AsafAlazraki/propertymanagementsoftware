@@ -91,13 +91,13 @@ export function readAgreement(raw: string): AgreementFacts {
   if (bond && amount(bond[1]) > 0) facts.bond = { value: amount(bond[1]), from: tidy(bond[0]) }
 
   const start = first(text, [
-    /(?:tenancy (?:starts|begins|commences|start date|commencement)|commencement date|start date|date tenancy (?:is to )?begin\w*)\s*(?:on|:|\-|–)?\s*([^\n]{6,40})/i,
+    /(?:tenancy (?:starts|begins|commences|start date|commencement)|commencement date|start date|date tenancy (?:is to )?begin\w*)\s*(?:on|:|-|–)?\s*([^\n]{6,40})/i,
   ])
   const startDate = start ? parseDate(start[1]) : undefined
   if (start && startDate) facts.startDate = { value: startDate, from: tidy(start[0]) }
 
   const end = first(text, [
-    /(?:fixed[- ]term (?:tenancy )?(?:ends|ending|end date|expires)|tenancy (?:ends|will end)|end date|expiry date)\s*(?:on|:|\-|–)?\s*([^\n]{6,40})/i,
+    /(?:fixed[- ]term (?:tenancy )?(?:ends|ending|end date|expires)|tenancy (?:ends|will end)|end date|expiry date)\s*(?:on|:|-|–)?\s*([^\n]{6,40})/i,
   ])
   const endDate = end ? parseDate(end[1]) : undefined
   if (end && endDate) facts.endDate = { value: endDate, from: tidy(end[0]) }
