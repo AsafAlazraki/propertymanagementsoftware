@@ -99,7 +99,7 @@ function Form({ type, onDone }: { type: BookableTask; onDone: () => void }) {
       </Field>
 
       {needsConsent && (
-        <div className="grid gap-3">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-3">
           {consentNote && (
             <Callout
               tone="info"
@@ -154,7 +154,7 @@ function Form({ type, onDone }: { type: BookableTask; onDone: () => void }) {
             aria-labelledby={whoId}
             value={providerId}
             onValueChange={(v) => setPicked(String(v))}
-            className="grid gap-2"
+            className="grid grid-cols-[minmax(0,1fr)] gap-2"
           >
             {people.map((p) => (
               <Radio.Root

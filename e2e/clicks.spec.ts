@@ -45,7 +45,20 @@ const PORTALS: Record<string, string[]> = {
     'loop/settings',
   ],
   pool: ['pool', 'pool/search', 'pool/listing/p_harbour', 'pool/repairs', 'pool/passport', 'pool/me'],
-  admin: ['admin', 'admin/queue', 'admin/orgs', 'admin/people', 'admin/feedback', 'admin/rules', 'admin/rules?change=rc_drill', 'admin/healing', 'admin/assistant', 'admin/network', 'admin/migration', 'admin/audit'],
+  admin: [
+    'admin',
+    'admin/queue',
+    'admin/orgs',
+    'admin/people',
+    'admin/feedback',
+    'admin/rules',
+    'admin/rules?change=rc_drill',
+    'admin/healing',
+    'admin/assistant',
+    'admin/network',
+    'admin/migration',
+    'admin/audit',
+  ],
 }
 
 const KINDS = 'button, [role=tab], [role=radio], [role=switch], [role=checkbox], summary, a[href]'
@@ -65,7 +78,9 @@ interface Control {
 }
 
 // Evaluated in the page, passed as text because this file is type-checked without the DOM library.
-const list = (selector: string) => `(() => Array.from(document.querySelectorAll(${JSON.stringify(selector)})).map((e, i) => {
+const list = (
+  selector: string,
+) => `(() => Array.from(document.querySelectorAll(${JSON.stringify(selector)})).map((e, i) => {
   const r = e.getBoundingClientRect()
   const href = e.getAttribute('href')
   return {
@@ -110,7 +125,8 @@ for (const [portal, routes] of Object.entries(PORTALS)) {
     let downloaded = false
     page.on('pageerror', (e) => failures.push(`${where}: threw ${e.message.slice(0, 200)}`))
     page.on('console', (m) => {
-      if (m.type() === 'error' && !/Failed to load resource|net::ERR|openfreemap/i.test(m.text())) failures.push(`${where}: console error ${m.text().slice(0, 200)}`)
+      if (m.type() === 'error' && !/Failed to load resource|net::ERR|openfreemap/i.test(m.text()))
+        failures.push(`${where}: console error ${m.text().slice(0, 200)}`)
     })
     page.on('dialog', (d) => void d.dismiss())
     page.on('download', () => (downloaded = true))
@@ -135,7 +151,8 @@ for (const [portal, routes] of Object.entries(PORTALS)) {
       const sideways = await page.evaluate<number>(SIDEWAYS)
       if (sideways > 1) failures.push(`${where}: page scrolls sideways by ${sideways}px afterwards`)
     }
-    const usable = (c: Control) => c.visible && !c.external && c.name !== 'Close' && !/^Skip to (main )?content/i.test(c.name)
+    const usable = (c: Control) =>
+      c.visible && !c.external && c.name !== 'Close' && !/^Skip to (main )?content/i.test(c.name)
     const seenRule = new Set<string>()
     const worthPressing = (c: Control) => {
       if (!c.name.startsWith('The rule:')) return true
@@ -164,14 +181,20 @@ for (const [portal, routes] of Object.entries(PORTALS)) {
 
         if (opened > 0) {
           // Press everything inside what opened, each from a fresh start.
-          const inner = (await page.evaluate<Control[]>(list(scoped('[role=dialog], [role=alertdialog], [role=menu]')))).filter(usable).slice(0, 16)
+          const inner = (await page.evaluate<Control[]>(list(scoped('[role=dialog], [role=alertdialog], [role=menu]'))))
+            .filter(usable)
+            .slice(0, 16)
           for (const d of inner) {
             if (d.disabled) {
               review.push(`${where} → “${d.name}”: is disabled — does it say why?`)
               continue
             }
             await fresh(route)
-            await page.locator(scoped('main')).nth(c.i).click({ timeout: 2500 }).catch(() => undefined)
+            await page
+              .locator(scoped('main'))
+              .nth(c.i)
+              .click({ timeout: 2500 })
+              .catch(() => undefined)
             await page.waitForTimeout(300)
             where = `/${route} “${c.name}” → “${d.name}”`
             const b2 = await page.evaluate<string>(SNAPSHOT)
@@ -180,11 +203,16 @@ for (const [portal, routes] of Object.entries(PORTALS)) {
             if (a2 === b2 && !downloaded && !d.selected) review.push(`${where}: nothing visibly happened`)
           }
           await fresh(route)
-          await page.locator(scoped('main')).nth(c.i).click({ timeout: 2500 }).catch(() => undefined)
+          await page
+            .locator(scoped('main'))
+            .nth(c.i)
+            .click({ timeout: 2500 })
+            .catch(() => undefined)
           await page.waitForTimeout(250)
           await page.keyboard.press('Escape')
           await page.waitForTimeout(450)
-          if ((await page.evaluate<number>(OPEN)) > 0) review.push(`/${route} “${c.name}”: what it opens does not close with Escape`)
+          if ((await page.evaluate<number>(OPEN)) > 0)
+            review.push(`/${route} “${c.name}”: what it opens does not close with Escape`)
           await fresh(route)
         } else if (after !== before || page.url() !== url) {
           await fresh(route)
@@ -192,9 +220,92 @@ for (const [portal, routes] of Object.entries(PORTALS)) {
       }
     }
 
-    const report = [`# ${portal}: ${pressed} presses`, '', '## Never acceptable', ...(failures.length ? failures : ['Nothing.']), '', '## For a person to look at', ...(review.length ? review : ['Nothing.'])].join('\n')
+    const report = [
+      `# ${portal}: ${pressed} presses`,
+      '',
+      '## Never acceptable',
+      ...(failures.length ? failures : ['Nothing.']),
+      '',
+      '## For a person to look at',
+      ...(review.length ? review : ['Nothing.']),
+    ].join('\n')
     writeFileSync(`test-results/clicks-${portal}.md`, report)
     console.log(report)
+    expect(failures, failures.join('\n')).toEqual([])
+  })
+}
+
+/**
+ * Every sheet, on a phone. A page that scrolls sideways is caught above; this
+ * catches the quieter fault, where something inside a sheet or dialog runs
+ * past its edge and is simply cut off.
+ */
+const CUT_OFF = `(() => {
+  const found = []
+  for (const d of document.querySelectorAll('[role=dialog], [role=alertdialog]')) {
+    const box = d.getBoundingClientRect()
+    for (const e of d.querySelectorAll('*')) {
+      const r = e.getBoundingClientRect()
+      if (r.width < 3 || r.height < 3) continue
+      if (r.right <= box.right + 2 && r.left >= box.left - 2) continue
+      // Inside something meant to scroll sideways, running past the edge is the design.
+      let p = e.parentElement
+      let scrolls = false
+      while (p && p !== d) {
+        const o = getComputedStyle(p).overflowX
+        if (o === 'auto' || o === 'scroll') { scrolls = true; break }
+        p = p.parentElement
+      }
+      if (scrolls) continue
+      found.push((e.getAttribute('aria-label') || e.textContent || e.tagName).trim().replace(/\s+/g, ' ').slice(0, 50))
+      if (found.length >= 2) return found
+    }
+  }
+  return found
+})()`
+
+for (const [portal, routes] of Object.entries(PORTALS)) {
+  test(`every sheet in ${portal} fits on a phone`, async ({ page }) => {
+    test.setTimeout(30 * 60_000)
+    await page.setViewportSize({ width: 390, height: 844 })
+    const failures: string[] = []
+    page.on('dialog', (d) => void d.dismiss())
+    page.on('popup', (p) => void p.close())
+    const fresh = async (route: string) => {
+      await page.goto(route)
+      await page.evaluate(RESET)
+      await page.goto(route)
+      await page.waitForLoadState('domcontentloaded')
+      await page.waitForTimeout(route.startsWith('pool/search') ? 1200 : 350)
+    }
+    for (const route of routes) {
+      await fresh(route)
+      const rules = new Set<string>()
+      const top = (await page.evaluate<Control[]>(list(scoped('main')))).filter(
+        (c) => c.visible && !c.external && !c.disabled,
+      )
+      for (const c of top) {
+        if (c.name.startsWith('The rule:')) {
+          if (rules.size >= 1) continue
+          rules.add(c.name)
+        }
+        const before = await page.evaluate<string>(SNAPSHOT)
+        await page
+          .locator(scoped('main'))
+          .nth(c.i)
+          .click({ timeout: 2500 })
+          .catch(() => undefined)
+        await page.waitForTimeout(450)
+        if ((await page.evaluate<number>(OPEN)) > 0) {
+          const cut = await page.evaluate<string[]>(CUT_OFF)
+          if (cut.length) failures.push(`/${route} “${c.name}”: cut off inside what it opens — ${cut.join(' | ')}`)
+          await fresh(route)
+        } else if ((await page.evaluate<string>(SNAPSHOT)) !== before) {
+          await fresh(route)
+        }
+      }
+    }
+    writeFileSync(`test-results/sheets-${portal}.md`, failures.length ? failures.join('\n') : 'Nothing is cut off.')
     expect(failures, failures.join('\n')).toEqual([])
   })
 }

@@ -76,7 +76,7 @@ export function BookInspectionSheet({ open, onClose }: { open: boolean; onClose:
           body="A routine inspection is a walk through a home while someone lives there. When a tenancy starts, the home appears here."
         />
       ) : (
-        <ul className="grid gap-2">
+        <ul className="grid grid-cols-[minmax(0,1fr)] gap-2">
           {lived.map((p) => {
             const tenancy = activeTenancy(tenancies, p.id)
             const mine = inspections.filter((i) => i.propertyId === p.id)

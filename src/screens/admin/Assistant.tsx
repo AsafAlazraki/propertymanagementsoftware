@@ -174,6 +174,7 @@ function Bench({ trial, onRun }: { trial: Trial | null; onRun: (question: string
   const submit = (e: FormEvent) => {
     e.preventDefault()
     if (asked.trim()) onRun(asked.trim(), portal)
+    else document.getElementById('bench-q')?.focus()
   }
   const a = trial?.answer
   return (

@@ -69,7 +69,7 @@ function InviteForm({ onClose }: { onClose: () => void }) {
           aria-labelledby={roleId}
           value={role}
           onValueChange={(v) => setRole(v as Invitation['role'])}
-          className="grid gap-2"
+          className="grid grid-cols-[minmax(0,1fr)] gap-2"
         >
           {SEATS.map((s) => (
             <Radio.Root

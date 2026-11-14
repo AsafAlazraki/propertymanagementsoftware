@@ -571,7 +571,7 @@ function WrapUp({
           />
         )}
 
-        <ol className="grid gap-1" aria-label="Rooms and their scores">
+        <ol className="grid grid-cols-[minmax(0,1fr)] gap-1" aria-label="Rooms and their scores">
           {rooms.map((r, n) => (
             <li key={r.name}>
               <button

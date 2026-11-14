@@ -71,7 +71,7 @@ export function FollowUps({ inspection }: { inspection: Inspection }) {
   }
 
   return (
-    <ul className="grid gap-2">
+    <ul className="grid grid-cols-[minmax(0,1fr)] gap-2">
       {rows.map(({ room, index }) => {
         const raised = tickets.find(
           (t) =>
