@@ -29,15 +29,21 @@ A property-management platform built from Sam's spec (`docs/spec/`): **Loop** fo
 - `src/data/store.ts` is the only persistence. Every tenant-owned record carries `orgId`; landlord screens read through `useOrgRows`. Screens change data through `src/data/*mutations.ts`, never by writing to the store directly.
 - `src/routes/*` are thin: each imports a screen from `src/screens/<portal>/`.
 - A calendar date is a `YYYY-MM-DD` string. Never `.slice(0, 10)` an instant — use `dateOf()`.
+- A grid child that holds a scroller or truncated text needs `grid-cols-[minmax(0,1fr)]` or `min-w-0`. A horizontally scrolling box that contains `sr-only` text must be `relative`. Either one, missed, widens the page on a phone.
+- `src/domain/watcher.ts` has no imports on purpose: the nightly script loads it with Node directly.
 - All `<user>.github.io` projects share one origin: storage keys, database names and cache names are prefixed `loop-pool`.
 
 ## Commands
 
 - `npm test` — typecheck, lint, unit tests. Must pass before every push.
 - `npm run dev` — the app on port 5200.
+- `npm run e2e` — every screen at the six sizes, against the Pages build (build it first). Fails on a thrown error, a sideways scroll or a placeholder.
+- `node scripts/reg-watch.mjs --dry` — read the official sources and report, writing nothing. Without `--dry` it updates `public/regwatch/feed.json` and `regwatch/state/`.
 - `npm run build:pages` then `npm run preview:pages` — the GitHub Pages build at `/propertymanagementsoftware/` on port 5201. Never pass `--base /x/` on the command line: Git Bash rewrites it into a Windows path.
 
 ## Working
 
+- The Rulewatch workflow commits to `main` once a day. `git pull --rebase` before pushing.
+- Lint warnings fail the deploy. Read the output of `npm test` before committing; a chained command does not stop on a warning.
 - Commit and push `main` at every checkpoint; the owner watches the live site. While agents are writing, `git add` by path.
 - At most two build agents at once on this machine, and browser checks run alone.
