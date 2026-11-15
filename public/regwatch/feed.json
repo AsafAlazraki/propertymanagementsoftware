@@ -1,6 +1,12 @@
 {
-  "generatedAt": "2026-11-14T22:26:56.317Z",
+  "generatedAt": "2026-11-15T22:54:28.798Z",
   "runs": [
+    {
+      "at": "2026-11-15T22:54:28.798Z",
+      "checked": 25,
+      "changed": 1,
+      "failed": 5
+    },
     {
       "at": "2026-11-14T22:26:56.317Z",
       "checked": 25,
@@ -16,7 +22,7 @@
   ],
   "sources": {
     "nz-parliament-bills-search-tenancies": {
-      "lastCheckedAt": "2026-11-14T22:26:56.317Z",
+      "lastCheckedAt": "2026-11-15T22:54:28.798Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "2ap4zk25v1x",
@@ -44,21 +50,21 @@
       "httpStatus": 200
     },
     "nz-tenancy-services-news-rss": {
-      "lastCheckedAt": "2026-11-14T22:26:56.317Z",
+      "lastCheckedAt": "2026-11-15T22:54:28.798Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "1qugrx1esgr",
       "httpStatus": 200
     },
     "nz-hud-site-changes-rss": {
-      "lastCheckedAt": "2026-11-14T22:26:56.317Z",
+      "lastCheckedAt": "2026-11-15T22:54:28.798Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "7seprm11nt",
       "httpStatus": 200
     },
     "nz-parliament-bills-rss": {
-      "lastCheckedAt": "2026-11-14T22:26:56.317Z",
+      "lastCheckedAt": "2026-11-15T22:54:28.798Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "cknjgq650s",
@@ -107,7 +113,7 @@
       "httpStatus": 200
     },
     "nz-tenancy-services-law-changes": {
-      "lastCheckedAt": "2026-11-14T22:26:56.317Z",
+      "lastCheckedAt": "2026-11-15T22:54:28.798Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "1slnpjpnkz4",
@@ -128,7 +134,7 @@
       "httpStatus": 200
     },
     "au-nsw-fair-trading-rental-law-changes": {
-      "lastCheckedAt": "2026-11-14T22:26:56.317Z",
+      "lastCheckedAt": "2026-11-15T22:54:28.798Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "1o438g8dzd3",
@@ -149,14 +155,14 @@
       "httpStatus": 202
     },
     "au-vic-legislation-rta-1997": {
-      "lastCheckedAt": "2026-11-14T22:26:56.317Z",
+      "lastCheckedAt": "2026-11-15T22:54:28.798Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "1v51snqjkwy",
       "httpStatus": 200
     },
     "au-nsw-fair-trading-news": {
-      "lastCheckedAt": "2026-11-14T22:26:56.317Z",
+      "lastCheckedAt": "2026-11-15T22:54:28.798Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "utgcrfdi4z",
@@ -177,7 +183,7 @@
       "httpStatus": 202
     },
     "au-vic-legislation-rt-regs-2021": {
-      "lastCheckedAt": "2026-11-14T22:26:56.317Z",
+      "lastCheckedAt": "2026-11-15T22:54:28.798Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "xwcp83banz",
@@ -198,7 +204,7 @@
       "httpStatus": 200
     },
     "au-vic-cav-new-rental-laws": {
-      "lastCheckedAt": "2026-11-14T22:26:56.317Z",
+      "lastCheckedAt": "2026-11-15T22:54:28.798Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "zhn1tzjr12",
@@ -212,7 +218,7 @@
       "httpStatus": 200
     },
     "au-qld-legislation-rtra-2008-history": {
-      "lastCheckedAt": "2026-11-14T22:26:56.317Z",
+      "lastCheckedAt": "2026-11-15T22:54:28.798Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "nv5sqzmf7g",
@@ -226,11 +232,11 @@
       "httpStatus": 200
     },
     "au-qld-rta-rental-law-changes": {
-      "lastCheckedAt": "2026-11-14T22:26:56.317Z",
+      "lastCheckedAt": "2026-11-15T22:54:28.798Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "1wu4talus0f",
-      "httpStatus": 304
+      "httpStatus": 200
     },
     "nz-legislation-rt-fees-regs-1998-xml": {
       "lastCheckedAt": "2026-11-14T01:28:20.489Z",
@@ -247,7 +253,7 @@
       "httpStatus": 200
     },
     "au-vic-cav-news-rss": {
-      "lastCheckedAt": "2026-11-14T22:26:56.317Z",
+      "lastCheckedAt": "2026-11-15T22:54:28.798Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "1qtdqah2l1u",
@@ -261,18 +267,18 @@
       "httpStatus": 200
     },
     "au-wa-legislation-rta-1987-atom": {
-      "lastCheckedAt": "2026-11-14T22:26:56.317Z",
+      "lastCheckedAt": "2026-11-15T22:54:28.798Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "17xsu0njx59",
       "httpStatus": 200
     },
     "au-qld-rta-news": {
-      "lastCheckedAt": "2026-11-14T22:26:56.317Z",
+      "lastCheckedAt": "2026-11-15T22:54:28.798Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "13vcqi562gz",
-      "httpStatus": 304
+      "httpStatus": 200
     },
     "au-qld-legislation-rtra-2008-whole": {
       "lastCheckedAt": "2026-11-14T01:28:20.489Z",
@@ -310,7 +316,7 @@
       "httpStatus": 200
     },
     "au-sa-legislation-rta-1995": {
-      "lastCheckedAt": "2026-11-14T22:26:56.317Z",
+      "lastCheckedAt": "2026-11-15T22:54:28.798Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "27xqe3y5p57",
@@ -324,7 +330,7 @@
       "httpStatus": 200
     },
     "au-qld-legislation-rtra-title-feed": {
-      "lastCheckedAt": "2026-11-14T22:26:56.317Z",
+      "lastCheckedAt": "2026-11-15T22:54:28.798Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "wvjl67o803",
@@ -338,17 +344,17 @@
       "httpStatus": 200
     },
     "au-sa-legislation-rt-regs-2025": {
-      "lastCheckedAt": "2026-11-14T22:26:56.317Z",
+      "lastCheckedAt": "2026-11-15T22:54:28.798Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "36lehg9qc6",
       "httpStatus": 200
     },
     "au-qld-legislation-whatsnew-feed": {
-      "lastCheckedAt": "2026-11-14T22:26:56.317Z",
-      "lastChangedAt": null,
-      "status": "ok",
-      "hash": "2f2zrf0omfp",
+      "lastCheckedAt": "2026-11-15T22:54:28.798Z",
+      "lastChangedAt": "2026-11-15T22:54:28.798Z",
+      "status": "changed",
+      "hash": "1c4lp81lx6w",
       "httpStatus": 200
     },
     "au-wa-consumer-protection-commissioner-determinations": {
@@ -394,7 +400,7 @@
       "httpStatus": 200
     },
     "au-qld-legislation-newbills-feed": {
-      "lastCheckedAt": "2026-11-14T22:26:56.317Z",
+      "lastCheckedAt": "2026-11-15T22:54:28.798Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "uwgc3ask20",
@@ -429,5 +435,17 @@
       "httpStatus": 202
     }
   },
-  "events": []
+  "events": [
+    {
+      "id": "ev_au-qld-legislation-whatsnew-feed_1c4lp81lx6w",
+      "sourceId": "au-qld-legislation-whatsnew-feed",
+      "detectedAt": "2026-11-15T22:54:28.798Z",
+      "title": "Queensland legislation - What's New Atom feed (bills, as made, in force) changed",
+      "url": "https://www.legislation.qld.gov.au/feed?id=whatsnew",
+      "summary": "1 no longer there.",
+      "addedLines": [],
+      "removedLines": [],
+      "ai": null
+    }
+  ]
 }
