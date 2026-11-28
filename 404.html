@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en-NZ">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#0e1a2f" />
+    <meta name="description" content="Loop & Pool — your rental on autopilot, and one verified renter profile. Prototype with demo data." />
+    <link rel="icon" href="/propertymanagementsoftware/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/propertymanagementsoftware/apple-touch-icon.png" />
+    <title>Loop & Pool</title>
+    <script>
+      /* The chosen theme lands on <html> before first paint, so a dark-mode viewer never sees a white flash. */
+      try {
+        var t = localStorage.getItem('loop-pool:theme')
+        var dark = t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+      } catch (e) {
+        document.documentElement.dataset.theme = 'light'
+      }
+    </script>
+    <script type="module" crossorigin src="/propertymanagementsoftware/assets/index-Bgruo4nn.js"></script>
+    <link rel="modulepreload" crossorigin href="/propertymanagementsoftware/assets/rolldown-runtime-XKyaHtl9.js">
+    <link rel="modulepreload" crossorigin href="/propertymanagementsoftware/assets/format-B0YuN3v2.js">
+    <link rel="modulepreload" crossorigin href="/propertymanagementsoftware/assets/react-dom-B_dTPKCw.js">
+    <link rel="modulepreload" crossorigin href="/propertymanagementsoftware/assets/store-Cdf_gfcs.js">
+    <link rel="modulepreload" crossorigin href="/propertymanagementsoftware/assets/session-DThZ39bV.js">
+    <link rel="modulepreload" crossorigin href="/propertymanagementsoftware/assets/utils-DHhtXK5i.js">
+    <link rel="modulepreload" crossorigin href="/propertymanagementsoftware/assets/IconBase.es-CgIg4gSy.js">
+    <link rel="modulepreload" crossorigin href="/propertymanagementsoftware/assets/Button-qF7sCHLg.js">
+    <link rel="modulepreload" crossorigin href="/propertymanagementsoftware/assets/useSelector-D-N3J6Io.js">
+    <link rel="modulepreload" crossorigin href="/propertymanagementsoftware/assets/Match-Cw6DKJzm.js">
+    <link rel="modulepreload" crossorigin href="/propertymanagementsoftware/assets/route-DGcNcZFu.js">
+    <link rel="modulepreload" crossorigin href="/propertymanagementsoftware/assets/lazyRouteComponent-CdDpzRLQ.js">
+    <link rel="modulepreload" crossorigin href="/propertymanagementsoftware/assets/format-IcXt1sMQ.js">
+    <link rel="stylesheet" crossorigin href="/propertymanagementsoftware/assets/index-DKyK8a0o.css">
+  <link rel="manifest" href="/propertymanagementsoftware/manifest.webmanifest"></head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
