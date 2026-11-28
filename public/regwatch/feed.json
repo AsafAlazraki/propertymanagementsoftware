@@ -1,6 +1,12 @@
 {
-  "generatedAt": "2026-11-27T01:48:17.242Z",
+  "generatedAt": "2026-11-28T01:28:20.458Z",
   "runs": [
+    {
+      "at": "2026-11-28T01:28:20.458Z",
+      "checked": 59,
+      "changed": 10,
+      "failed": 10
+    },
     {
       "at": "2026-11-27T01:48:17.242Z",
       "checked": 30,
@@ -88,17 +94,17 @@
   ],
   "sources": {
     "nz-parliament-bills-search-tenancies": {
-      "lastCheckedAt": "2026-11-27T01:48:17.242Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "2ap4zk25v1x",
       "httpStatus": 200
     },
     "nz-taxpolicy-home-news": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
-      "lastChangedAt": null,
-      "status": "ok",
-      "hash": "1vaw50tw03n",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
+      "lastChangedAt": "2026-11-28T01:28:20.458Z",
+      "status": "changed",
+      "hash": "8kxoidpcx1",
       "httpStatus": 200
     },
     "nz-legislation-rta-1986-xml": {
@@ -109,42 +115,42 @@
       "httpStatus": 202
     },
     "nz-ird-residential-rental-income": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "1ixezz690kw",
       "httpStatus": 200
     },
     "nz-tenancy-services-news-rss": {
-      "lastCheckedAt": "2026-11-27T01:48:17.242Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": "2026-11-25T02:35:28.320Z",
       "status": "ok",
       "hash": "11b4r4kwlyk",
       "httpStatus": 200
     },
     "nz-hud-site-changes-rss": {
-      "lastCheckedAt": "2026-11-27T01:48:17.242Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": "2026-11-24T04:03:21.904Z",
       "status": "ok",
       "hash": "yxs4p6ycsv",
       "httpStatus": 200
     },
     "nz-parliament-bills-rss": {
-      "lastCheckedAt": "2026-11-27T01:48:17.242Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "1julxle557y",
       "httpStatus": 200
     },
     "nz-taxpolicy-sitemap": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
-      "lastChangedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
+      "lastChangedAt": "2026-11-28T01:28:20.458Z",
       "status": "changed",
-      "hash": "1lf6l0m5omn",
+      "hash": "y7myd1h2i6",
       "httpStatus": 200
     },
     "nz-ird-rental-property-deductions": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "18ye54xetsp",
@@ -158,56 +164,56 @@
       "httpStatus": 202
     },
     "nz-tenancy-tribunal-practice-directions": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "9iezi2hwk1",
       "httpStatus": 200
     },
     "nz-privacy-commissioner-whats-new-rss": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
-      "lastChangedAt": null,
-      "status": "ok",
-      "hash": "1pq6nluazki",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
+      "lastChangedAt": "2026-11-28T01:28:20.458Z",
+      "status": "changed",
+      "hash": "1lobxi9j7e",
       "httpStatus": 200
     },
     "nz-tenancy-tribunal-orders-solr": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
-      "lastChangedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
+      "lastChangedAt": "2026-11-28T01:28:20.458Z",
       "status": "changed",
-      "hash": "1x2w9ni11ib",
+      "hash": "1yqrzfghcwt",
       "httpStatus": 200
     },
     "nz-tenancy-services-law-changes": {
-      "lastCheckedAt": "2026-11-27T01:48:17.242Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "1slnpjpnkz4",
       "httpStatus": 200
     },
     "nz-hud-rta-amendment-act-2024": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "ge2wyux982",
       "httpStatus": 200
     },
     "nz-employment-public-holidays": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "oahzyddbti",
       "httpStatus": 200
     },
     "au-nsw-fair-trading-rental-law-changes": {
-      "lastCheckedAt": "2026-11-27T01:48:17.242Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "1o438g8dzd3",
       "httpStatus": 200
     },
     "nz-ird-bright-line-test": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "22lsdnk3qpc",
@@ -221,21 +227,21 @@
       "httpStatus": 202
     },
     "au-vic-legislation-rta-1997": {
-      "lastCheckedAt": "2026-11-27T01:48:17.242Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "1v51snqjkwy",
       "httpStatus": 200
     },
     "au-nsw-fair-trading-news": {
-      "lastCheckedAt": "2026-11-27T01:48:17.242Z",
-      "lastChangedAt": "2026-11-18T01:01:27.878Z",
-      "status": "ok",
-      "hash": "ywxo6bfu0l",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
+      "lastChangedAt": "2026-11-28T01:28:20.458Z",
+      "status": "changed",
+      "hash": "1to0qe640gt",
       "httpStatus": 200
     },
     "nz-hud-methamphetamine-regulations": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "1enjgy8i16l",
@@ -249,56 +255,56 @@
       "httpStatus": 202
     },
     "au-vic-legislation-rt-regs-2021": {
-      "lastCheckedAt": "2026-11-27T01:48:17.242Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "xwcp83banz",
       "httpStatus": 200
     },
     "nz-tenancy-services-bond": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
-      "lastChangedAt": null,
-      "status": "ok",
-      "hash": "27lut7ls14j",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
+      "lastChangedAt": "2026-11-28T01:28:20.458Z",
+      "status": "changed",
+      "hash": "1q49gunae35",
       "httpStatus": 200
     },
     "nz-privacy-commissioner-landlord-guidance": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "f5y7796jos",
       "httpStatus": 200
     },
     "au-vic-cav-new-rental-laws": {
-      "lastCheckedAt": "2026-11-27T01:48:17.242Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "zhn1tzjr12",
       "httpStatus": 200
     },
     "au-nsw-rules-rent-increases": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "2apd57xi1vd",
       "httpStatus": 200
     },
     "au-qld-legislation-rtra-2008-history": {
-      "lastCheckedAt": "2026-11-27T01:48:17.242Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "nv5sqzmf7g",
       "httpStatus": 200
     },
     "nz-hud-healthy-homes-standards": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "12nl5ma8b2y",
       "httpStatus": 200
     },
     "au-qld-rta-rental-law-changes": {
-      "lastCheckedAt": "2026-11-27T01:48:17.242Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "1wu4talus0f",
@@ -312,49 +318,49 @@
       "httpStatus": 202
     },
     "au-nsw-rules-giving-notice": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "1fb7gc9hlxl",
       "httpStatus": 200
     },
     "au-vic-cav-news-rss": {
-      "lastCheckedAt": "2026-11-27T01:48:17.242Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": "2026-11-26T01:48:41.446Z",
       "status": "ok",
       "hash": "2di5923n6oz",
       "httpStatus": 200
     },
     "nz-tenancy-services-giving-notice": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "2d5nu5t9agt",
       "httpStatus": 200
     },
     "au-wa-legislation-rta-1987-atom": {
-      "lastCheckedAt": "2026-11-27T01:48:17.242Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "17xsu0njx59",
       "httpStatus": 200
     },
     "au-qld-rta-news": {
-      "lastCheckedAt": "2026-11-27T01:48:17.242Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": "2026-11-27T01:48:17.242Z",
-      "status": "changed",
+      "status": "ok",
       "hash": "21oo5zxgxk1",
       "httpStatus": 200
     },
     "au-qld-legislation-rtra-2008-whole": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "1b0snbecfri",
       "httpStatus": 200
     },
     "au-wa-consumer-protection-renting": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "bj3atoca6v",
@@ -368,35 +374,35 @@
       "httpStatus": 202
     },
     "au-vic-cav-legislation-updates-rss": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "19865w8svb",
       "httpStatus": 200
     },
     "au-wa-legislation-rta-1987-page": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "1tajjmaw3hi",
       "httpStatus": 200
     },
     "au-sa-legislation-rta-1995": {
-      "lastCheckedAt": "2026-11-27T01:48:17.242Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "27xqe3y5p57",
       "httpStatus": 200
     },
     "au-wa-consumer-protection-rent-increases": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "1xdvbqahzbr",
       "httpStatus": 200
     },
     "au-qld-legislation-rtra-title-feed": {
-      "lastCheckedAt": "2026-11-27T01:48:17.242Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "wvjl67o803",
@@ -410,35 +416,35 @@
       "httpStatus": 202
     },
     "au-sa-legislation-rt-regs-2025": {
-      "lastCheckedAt": "2026-11-27T01:48:17.242Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "36lehg9qc6",
       "httpStatus": 200
     },
     "au-qld-legislation-whatsnew-feed": {
-      "lastCheckedAt": "2026-11-27T01:48:17.242Z",
-      "lastChangedAt": "2026-11-27T01:48:17.242Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
+      "lastChangedAt": "2026-11-28T01:28:20.458Z",
       "status": "changed",
-      "hash": "yqnaa473kw",
+      "hash": "1xeleoyiksq",
       "httpStatus": 200
     },
     "au-wa-consumer-protection-commissioner-determinations": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "2f7w3f5smk2",
       "httpStatus": 200
     },
     "au-sa-cbs-rental-reforms": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "tfar9065b3",
       "httpStatus": 200
     },
     "nz-tenancy-services-rent-increases": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "1b8lsg3h1sm",
@@ -452,31 +458,31 @@
       "httpStatus": 202
     },
     "au-wa-legislation-aspassed-atom": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
-      "lastChangedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
+      "lastChangedAt": "2026-11-28T01:28:20.458Z",
       "status": "changed",
-      "hash": "ojzwclvspu",
+      "hash": "1r5klmdkcjp",
       "httpStatus": 200
     },
     "au-sa-legislation-whats-new": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": "2026-11-21T00:01:27.948Z",
-      "status": "changed",
+      "status": "ok",
       "hash": "cch9t8xov7",
       "httpStatus": 200
     },
     "au-qld-legislation-newbills-feed": {
-      "lastCheckedAt": "2026-11-27T01:48:17.242Z",
-      "lastChangedAt": "2026-11-27T01:48:17.242Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
+      "lastChangedAt": "2026-11-28T01:28:20.458Z",
       "status": "changed",
-      "hash": "92hzxmnils",
+      "hash": "1e99z7bv867",
       "httpStatus": 200
     },
     "au-sa-cbs-news": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
-      "lastChangedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
+      "lastChangedAt": "2026-11-28T01:28:20.458Z",
       "status": "changed",
-      "hash": "2gk11yfzhsa",
+      "hash": "1vbyvn04vqi",
       "httpStatus": 200
     },
     "nz-legislation-holidays-act-2003-xml": {
@@ -487,7 +493,7 @@
       "httpStatus": 202
     },
     "nz-tenancy-services-rental-bond-data": {
-      "lastCheckedAt": "2026-11-21T00:01:27.948Z",
+      "lastCheckedAt": "2026-11-28T01:28:20.458Z",
       "lastChangedAt": null,
       "status": "ok",
       "hash": "1g4zq1tpz66",
@@ -502,6 +508,167 @@
     }
   },
   "events": [
+    {
+      "id": "ev_nz-taxpolicy-home-news_8kxoidpcx1",
+      "sourceId": "nz-taxpolicy-home-news",
+      "detectedAt": "2026-11-28T01:28:20.458Z",
+      "title": "IR Tax Policy - home page 'Tax policy news' block (latest 5 announcements) changed",
+      "url": "https://www.taxpolicy.ird.govt.nz/",
+      "summary": "3 lines added, 3 no longer there.",
+      "addedLines": [
+        "New Zealand – Chile double taxation agreement updated: lower non-resident withholding tax rates for interest",
+        "23 November 2026",
+        "The Protocol to the New Zealand – Chile double taxation agreement contains a most favoured nation obligation that relates to the treaty withholding tax rate for interest that has come into effect. From 1 January 2019, the withholding tax rate should be 10% of the gross amount of…"
+      ],
+      "removedLines": [],
+      "ai": null
+    },
+    {
+      "id": "ev_nz-taxpolicy-sitemap_y7myd1h2i6",
+      "sourceId": "nz-taxpolicy-sitemap",
+      "detectedAt": "2026-11-28T01:28:20.458Z",
+      "title": "IR Tax Policy sitemap.xml (all pages with <lastmod>) changed",
+      "url": "https://www.taxpolicy.ird.govt.nz/sitemap.xml",
+      "summary": "228 lines added, 11 no longer there.",
+      "addedLines": [
+        "https://www.taxpolicy.ird.govt.nz/consultation/2012/financial-arrangements-sale-and-purchase-property-or-services | 2026-11-27",
+        "https://www.taxpolicy.ird.govt.nz/consultation/2012/gst-remedial-issues | 2026-11-27",
+        "https://www.taxpolicy.ird.govt.nz/consultation/2012/recognising-salary-trade-offs-income | 2026-11-27",
+        "https://www.taxpolicy.ird.govt.nz/consultation/2012/reviewing-tax-treatment-employee-allowances-and-other-expenditure-payments | 2026-11-27",
+        "https://www.taxpolicy.ird.govt.nz/consultation/2012/taxation-foreign-superannuation | 2026-11-27",
+        "https://www.taxpolicy.ird.govt.nz/consultation/2012/taxation-lease-inducement-payments | 2026-11-27",
+        "https://www.taxpolicy.ird.govt.nz/consultation/2012/taxation-specified-mineral-mining | 2026-11-27",
+        "https://www.taxpolicy.ird.govt.nz/consultation/2012/use-old-gaap-cfc-rules | 2026-11-27",
+        "https://www.taxpolicy.ird.govt.nz/consultation/2013/black-hole-rd-expenditure | 2026-11-26",
+        "https://www.taxpolicy.ird.govt.nz/consultation/2013/clarifying-acquisition-date-land | 2026-11-26",
+        "https://www.taxpolicy.ird.govt.nz/consultation/2013/clarifying-tax-consequences-deregistered-charities | 2026-11-26",
+        "https://www.taxpolicy.ird.govt.nz/consultation/2013/gst-treatment-immigration-and-other-services | 2026-11-26"
+      ],
+      "removedLines": [],
+      "ai": null
+    },
+    {
+      "id": "ev_nz-privacy-commissioner-whats-new-rss_1lobxi9j7e",
+      "sourceId": "nz-privacy-commissioner-whats-new-rss",
+      "detectedAt": "2026-11-28T01:28:20.458Z",
+      "title": "Office of the Privacy Commissioner - What's New RSS (10 most recently updated pages) changed",
+      "url": "https://www.privacy.org.nz/new-on-the-website/rss/",
+      "summary": "2 lines added, 2 no longer there.",
+      "addedLines": [
+        "Privacy Week 2026 | https://www.privacy.org.nz/tuhono-connect/events/privacy-week-2026/ | Thu, 05 Mar 2026 10:29:28 +1300",
+        "When it comes to privacy, New Zealand needs to lift its game | https://www.privacy.org.nz/tuhono-connect/statements-media-releases/when-it-comes-to-privacy-new-zealand-needs-to-lift-its-game/ | Wed, 25 Nov 2026 09:00:00 +1300"
+      ],
+      "removedLines": [],
+      "ai": null
+    },
+    {
+      "id": "ev_nz-tenancy-tribunal-orders-solr_1yqrzfghcwt",
+      "sourceId": "nz-tenancy-tribunal-orders-solr",
+      "detectedAt": "2026-11-28T01:28:20.458Z",
+      "title": "Tenancy Tribunal orders search - public Solr proxy JSON (count of published orders) changed",
+      "url": "https://forms.justice.govt.nz/forms/publicSolrProxy/solr/TTV2/select?q=*:*&rows=0&wt=json",
+      "summary": "1 line added, 1 no longer there.",
+      "addedLines": [
+        "response.numFound | 33401"
+      ],
+      "removedLines": [],
+      "ai": null
+    },
+    {
+      "id": "ev_au-nsw-fair-trading-news_1to0qe640gt",
+      "sourceId": "au-nsw-fair-trading-news",
+      "detectedAt": "2026-11-28T01:28:20.458Z",
+      "title": "NSW Fair Trading - news and announcements (latest 10) changed",
+      "url": "https://www.nsw.gov.au/departments-and-agencies/fair-trading/news",
+      "summary": "4 lines added, 4 no longer there.",
+      "addedLines": [
+        "Showing 1 - 10 of 267 results",
+        "25 November 2026",
+        "NSW Fair Trading warns shoppers to watch out for online shopping traps this Black Friday",
+        "NSW Fair Trading is urging shoppers to take care when bagging a bargain this Black Friday, with complaints about goods not being supplied more than doubling over the past year."
+      ],
+      "removedLines": [],
+      "ai": null
+    },
+    {
+      "id": "ev_nz-tenancy-services-bond_1q49gunae35",
+      "sourceId": "nz-tenancy-services-bond",
+      "detectedAt": "2026-11-28T01:28:20.458Z",
+      "title": "Tenancy Services - Bonds guidance changed",
+      "url": "https://www.tenancy.govt.nz/rent-bond-and-bills/bond/",
+      "summary": "3 lines added, 3 no longer there.",
+      "addedLines": [
+        "Using Bond Hub",
+        "Bond Hub is an online self-service tool that landlords can use to manage their bond transactions. Landlords must register for Bond Hub to use it.",
+        "Tenants can use Bond Hub to view or change their contact details. Tenants may also receive email notifications from Bond Hub regarding refunds or payments."
+      ],
+      "removedLines": [],
+      "ai": null
+    },
+    {
+      "id": "ev_au-qld-legislation-whatsnew-feed_1xeleoyiksq",
+      "sourceId": "au-qld-legislation-whatsnew-feed",
+      "detectedAt": "2026-11-28T01:28:20.458Z",
+      "title": "Queensland legislation - What's New Atom feed (bills, as made, in force) changed",
+      "url": "https://www.legislation.qld.gov.au/feed?id=whatsnew",
+      "summary": "1 line added, 3 no longer there.",
+      "addedLines": [
+        "Water Regulation 2016 | sl-2016-0216 | 2026-11-27T00:00:00+10:00"
+      ],
+      "removedLines": [],
+      "ai": null
+    },
+    {
+      "id": "ev_au-wa-legislation-aspassed-atom_1r5klmdkcjp",
+      "sourceId": "au-wa-legislation-aspassed-atom",
+      "detectedAt": "2026-11-28T01:28:20.458Z",
+      "title": "WA legislation - all Acts as passed Atom feed changed",
+      "url": "https://www.legislation.wa.gov.au/legislation/statutes.nsf/aspassed.atom",
+      "summary": "4 lines added, 4 no longer there.",
+      "addedLines": [
+        "Civil Liability Amendment (Child Sexual Abuse Actions) Act 2026 | A147544:202611251445 | 2026-11-25T14:45:00.0000000+08:00",
+        "Fire and Emergency Services Superannuation Amendment Act 2026 | A147545:202611251445 | 2026-11-25T14:45:00.0000000+08:00",
+        "Petroleum Products Pricing Amendment Act 2026 | A147542:202611251445 | 2026-11-25T14:45:00.0000000+08:00",
+        "Police Amendment (Compensation Scheme) Act 2026 | A147543:202611251445 | 2026-11-25T14:45:00.0000000+08:00"
+      ],
+      "removedLines": [],
+      "ai": null
+    },
+    {
+      "id": "ev_au-qld-legislation-newbills-feed_1e99z7bv867",
+      "sourceId": "au-qld-legislation-newbills-feed",
+      "detectedAt": "2026-11-28T01:28:20.458Z",
+      "title": "Queensland legislation - new bills Atom feed changed",
+      "url": "https://www.legislation.qld.gov.au/feed?id=newbills",
+      "summary": "3 no longer there.",
+      "addedLines": [],
+      "removedLines": [],
+      "ai": null
+    },
+    {
+      "id": "ev_au-sa-cbs-news_1vbyvn04vqi",
+      "sourceId": "au-sa-cbs-news",
+      "detectedAt": "2026-11-28T01:28:20.458Z",
+      "title": "SA Consumer and Business Services - News changed",
+      "url": "https://www.cbs.sa.gov.au/news",
+      "summary": "14 lines added, 11 no longer there.",
+      "addedLines": [
+        "Dodgy builders hit with more than $530,000 in fines",
+        "CBS Updates - 27 November 2026",
+        "South Australia's building industry operators are on notice, with Consumer and Business Services (CBS) issuing more than $530,000 in expiations (fines) since March.",
+        "Renting & Letting Advice",
+        "Renting and domestic and family violence: Know your rights",
+        "Renting & Letting Advice",
+        "CBS Updates - 26 November 2026",
+        "Everyone has the right to feel safe in their home. If you're experiencing domestic or family violence, South Australia's residential tenancy laws provide options to help protect your safety.",
+        "SA will have toughest illegal tobacco penalties in the nation",
+        "Media Releases - 26 November 2026",
+        "South Australia is continuing to lead the nation in its crackdown on the illicit tobacco trade and for the first time illicit tobacco dealers will now face jail time of up to 17 years.",
+        "Ask for Angela: A simple signal. A safer venue."
+      ],
+      "removedLines": [],
+      "ai": null
+    },
     {
       "id": "ev_au-qld-rta-news_21oo5zxgxk1",
       "sourceId": "au-qld-rta-news",
